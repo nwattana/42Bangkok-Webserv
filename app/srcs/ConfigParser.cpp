@@ -6,14 +6,25 @@
 /*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 14:24:16 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2023/10/22 14:53:47 by kkaiyawo         ###   ########.fr       */
+/*   Updated: 2023/10/22 15:26:15 by kkaiyawo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ConfigParser.hpp"
 
+bool IsConfFile(const std::string& filename) {
+	if (filename.length() < 5)
+		return false;
+	std::string extension = filename.substr(filename.length() - 5);
+	return extension == ".conf";
+}
+
 ConfigParser::ConfigParser(string filename) : m_fileName(filename)
 {
+	if (!IsConfFile(m_fileName)) {
+		//error msg goes here
+		exitWithError("Wrong extension (must be .conf)", 0);
+	}
 	m_file.open(m_fileName);
 	if (!m_file.is_open())
 	{
@@ -34,11 +45,20 @@ ConfigParser::~ConfigParser()
 {
 }
 
+
+
+
+
+
 ConfigParser::ConfigParser() : m_fileName("srcs/webserv.conf")
 {
+	std::string filename = "nginx.conf";
+	if (!IsConfFile(filename)) {
+		//error msg goes here
+		exitWithError("Wrong extension (must be .conf)", 0);
+	}
 	m_file.open(m_fileName);
-	if (!m_file.is_open())
-	{
+	if (!m_file.is_open()) {
 		//error msg goes here
 		exitWithError("Error opening file", 0);
 	}

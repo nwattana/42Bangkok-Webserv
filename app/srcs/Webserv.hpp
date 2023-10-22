@@ -6,7 +6,7 @@
 /*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 14:35:33 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2023/10/22 14:43:21 by kkaiyawo         ###   ########.fr       */
+/*   Updated: 2023/10/22 15:21:06 by kkaiyawo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,10 @@ using std::cout;
 using std::endl;
 
 # include "ConfigParser.hpp"
+
+# ifndef EXIT_FAILURE
+#  define EXIT_FAILURE 1
+# endif
 
 void	exitWithError(string errorMessage, int mode);
 

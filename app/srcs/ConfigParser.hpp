@@ -6,7 +6,7 @@
 /*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 14:03:13 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2023/10/22 14:52:53 by kkaiyawo         ###   ########.fr       */
+/*   Updated: 2023/10/22 15:26:40 by kkaiyawo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,5 +28,7 @@ class ConfigParser {
 		string m_config;
 		fstream m_file;
 };
+
+bool IsConfFile(const std::string& filename);
 
 #endif
