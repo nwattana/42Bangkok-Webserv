@@ -17,16 +17,16 @@
 
 class ConfigParser {
 	public:
-		ConfigParser(string filename);
+		ConfigParser(std::string filename);
 		~ConfigParser();
 	private:
 		ConfigParser();
 		ConfigParser(ConfigParser const &src);
 		ConfigParser &operator=(ConfigParser const &rhs);
 
-		string m_fileName;
-		string m_config;
-		fstream m_file;
+		std::string m_fileName;
+		std::string m_config;
+		std::fstream m_file;
 };
 
 bool IsConfFile(const std::string& filename);

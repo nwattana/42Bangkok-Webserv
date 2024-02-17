@@ -19,26 +19,26 @@ bool IsConfFile(const std::string& filename) {
 	return extension == ".conf";
 }
 
-ConfigParser::ConfigParser(string filename) : m_fileName(filename)
+ConfigParser::ConfigParser(std::string filename) : m_fileName(filename)
 {
 	if (!IsConfFile(m_fileName)) {
 		//error msg goes here
 		exitWithError("Wrong extension (must be .conf)", 0);
 	}
-	m_file.open(m_fileName);
+	m_file.open(m_fileName.c_str());
 	if (!m_file.is_open())
 	{
 		//error msg goes here
 		exitWithError("Error opening file", 0);
 	}
-	string line;
+	std::string line;
 	while (std::getline(m_file, line))
 	{
 		m_config += line;
 		m_config += "\n";
 	}
 	m_file.close();
-	cout << m_config;
+	std::cout << m_config;
 }
 
 ConfigParser::~ConfigParser()
@@ -57,19 +57,19 @@ ConfigParser::ConfigParser() : m_fileName("srcs/webserv.conf")
 		//error msg goes here
 		exitWithError("Wrong extension (must be .conf)", 0);
 	}
-	m_file.open(m_fileName);
+	m_file.open(m_fileName.c_str());
 	if (!m_file.is_open()) {
 		//error msg goes here
 		exitWithError("Error opening file", 0);
 	}
-	string line;
+	std::string line;
 	while (std::getline(m_file, line))
 	{
 		m_config += line;
 		m_config += "\n";
 	}
 	m_file.close();
-	cout << m_config;
+	std::cout << m_config;
 }
 
 ConfigParser::ConfigParser(ConfigParser const &src)
