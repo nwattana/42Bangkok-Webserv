@@ -12,7 +12,7 @@
 
 #include "Webserv.hpp"
 
-void	exitWithError(string errorMessage, int mode)
+void	exitWithError(std::string errorMessage, int mode)
 {
 	// if (mode == 1)
 	// 	perror(errorMessage);

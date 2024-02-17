@@ -16,16 +16,8 @@
 # include <iostream>
 # include <fstream>
 # include <string>
-# include <vector>
-# include <map>
+# include <stdlib.h>
 
-using std::string;
-using std::vector;
-using std::map;
-using std::fstream;
-using std::cin;
-using std::cout;
-using std::endl;
 
 # include "ConfigParser.hpp"
 
@@ -33,6 +25,6 @@ using std::endl;
 #  define EXIT_FAILURE 1
 # endif
 
-void	exitWithError(string errorMessage, int mode);
+void	exitWithError(std::string errorMessage, int mode);
 
 #endif
