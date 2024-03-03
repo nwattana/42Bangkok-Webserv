@@ -16,14 +16,21 @@
 # include <iostream>
 # include <fstream>
 # include <string>
+# include <cstring>
 # include <stdlib.h>
-
+# include <cctype>
+# include <sstream>
+# include <map>
 
 # include "ConfigParser.hpp"
 
 # ifndef EXIT_FAILURE
 #  define EXIT_FAILURE 1
 # endif
+
+# define SERVER 1
+# define INDEX 2
+
 
 void	exitWithError(std::string errorMessage, int mode);
 
