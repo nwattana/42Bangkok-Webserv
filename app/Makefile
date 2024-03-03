@@ -8,21 +8,22 @@
 ################################################################################
 
 NAME        := webserv
-CC         := c++
-FLAGS    := -Wall -Wextra -Werror -std=c++98
+CXX         	:= c++
+# CFLAGS    	:= -Wall -Wextra -Werror -std=c++98
+INC_DIR    	:= $(shell find ./includes -type d)
 
 ################################################################################
 #                                 PROGRAM'S SRCS                               #
 ################################################################################
 
-SRCS        :=      srcs/ConfigParser.cpp \
-                          srcs/main.cpp \
-                          srcs/Webserv.cpp \
+DEPS		:= $(shell find ./includes/ -name "*.hpp")
+SRCS		:= $(shell find ./srcs/ -name "*.cpp")
+
 
 OBJS        := ${SRCS:.cpp=.o}
 
-.cpp.o:
-	${CC} ${FLAGS} -c $< -o ${<:.cpp=.o}
+.cpp.o: 
+	${CXX} ${CFLAGS} $(addprefix -I, $(INC_DIR)) -c $< -o ${<:.cpp=.o}
 
 ################################################################################
 #                                  Makefile  objs                              #
@@ -39,10 +40,13 @@ RM		    := rm -f
 
 ${NAME}:	${OBJS}
 			@echo "$(GREEN)Compilation ${CLR_RMV}of ${YELLOW}$(NAME) ${CLR_RMV}..."
-			${CC} ${FLAGS} -o ${NAME} ${OBJS}
+			${CXX} ${CFLAGS} -o ${NAME} ${OBJS}
 			@echo "$(GREEN)$(NAME) created[0m ✔️"
 
+
 all:		${NAME}
+
+${OBJS}:	${DEPS}
 
 bonus:		all
 
@@ -53,6 +57,10 @@ clean:
 fclean:		clean
 			@ ${RM} ${NAME}
 			@ echo "$(RED)Deleting $(CYAN)$(NAME) $(CLR_RMV)binary ✔️"
+
+# TODO remove me :D
+faster_way_compilation:   fclean
+			@make -j 4 all
 
 re:			fclean all
 
