@@ -20,10 +20,8 @@ int main(int argc, char **argv)
 		//error msg goes here
 		return (1);
 	}
-	std::string filename = (argc == 2) ? argv[1] : "srcs/webserv.conf";
+	std::string filename = (argc == 2) ? argv[1] : "webserv.conf";
 	ConfigParser config(filename);
-
-	
 
 	//read file
 	//parse file
