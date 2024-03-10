@@ -1,4 +1,4 @@
-#include "Location.hpp"
+#include "LocationBlock.hpp"
 #include "Webserv.hpp"
 
 LocationBlock::LocationBlock()
@@ -12,7 +12,7 @@ LocationBlock::LocationBlock()
 	// init empty vector to each key
 	for (size_t i = 0; i < 5; i++)
 	{
-		this->location_config[this->allow_directive[i]] = std::vector<std::string>();
+		this->location_configs[this->allow_directive[i]] = std::vector<std::string>();
 	}
 	this->_isSetDirective = NOTSET;
 	this->_isSetDirectiveArgument = NOTSET;
@@ -41,7 +41,7 @@ LocationBlock &LocationBlock::operator=(LocationBlock const &rhs)
 		this->_isEndConfig = rhs._isEndConfig;
 		this->_isOpenConfig = rhs._isOpenConfig;
 		this->_currentDirective = rhs._currentDirective;
-		this->location_config = rhs.location_config;
+		this->location_configs = rhs.location_configs;
 	}
 	return (*this);
 }
@@ -63,7 +63,7 @@ void LocationBlock::printConfig(void) const
 	std::vector<std::string> value;
 
 	std::cout << "\tLocation : \"" << this->_location_match << "\"" << std::endl;
-	for (it = this->location_config.begin(); it != this->location_config.end(); it++)
+	for (it = this->location_configs.begin(); it != this->location_configs.end(); it++)
 	{
 		std::cout << "\t\t" <<  it->first << " : ";
 		value = it->second;
@@ -126,7 +126,7 @@ int LocationBlock::isSetDirectiveArgument(void)
 
 int LocationBlock::setDirectiveArgument(std::string directive_argument)
 {
-	this->location_config[this->_currentDirective].push_back(directive_argument);
+	this->location_configs[this->_currentDirective].push_back(directive_argument);
 	this->_isSetDirectiveArgument = NOTSET;
 	return (SUCCESS);
 }

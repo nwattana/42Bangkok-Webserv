@@ -2,30 +2,14 @@
 #include "Webserv.hpp"
 
 ServerConfig::ServerConfig()
+	: allow_directive{"index", "listen", "server_name", "root", "method_allow", "directory_list", "client_max_size", "error_page"},
+	  current_set_directive(""),
+	  is_error(0),
+	  _isSetDirective(SET),
+	  _isDoneConfig(NOTSET),
+	  _isCloseConfig(NOTSET),
+	  _isEndDirective(NOTSET)
 {
-	this->allow_directive.push_back("index");
-	this->allow_directive.push_back("listen");
-	this->allow_directive.push_back("server_name");
-	this->allow_directive.push_back("root");
-	this->allow_directive.push_back("method_allow");
-	this->allow_directive.push_back("directory_list");
-	this->allow_directive.push_back("client_max_size");
-	this->allow_directive.push_back("error_page");
-
-	this->current_set_directive = std::string();
-
-	// create defualt map
-	for (size_t i = 0; i < this->allow_directive.size(); i++)
-	{
-		this->configs[this->allow_directive[i]] = std::vector<std::string>();
-	}
-
-	is_error = 0;
-	_isSetDirective = SET;
-	_isDoneConfig = NOTSET;
-	_isCloseConfig = NOTSET;
-	_isEndDirective = NOTSET;
-	printStringVector(this->allow_directive, ", ");
 }
 
 ServerConfig::~ServerConfig()
@@ -58,18 +42,18 @@ ServerConfig &ServerConfig::operator=(ServerConfig const &rhs)
 /// @brief print server config for debug purpose
 void ServerConfig::printServerConfig() const
 {
-	std::vector<std::string> value;
-	std::cout << "Server Configs" << std::endl;
-	for (size_t i = 0; i < this->allow_directive.size(); i++)
-	{
-		std::cout << this->allow_directive[i] << " : ";
-		value = this->configs.find(this->allow_directive[i])->second;
-		printStringVector(value, ", ");
-	}
-	for (size_t i = 0; i < this->location_config.size(); i++)
-	{
-		this->location_config[i].printConfig();
-	}
+    std::vector<std::string> value;
+    std::cout << "Server Configs" << std::endl;
+    for (std::vector<std::string>::const_iterator it = this->allow_directive.begin(); it != this->allow_directive.end(); ++it)
+    {
+        std::cout << *it << " : ";
+        value = this->configs.find(*it)->second;
+        printStringVector(value, ", ");
+    }
+    for (std::vector<LocationBlock>::const_iterator it = this->location_config.begin(); it != this->location_config.end(); ++it)
+    {
+        it->printConfig();
+    }
 }
 
 /// @brief  check if current directive is set STATE to recieve new argument

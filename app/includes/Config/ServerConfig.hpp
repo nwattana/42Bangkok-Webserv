@@ -1,5 +1,5 @@
 #pragma once
-#include "Location.hpp"
+#include "LocationBlock.hpp"
 #include <vector>
 #include <iostream>
 #include <string>
@@ -12,6 +12,7 @@ class ServerConfig
 		ServerConfig(ServerConfig const &src);
 		ServerConfig &operator=(ServerConfig const &rhs);
 
+		// SETUP
 		void printServerConfig(void) const;
 		int isGetArgument(void);
 		int isGetDirective(void);
@@ -19,7 +20,6 @@ class ServerConfig
 		int isCloseConfig(void);
 		int isEndDirective(void);
 		int isSetLocation(void);
-	
 		int toSetDirective(std::string str);
 		int setDirectiveArgument(std::string str);
 		int closeConfig(void);
@@ -30,8 +30,8 @@ class ServerConfig
 		std::vector<std::string> allow_directive;
 		std::map<std::string, std::vector<std::string>> configs;
 		std::vector<LocationBlock> location_config;
-
 		std::string current_set_directive;
+
 		short int is_error;
 		short int arguement_count;
 		short int _isSetDirective;

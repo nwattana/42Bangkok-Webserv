@@ -23,11 +23,11 @@ int main(int argc, char **argv)
 		return (1);
 	}
 	std::string filename = (argc == 2) ? argv[1] : "webserv.conf";
-	ConfigParser config(filename);
 
-	//read file
-	//parse file
+	ConfigParser config(filename);
+	config.printServerConfig();
 	//create server
+	
 	//run server
 	std::cout << "\nEnd program all Success\n" << std::endl;
 	return (0);
