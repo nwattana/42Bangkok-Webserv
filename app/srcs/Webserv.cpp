@@ -22,7 +22,6 @@ void	exitWithError(std::string errorMessage, int mode)
 }
 
 /// @brief string tok
-/// @return 
 std::vector<std::string> ft_split(std::string str, const char * delimiter_set)
 {
 	std::vector<std::string> result;
@@ -56,4 +55,19 @@ void printStringVector(std::vector<std::string> vec, std::string delimiter)
 		std::cout << vec[i] << delimiter;
 	}
 	std::cout << std::endl;
+}
+
+int findCharInString(std::string str, const char *c)
+{
+	if (c == NULL)
+		throw std::invalid_argument("Null pointer");
+	if (str.empty())
+		return 0;
+	while (*c)
+	{
+		if (str.find(*c) != std::string::npos)
+			return 1;
+		c++;
+	}
+	return 0;
 }
