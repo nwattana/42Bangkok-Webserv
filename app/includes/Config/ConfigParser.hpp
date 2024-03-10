@@ -14,29 +14,38 @@
 # define CONFIGPARSER_HPP
 
 # include "Webserv.hpp"
-# include "Server.hpp"
+# include "ServerConfig.hpp"
+# include "Location.hpp"
+
+# define OPEN_BRACKET 1
+# define CLOSE_BRACKET 0
 
 class ConfigParser {
 	public:
 		ConfigParser(std::string filename);
 		~ConfigParser();
+
 	private:
 		ConfigParser();
 		ConfigParser(ConfigParser const &src);
 		ConfigParser &operator=(ConfigParser const &rhs);
 
+		std::map<std::string, std::vector<std::string>> root_config;
+		std::vector<std::string> allow_directive;
+		std::vector<ServerConfig> server_config;
+
 		void read_file_config(void);
-		void get_server_config(void);
-		void check_config(void);
 		int is_allow_directive(std::string str);
-		void get_server();
 
 		std::string m_fileName;
 		std::string m_raw_config;
 		std::fstream m_file;
 		std::stringstream ss;
-		std::string top_lv_index;
-		int bracket;
+
+		int _isSetServer;
+		int _isSetLocation;
+		int server_bracket;
+		int location_bracket;
 };
 
 bool IsConfFile(const std::string& filename);

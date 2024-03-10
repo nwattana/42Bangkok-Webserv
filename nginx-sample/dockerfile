@@ -1,6 +1,7 @@
 FROM nginx
 COPY ./conf/nginx.conf /etc/nginx/conf.d/nginx.conf
 
-RUN apt update && apt install -y net-tools fish
+# RUN apt update && apt install -y net-tools fish
 
+# CMD ["nginx",  "-t"]
 CMD ["nginx", "-g", "daemon off;"]
