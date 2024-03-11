@@ -28,7 +28,7 @@ class ServerConfig
 
 	private:
 		std::vector<std::string> allow_directive;
-		std::map<std::string, std::vector<std::string>> configs;
+		std::map<std::string, std::vector<std::string> > configs;
 		std::vector<LocationBlock> location_config;
 		std::string current_set_directive;
 

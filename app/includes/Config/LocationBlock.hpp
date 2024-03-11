@@ -33,7 +33,7 @@ public:
 private:
 	std::string _location_match;
 	std::vector<std::string> allow_directive;
-	std::map<std::string, std::vector<std::string>> location_configs;
+	std::map<std::string, std::vector<std::string> > location_configs;
 
 	int _isSetDirective;
 	int _isSetDirectiveArgument;

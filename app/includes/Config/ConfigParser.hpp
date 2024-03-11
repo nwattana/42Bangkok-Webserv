@@ -6,7 +6,7 @@
 /*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 14:03:13 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2023/10/22 15:26:40 by kkaiyawo         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:38:31 by kkaiyawo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ private:
 	int _isSetLocation;
 	int server_bracket;
 	int location_bracket;
-	std::map<std::string, std::vector<std::string>> root_config;
+	std::map<std::string, std::vector<std::string> > root_config;
 	std::vector<std::string> allow_directive;
 	std::vector<ServerConfig> server_config;
 	std::string m_fileName;

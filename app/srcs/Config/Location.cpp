@@ -59,7 +59,7 @@ int LocationBlock::isAcceptedPath(std::string path)
 
 void LocationBlock::printConfig(void) const
 {
-	std::map<std::string, std::vector<std::string>>::const_iterator it;
+	std::map<std::string, std::vector<std::string> >::const_iterator it;
 	std::vector<std::string> value;
 
 	std::cout << "\tLocation : \"" << this->_location_match << "\"" << std::endl;

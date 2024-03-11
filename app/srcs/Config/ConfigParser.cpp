@@ -6,7 +6,7 @@
 /*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 14:24:16 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2023/10/22 15:26:15 by kkaiyawo         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:54:50 by kkaiyawo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ ConfigParser::ConfigParser(std::string filename) : m_fileName(filename)
 	if (!IsConfFile(m_fileName))
 	{
 		// error msg goes here
-		exitWithError("Wrong extension (must be .conf)", 0);
+		exitWithError("Wrong extension (must be .conf)", 1, 1);
 	}
 	try
 	{
@@ -55,7 +55,7 @@ ConfigParser::ConfigParser() : m_fileName("srcs/webserv.conf")
 	if (!IsConfFile(filename))
 	{
 		// error msg goes here
-		exitWithError("Wrong extension (must be .conf)", 0);
+		exitWithError("Wrong extension (must be .conf)", 1, 1);
 	}
 	this->read_file_config();
 }
@@ -88,7 +88,7 @@ void ConfigParser::read_file_config(void)
 	if (!m_file.is_open())
 	{
 		// error msg goes here
-		exitWithError("Error opening file", 0);
+		exitWithError("Error opening file", 1, 1);
 	}
 	while (std::getline(m_file, line))
 	{
