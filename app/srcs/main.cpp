@@ -6,7 +6,7 @@
 /*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 13:52:10 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2024/03/11 15:51:01 by kkaiyawo         ###   ########.fr       */
+/*   Updated: 2024/03/11 16:02:15 by kkaiyawo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 	sockaddr.sin_port = htons(8080);
 	sockaddr.sin_addr.s_addr = INADDR_ANY;
 	if ((bind(server_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr))) < 0) {
-		exitWithError("Error: unable to bind to port 8080", 1);
+		exitWithError("Error: unable to bind to port 9000", 1);
 	}
 
 	if ((listen(server_fd, 3)) < 0) {
@@ -49,18 +49,20 @@ int main(int argc, char **argv)
 		exitWithError("Error: unable to accept connection", 1);
 	}
 
-	char buffer[100];
+	int bufferSize = 30000;
+	char buffer[bufferSize];
 	int byteRead;
-	while ((byteRead = read(acceptedSocket, buffer, 100)) > 0) {
-		std::cout << "Message from client: " << buffer;
+	std::cout << "Message from client: " << std::endl;
+	if ((byteRead = read(acceptedSocket, buffer, bufferSize)) > 0) {
+		std::cout << buffer;
 	}
 	if (byteRead < 0) {
 		exitWithError("Error: unable to read from socket", 1);
 	}
 
 	std::string response = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
-	if (send(acceptedSocket, response.c_str(), response.length(), 0) < 0) {
-		exitWithError("Error: unable to send response", 1);
+	if (write(acceptedSocket, response.c_str(), response.length()) < 0) {
+		exitWithError("Error: unable to write to socket", 1);
 	}
 
 	close(acceptedSocket);
