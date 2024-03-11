@@ -44,11 +44,13 @@ private:
 	std::string m_raw_config;
 	std::fstream m_file;
 	std::stringstream ss;
+	ServerConfig tmp_server;
+	LocationBlock tmp_location;
 
 	int is_allow_directive(std::string str);
-	void processLocationBlock(std::vector<std::string>::iterator &it, LocationBlock &tmp_location, ServerConfig &tmp_server);
-	void processServerBlock(std::vector<std::string>::iterator &it, ServerConfig &tmp_server);
-	void handleBrackets(const std::string& token, ServerConfig& tmp_server);
+	void processLocationBlock(std::vector<std::string>::iterator &it);
+	void processServerBlock(std::vector<std::string>::iterator &it);
+	void handleBrackets(const std::string& token);
 	void read_file_config(void);
 };
 
