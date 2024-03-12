@@ -6,19 +6,18 @@
 /*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 14:36:56 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2023/10/22 14:45:02 by kkaiyawo         ###   ########.fr       */
+/*   Updated: 2024/03/11 15:05:15 by kkaiyawo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "Webserv.hpp"
 
-void	exitWithError(std::string errorMessage, int mode)
+void	exitWithError(std::string errorMessage, int mode, int errnum)
 {
-	// if (mode == 1)
-	// 	perror(errorMessage);
 	if (mode == 0)
-		std::cerr << errorMessage << std::endl;
-	exit(EXIT_FAILURE);
+		errorMessage = strerror(errnum);
+	std::cerr << errorMessage << std::endl;
+	exit(errnum);
 }
 
 /// @brief string tok

@@ -2,14 +2,21 @@
 #include "Webserv.hpp"
 
 ServerConfig::ServerConfig()
-	: allow_directive{"index", "listen", "server_name", "root", "method_allow", "directory_list", "client_max_size", "error_page"},
-	  current_set_directive(""),
+	// : allow_directive({"index", "listen", "server_name", "root", "method_allow", "directory_list", "client_max_size", "error_page"}),
+	  : current_set_directive(""),
 	  is_error(0),
 	  _isSetDirective(SET),
 	  _isDoneConfig(NOTSET),
 	  _isCloseConfig(NOTSET),
-	  _isEndDirective(NOTSET)
-{
+	  _isEndDirective(NOTSET) {
+		this->allow_directive.push_back("index");
+		this->allow_directive.push_back("listen");
+		this->allow_directive.push_back("server_name");
+		this->allow_directive.push_back("root");
+		this->allow_directive.push_back("method_allow");
+		this->allow_directive.push_back("directory_list");
+		this->allow_directive.push_back("client_max_size");
+		this->allow_directive.push_back("error_page");
 }
 
 ServerConfig::~ServerConfig()

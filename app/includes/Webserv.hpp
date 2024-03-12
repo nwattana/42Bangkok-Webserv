@@ -6,7 +6,7 @@
 /*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/10/22 14:35:33 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2023/10/22 15:21:06 by kkaiyawo         ###   ########.fr       */
+/*   Updated: 2024/03/11 14:55:22 by kkaiyawo         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,9 @@
 #include <sstream>
 #include <map>
 #include <vector>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
 #include "ConfigParser.hpp"
 #include "Constant.hpp"
 
@@ -32,7 +35,7 @@
 #define SERVER 1
 #define INDEX 2
 
-void 						exitWithError(std::string errorMessage, int mode);
+void						exitWithError(std::string errorMessage = "error", int mode = 0, int errnum = errno);
 void 						printStringVector(std::vector<std::string> vec, std::string delimiter);
 int 						findCharInString(std::string str, const char *c);
 std::string 				ft_strtrim(std::string str);
