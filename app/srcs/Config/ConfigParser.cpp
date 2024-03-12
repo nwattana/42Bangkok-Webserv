@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ConfigParser.cpp                                   :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/22 14:24:16 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2023/10/22 15:26:15 by kkaiyawo         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "ConfigParser.hpp"
 
 bool IsConfFile(const std::string &filename)
@@ -29,19 +17,18 @@ ConfigParser::ConfigParser(std::string filename) : m_fileName(filename)
 	if (!IsConfFile(m_fileName))
 	{
 		// error msg goes here
-		exitWithError("Wrong extension (must be .conf)", 0);
+		exitWithError("Wrong extension (must be .conf)", 1, 1);
 	}
 	try
 	{
 		this->read_file_config();
 		// this->get_server_config();
 	}
-	catch (std::exception& e)
+	catch (std::exception &e)
 	{
-		std::cerr << "Error Occured "<<e.what() << std::endl;
+		std::cerr << "Error Occured " << e.what() << std::endl;
 		exit(EXIT_FAILURE);
 	}
-
 }
 
 ConfigParser::~ConfigParser()
@@ -55,7 +42,7 @@ ConfigParser::ConfigParser() : m_fileName("srcs/webserv.conf")
 	if (!IsConfFile(filename))
 	{
 		// error msg goes here
-		exitWithError("Wrong extension (must be .conf)", 0);
+		exitWithError("Wrong extension (must be .conf)", 1, 1);
 	}
 	this->read_file_config();
 }
@@ -80,15 +67,13 @@ void ConfigParser::read_file_config(void)
 	std::string line;
 	std::vector<std::string> splited;
 	std::vector<std::string>::iterator it;
-	ServerConfig tmp_server;
-	LocationBlock tmp_location;
 	std::string line_trim;
 
 	m_file.open(m_fileName.c_str());
 	if (!m_file.is_open())
 	{
 		// error msg goes here
-		exitWithError("Error opening file", 0);
+		exitWithError("Error opening file", 1, 1);
 	}
 	while (std::getline(m_file, line))
 	{
@@ -101,13 +86,23 @@ void ConfigParser::read_file_config(void)
 		while (it != splited.end())
 		{
 			if (this->is_allow_directive(*it) == SERVER)
+			{
 				this->_isSetServer = SET;
+			}
 			else if (this->_isSetServer && this->_isSetLocation == NOTSET)
-				this->processServerBlock(it, tmp_server);
+			{
+				this->processServerBlock(it);
+			}
 			else if (this->_isSetLocation == SET)
-				this->processLocationBlock(it, tmp_location, tmp_server);
+			{
+				this->processLocationBlock(it);
+			}
 			else
-				std::cout << "Error" << std::endl;
+			{
+				std::cout << "Error config token : " << *it << std::endl;
+				// std::cout << this->_isSetLocation << " " << this->_isSetServer << std::endl;
+			}
+
 			it++;
 		}
 		// TODO: maybe have bug here
@@ -128,7 +123,6 @@ void ConfigParser::printServerConfig(void) const
 	}
 }
 
-
 // check top level directive
 int ConfigParser::is_allow_directive(std::string str)
 {
@@ -144,67 +138,77 @@ int ConfigParser::is_allow_directive(std::string str)
 	return (0);
 }
 
-
-void ConfigParser::processLocationBlock(std::vector<std::string>::iterator& it, LocationBlock& tmp_location, ServerConfig& tmp_server)
+void ConfigParser::processLocationBlock(std::vector<std::string>::iterator &it)
 {
-    // LOCATION HERE
-    if (tmp_location.isSetLocationMatch() == NOTSET)
-    {
-        if (tmp_location.isAcceptedPath(*it) == 0)
-            throw std::invalid_argument("Invalid location path");
-        tmp_location.setLocationMatch(*it);
-    }
-    else if (*it == "{")
-    {
-        tmp_location.openConfig();
-    }
-    else if (*it == "}")
-    {
-        tmp_location.closeConfig();
-        tmp_server.addLocationBlock(tmp_location);
-        tmp_location = LocationBlock();
-        this->_isSetLocation = NOTSET;
-    }
-    else if (tmp_location.isSetDirective())
-    {
-        tmp_location.checkDirective(*it);
-    }
-    else if (tmp_location.isSetDirectiveArgument())
-    {
-        tmp_location.setDirectiveArgument(*it);
-    }
+	// LOCATION HERE
+	if (tmp_location.isSetLocationMatch() == NOTSET)
+	{
+		if (tmp_location.isAcceptedPath(*it) == 0)
+			throw std::invalid_argument("Invalid location path");
+		tmp_location.setLocationMatch(*it);
+	}
+	else if (*it == "{")
+	{
+		tmp_location.openConfig();
+	}
+	else if (*it == "}")
+	{
+		tmp_location.closeConfig();
+		tmp_server.addLocationBlock(tmp_location);
+		tmp_location = LocationBlock();
+		this->_isSetLocation = NOTSET;
+	}
+	else if (tmp_location.isSetDirective())
+	{
+		tmp_location.checkDirective(*it);
+	}
+	else if (tmp_location.isSetDirectiveArgument())
+	{
+		tmp_location.setDirectiveArgument(*it);
+	}
 }
 
-
-void ConfigParser::processServerBlock(std::vector<std::string>::iterator& it, ServerConfig& tmp_server)
+void ConfigParser::processServerBlock(std::vector<std::string>::iterator &it)
 {
-    if (tmp_server.isGetDirective() && tmp_server.isAllowDirective(*it)) {
-        tmp_server.toSetDirective(*it);
-    } else if (this->_isSetLocation == NOTSET && *it == "location") {
-        this->_isSetLocation = SET;
-    } else if (tmp_server.isGetArgument()) {
-        tmp_server.setDirectiveArgument(*it);
-    } else if (*it == "{" || *it == "}") {
-        handleBrackets(*it, tmp_server);
-    } else {
-        std::cout << "Error token :| " << *it << " | " << std::endl;
-    }
+	if (tmp_server.isGetDirective() && tmp_server.isAllowDirective(*it))
+	{
+		tmp_server.toSetDirective(*it);
+	}
+	else if (this->_isSetLocation == NOTSET && *it == "location")
+	{
+		this->_isSetLocation = SET;
+	}
+	else if (tmp_server.isGetArgument())
+	{
+		tmp_server.setDirectiveArgument(*it);
+	}
+	else if (*it == "{" || *it == "}")
+	{
+		handleBrackets(*it);
+	}
+	else
+	{
+		std::cout << "Error token :| " << *it << " | " << std::endl;
+	}
 }
 
-void ConfigParser::handleBrackets(const std::string& token, ServerConfig& tmp_server)
+void ConfigParser::handleBrackets(const std::string &token)
 {
-    if (token == "{") {
-        this->server_bracket += 1;
-    } else if (token == "}") {
-        this->server_bracket -= 1;
-    }
-
-    if (this->server_bracket == 0) {
-        this->_isSetServer = 0;
-        tmp_server.closeConfig();
-        this->server_config.push_back(tmp_server);
-        tmp_server = ServerConfig();
-    }
+	if (token == "{")
+	{
+		this->server_bracket += 1;
+	}
+	else if (token == "}")
+	{
+		this->server_bracket -= 1;
+	}
+	if (this->server_bracket == 0)
+	{
+		this->_isSetServer = 0;
+		tmp_server.closeConfig();
+		this->server_config.push_back(tmp_server);
+		tmp_server = ServerConfig();
+	}
 }
 
 std::vector<ServerConfig> ConfigParser::getServerConfig(void) const

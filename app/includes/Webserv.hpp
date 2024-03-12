@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   Webserv.hpp                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: kkaiyawo <kkaiyawo@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/10/22 14:35:33 by kkaiyawo          #+#    #+#             */
-/*   Updated: 2023/10/22 15:21:06 by kkaiyawo         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef WEBSERV_HPP
 #define WEBSERV_HPP
 
@@ -22,8 +10,18 @@
 #include <sstream>
 #include <map>
 #include <vector>
+
+#include <sys/socket.h>
+
+#include <netinet/in.h>
+#include <unistd.h>
+
 #include "ConfigParser.hpp"
 #include "Constant.hpp"
+
+
+#include <sys/types.h>
+#include <netdb.h>
 
 #ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1
@@ -32,7 +30,7 @@
 #define SERVER 1
 #define INDEX 2
 
-void 						exitWithError(std::string errorMessage, int mode);
+void						exitWithError(std::string errorMessage = "error", int mode = 0, int errnum = errno);
 void 						printStringVector(std::vector<std::string> vec, std::string delimiter);
 int 						findCharInString(std::string str, const char *c);
 std::string 				ft_strtrim(std::string str);

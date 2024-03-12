@@ -22,7 +22,7 @@ SRCS		:= $(shell find ./srcs/ -name "*.cpp")
 
 OBJS        := ${SRCS:.cpp=.o}
 
-.cpp.o: 
+.cpp.o:
 	${CXX} ${CFLAGS} $(addprefix -I, $(INC_DIR)) -c $< -o ${<:.cpp=.o}
 
 ################################################################################
