@@ -22,11 +22,18 @@
 #include <sstream>
 #include <map>
 #include <vector>
+
 #include <sys/socket.h>
+
 #include <netinet/in.h>
 #include <unistd.h>
+
 #include "ConfigParser.hpp"
 #include "Constant.hpp"
+
+
+#include <sys/types.h>
+#include <netdb.h>
 
 #ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1
