@@ -7,6 +7,8 @@ Server::Server()
 	this->m_myAddr.sin_family = AF_INET;
 	this->m_myAddr.sin_port = htons(atoi(this->m_port.c_str()));
 	this->m_myAddr.sin_addr.s_addr = INADDR_ANY;
+
+	this->m_serverInfo = NULL;
 }
 
 Server::~Server()
@@ -30,27 +32,34 @@ Server &Server::operator=(Server const &rhs)
 int Server::connectServer(void)
 {
 	if (this->_setupServer() < 0) {
+		this->_closeServer();
 		exitWithError("Error: unable to setup server", 1);
 	}
-	this->_printAddressInfo();
+	this->_printAddressInfo(this->m_serverInfo);
 	if (this->_setupServer() < 0) {
+		this->_closeServer();
 		exitWithError("Error: unable to setup server", 1);
 	}
 	if (this->_createServer() < 0) {
+		this->_closeServer();
 		exitWithError("Error: unable to create a socket", 1);
 	}
 	if (this->_bindServer() < 0) {
+		this->_closeServer();
 		// std::string errorMsg = "Error: unable to bind to port " + this->m_port;
 		// exitWithError(errorMsg, 1);
 		exitWithError();
 	}
 	if (this->_listenServer() < 0) {
+		this->_closeServer();
 		exitWithError("Error: unable to listen", 1);
 	}
 	if (this->_acceptServer() < 0) {
+		this->_closeServer();
 		exitWithError("Error: unable to accept connection", 1);
 	}
 	if (this->_readServer() < 0) {
+		this->_closeServer();
 		exitWithError("Error: unable to read from socket", 1);
 	}
 	else {
@@ -60,13 +69,12 @@ int Server::connectServer(void)
 	//process message from server here
 	this->_generateResponse();
 	if (this->_writeServer() < 0) {
+		this->_closeServer();
 		exitWithError("Error: unable to write to socket", 1);
 	}
 	this->_printPeerName();
 	this->_printHostName();
-	if (this->_closeServer() < 0) {
-		exitWithError("Error: unable to close acceptedSocket", 1);
-	}
+	this->_closeServer();
 	return 0;
 }
 
@@ -81,47 +89,48 @@ int Server::_setupServer(void)
 	return getaddrinfo(NULL, port, &hints, &this->m_serverInfo);
 }
 
-void Server::_printAddressInfo(void)
+void Server::_printAddressInfo(struct addrinfo *p)
 {
 	char ipstr[INET6_ADDRSTRLEN];
 	void *addr;
 	std::string ipver;
 
-	while (this->m_serverInfo != NULL)
+	while (p != NULL)
 	{
 
 		// get the pointer to the address itself,
 		// different fields in IPv4 and IPv6:
-		if (this->m_serverInfo->ai_family == AF_INET) { // IPv4
-			struct sockaddr_in *ipv4 = (struct sockaddr_in *)this->m_serverInfo->ai_addr;
+		if (p->ai_family == AF_INET) { // IPv4
+			struct sockaddr_in *ipv4 = (struct sockaddr_in *)p->ai_addr;
 			addr = &(ipv4->sin_addr);
 			ipver="IPv4";
 		}
 		else { // IPv6
-			struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)this->m_serverInfo->ai_addr;
+			struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)p->ai_addr;
 			addr = &(ipv6->sin6_addr);
 			ipver="IPv6";
 		}
 
 		// convert the IP to a string and print it:
-		inet_ntop(this->m_serverInfo->ai_family, addr, ipstr, sizeof(ipstr));
+		inet_ntop(p->ai_family, addr, ipstr, sizeof(ipstr));
 		std::cout << "  " << ipver << ": " << ipstr << std::endl;
 
 		// show content in struct
-		std::cout << "  ai_family: " << this->m_serverInfo->ai_family << std::endl;
-		std::cout << "  ai_socktype: " << this->m_serverInfo->ai_socktype << std::endl;
-		std::cout << "  ai_protocol: " << this->m_serverInfo->ai_protocol << std::endl;
-		std::cout << "  ai_addrlen: " << this->m_serverInfo->ai_addrlen << std::endl;
-		// std::cout << "  ai_canonname: " << this->m_serverInfo->ai_canonname << std::endl;
-		std::cout << "  ai_addr: " << this->m_serverInfo->ai_addr << std::endl;
-		std::cout << "  ai_next: " << this->m_serverInfo->ai_next << std::endl;
-		this->m_serverInfo = this->m_serverInfo->ai_next;
+		std::cout << "  ai_family: " << p->ai_family << std::endl;
+		std::cout << "  ai_socktype: " << p->ai_socktype << std::endl;
+		std::cout << "  ai_protocol: " << p->ai_protocol << std::endl;
+		std::cout << "  ai_addrlen: " << p->ai_addrlen << std::endl;
+		// std::cout << "  ai_canonname: " << p->ai_canonname << std::endl;
+		std::cout << "  ai_addr: " << p->ai_addr << std::endl;
+		std::cout << "  ai_next: " << p->ai_next << std::endl;
+		p = p->ai_next;
 	}
 }
 
 int Server::_createServer(void)
 {
 	this->m_sockfd = socket(this->m_serverInfo->ai_family, this->m_serverInfo->ai_socktype, this->m_serverInfo->ai_protocol);
+	this->m_openedfd.push_back(this->m_sockfd);
 	return this->m_sockfd;
 }
 
@@ -139,6 +148,7 @@ int Server::_acceptServer(void)
 {
 	socklen_t addr_size = sizeof(this->m_theirAddr);
 	this->m_acceptfd = accept(this->m_sockfd, (struct sockaddr *)&this->m_theirAddr, &addr_size);
+	this->m_openedfd.push_back(this->m_acceptfd);
 	return this->m_acceptfd;
 }
 
@@ -178,8 +188,13 @@ int Server::_printHostName(void) {
 
 int Server::_closeServer(void)
 {
-	close(this->m_acceptfd);
-	close(this->m_sockfd);
-	freeaddrinfo(this->m_serverInfo);
+	if (this->m_serverInfo != NULL)
+		freeaddrinfo(this->m_serverInfo);
+	for (int i = 0; i < this->m_openedfd.size(); i++) {
+		if (this->m_openedfd[i] > 2)
+			close(this->m_openedfd[i]);
+	}
+	// close(this->m_acceptfd);
+	// close(this->m_sockfd);
 	return 0;
 }

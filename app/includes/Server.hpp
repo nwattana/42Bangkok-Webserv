@@ -21,9 +21,10 @@ class Server {
 		struct sockaddr_storage m_theirAddr;
 		char m_readBuffer[30001];
 		std::string m_writeBuffer;
+		std::vector<int> m_openedfd;
 
 		int _setupServer(void);
-		void _printAddressInfo(void);
+		void _printAddressInfo(struct addrinfo *p);
 		int _createServer(void);
 		int _bindServer(void);
 		int _listenServer(void);
