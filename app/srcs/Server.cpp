@@ -9,6 +9,8 @@ Server::Server()
 	this->m_myAddr.sin_addr.s_addr = INADDR_ANY;
 
 	this->m_serverInfo = NULL;
+
+	FD_ZERO(&this->m_socketSet);
 }
 
 Server::~Server()
@@ -35,45 +37,28 @@ int Server::connectServer(void)
 		this->_closeServer();
 		exitWithError("Error: unable to setup server", 1);
 	}
+	printLog("Server setup successfully");
 	this->_printAddressInfo(this->m_serverInfo);
-	if (this->_setupServer() < 0) {
-		this->_closeServer();
-		exitWithError("Error: unable to setup server", 1);
-	}
-	if (this->_createServer() < 0) {
+	if (this->_createSocket() < 0) {
 		this->_closeServer();
 		exitWithError("Error: unable to create a socket", 1);
 	}
-	if (this->_bindServer() < 0) {
+	printLog("Socket created successfully");
+	if (this->_bindAddress() < 0) {
 		this->_closeServer();
 		// std::string errorMsg = "Error: unable to bind to port " + this->m_port;
 		// exitWithError(errorMsg, 1);
 		exitWithError();
 	}
-	if (this->_listenServer() < 0) {
+	printLog("Binded to port " + this->m_port);
+	if (this->_listenSocket() < 0) {
 		this->_closeServer();
 		exitWithError("Error: unable to listen", 1);
 	}
-	if (this->_acceptServer() < 0) {
-		this->_closeServer();
-		exitWithError("Error: unable to accept connection", 1);
-	}
-	if (this->_readServer() < 0) {
-		this->_closeServer();
-		exitWithError("Error: unable to read from socket", 1);
-	}
-	else {
-		std::cout << "====== Message from client ======" << "\n";
-		std::cout << this->m_readBuffer;
-	}
-	//process message from server here
-	this->_generateResponse();
-	if (this->_writeServer() < 0) {
-		this->_closeServer();
-		exitWithError("Error: unable to write to socket", 1);
-	}
-	this->_printPeerName();
-	this->_printHostName();
+	printLog("Listening on port " + this->m_port);
+
+	this->_handleConnection();
+
 	this->_closeServer();
 	return 0;
 }
@@ -127,48 +112,116 @@ void Server::_printAddressInfo(struct addrinfo *p)
 	}
 }
 
-int Server::_createServer(void)
+#include <string> // Include the <string> header
+
+int Server::_createSocket(void)
 {
+	int yes = 1;
 	this->m_sockfd = socket(this->m_serverInfo->ai_family, this->m_serverInfo->ai_socktype, this->m_serverInfo->ai_protocol);
-	this->m_openedfd.push_back(this->m_sockfd);
+	this->m_fdList.push_back(this->m_sockfd);
+	sort(this->m_fdList.begin(), this->m_fdList.end());
+	fcntl(this->m_sockfd, F_SETFL, O_NONBLOCK);
+	setsockopt(this->m_sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
+	printLog("Socket created successfully at fd " + (this->m_sockfd));
 	return this->m_sockfd;
 }
 
-int Server::_bindServer(void)
+int Server::_bindAddress(void)
 {
 	return bind(this->m_sockfd, (struct sockaddr *)&this->m_myAddr, sizeof(this->m_myAddr));
 }
 
-int Server::_listenServer(void)
+int Server::_listenSocket(void)
 {
-	return listen(this->m_sockfd, 10);
+	int result = listen(this->m_sockfd, 10);
+	FD_SET(this->m_sockfd, &this->m_socketSet);
+	return result;
 }
 
-int Server::_acceptServer(void)
+int Server::_handleConnection(void)
+{
+	fd_set readfds;
+	FD_ZERO(&readfds);
+
+	for (;;) {
+		readfds = this->m_socketSet;
+		int fdMax = this->m_fdList.back() + 1;
+		std::cout << fdMax << std::endl;
+		struct timeval tv;
+		tv.tv_sec = 10;
+		tv.tv_usec = 0;
+		if (select(FD_SETSIZE, &readfds, NULL, NULL, &tv) < 0) {
+			this->_closeServer();
+			exitWithError("Error: unable to select", 1);
+		}
+
+		for (int i = 0; i <= FD_SETSIZE; i++) {
+			if (FD_ISSET(i, &readfds)) {
+				printLog("Found Connection on fd " + i);
+				if (i == this->m_sockfd) {
+					if (this->_acceptConnection() < 0) {
+						this->_closeServer();
+						exitWithError("Error: unable to accept connection", 1);
+					}
+					this->_printPeerName();
+					this->_printHostName();
+				}
+				else {
+					if (this->_readSocket(i) <= 0) {
+						std::cerr << "Error: unable to read from socket " << i << std::endl;
+						close(i);
+						this->m_fdList.erase(std::find(this->m_fdList.begin(), this->m_fdList.end(), i));
+						FD_CLR(i, &this->m_socketSet);
+						continue;
+						// this->_closeServer();
+						// exitWithError("Error: unable to read from socket", 1);
+					}
+					printLog("Message from client");
+					std::cout << this->m_readBuffer;
+					this->_generateResponse();
+					if (this->_writeSocket(i) < 0) {
+						this->_closeServer();
+						exitWithError("Error: unable to write to socket", 1);
+					}
+					// this->m_fdList.erase(std::find(this->m_fdList.begin(), this->m_fdList.end(), this->m_acceptfd));
+					// close(this->m_acceptfd);
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+int Server::_acceptConnection(void)
 {
 	socklen_t addr_size = sizeof(this->m_theirAddr);
 	this->m_acceptfd = accept(this->m_sockfd, (struct sockaddr *)&this->m_theirAddr, &addr_size);
-	this->m_openedfd.push_back(this->m_acceptfd);
+	if (this->m_acceptfd < 0)
+		return -1;
+	this->m_fdList.push_back(this->m_acceptfd);
+	sort(this->m_fdList.begin(), this->m_fdList.end());
+	FD_SET(this->m_acceptfd, &this->m_socketSet);
+	printLog("Accepted connection on socket " + this->m_acceptfd);
 	return this->m_acceptfd;
 }
 
-int Server::_readServer(void)
+int Server::_readSocket(int sockfd)
 {
 	int bytesRead;
-	bytesRead = recv(this->m_acceptfd, this->m_readBuffer, 30000, 0);
+	bytesRead = recv(sockfd, this->m_readBuffer, 30000, 0);
 	this->m_readBuffer[bytesRead] = '\0';
 	return bytesRead;
 }
 
 int Server::_generateResponse(void)
 {
-	this->m_writeBuffer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!";
+	this->m_writeBuffer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
 	return 0;
 }
 
-int Server::_writeServer(void)
+int Server::_writeSocket(int sockfd)
 {
-	return send(this->m_acceptfd, this->m_writeBuffer.c_str(), this->m_writeBuffer.length(), 0);
+	return send(sockfd, this->m_writeBuffer.c_str(), this->m_writeBuffer.length(), 0);
 }
 
 int Server::_printPeerName(void) {
@@ -190,11 +243,17 @@ int Server::_closeServer(void)
 {
 	if (this->m_serverInfo != NULL)
 		freeaddrinfo(this->m_serverInfo);
-	for (int i = 0; i < this->m_openedfd.size(); i++) {
-		if (this->m_openedfd[i] > 2)
-			close(this->m_openedfd[i]);
+	for (int i = 0; i < (int) this->m_fdList.size(); i++) {
+		if (this->m_fdList[i] > 2)
+			close(this->m_fdList[i]);
 	}
 	// close(this->m_acceptfd);
 	// close(this->m_sockfd);
 	return 0;
+}
+
+void printLog(std::string message)
+{
+	if (LOG)
+		std::cout << "========= " << message << " =========\n";
 }
