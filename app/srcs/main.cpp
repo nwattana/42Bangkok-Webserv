@@ -12,7 +12,7 @@ int creat_server_v1(void)
 	sockaddr.sin_port = htons(8081);
 	sockaddr.sin_addr.s_addr = INADDR_ANY;
 	int res;
-	if (res = (bind(server_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr))) < 0)
+	if ((res = bind(server_fd, (struct sockaddr *)&sockaddr, sizeof(sockaddr))) < 0)
 	{
 		std::cout << "res: " << res << std::endl;
 		exitWithError("Error: unable to bind to port 9000", 1);
@@ -211,7 +211,10 @@ int main(int argc, char **argv)
 	//create server
 
 	// creat_server_v1();
-	create_server_v2();
+	// create_server_v2();
+	// Server server;
+	Server server(config.getServerConfig()[0]);
+	server.connectServer();
 	return (0);
 }
 

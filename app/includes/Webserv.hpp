@@ -18,6 +18,7 @@
 
 #include "ConfigParser.hpp"
 #include "Constant.hpp"
+#include "Server.hpp"
 
 
 #include <sys/types.h>

@@ -26,6 +26,14 @@ class ServerConfig
 		int endDirective(void);
 		int addLocationBlock(LocationBlock location);
 
+		//pls just let me get config info easily TT
+		std::vector<std::string> getConfig(std::string directive) {
+			if (this->configs.find(directive) != this->configs.end())
+				return this->configs.find(directive)->second;
+			else
+				return std::vector<std::string>(0);
+		}
+
 	private:
 		std::vector<std::string> allow_directive;
 		std::map<std::string, std::vector<std::string> > configs;

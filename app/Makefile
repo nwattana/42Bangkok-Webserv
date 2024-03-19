@@ -9,7 +9,7 @@
 
 NAME        := webserv
 CXX         	:= c++
-# CFLAGS    	:= -Wall -Wextra -Werror -std=c++98
+CFLAGS    	:= -Wall -Wextra -Werror -std=c++98
 INC_DIR    	:= $(shell find ./includes -type d)
 
 ################################################################################
@@ -63,6 +63,9 @@ faster_way_compilation:   fclean
 			@make -j 4 all
 
 re:			fclean all
+
+test:		all
+			@./${NAME}
 
 .PHONY:		all clean fclean re
 
