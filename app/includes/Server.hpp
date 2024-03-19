@@ -28,6 +28,7 @@ class Server {
 		int m_sockfd;
 		int m_acceptfd;
 		std::string m_port;
+		std::string m_ServerName;
 		struct addrinfo *m_serverInfo;
 		struct sockaddr_in m_myAddr;
 		struct sockaddr_storage m_theirAddr;

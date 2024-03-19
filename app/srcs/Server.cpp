@@ -3,6 +3,7 @@
 Server::Server()
 {
 	this->m_port = "8080";
+	this->m_ServerName = "localhost";
 
 	this->m_myAddr.sin_family = AF_INET;
 	this->m_myAddr.sin_port = htons(atoi(this->m_port.c_str()));
@@ -17,6 +18,8 @@ Server::Server(ServerConfig serverConfig)
 {
 	this->m_port = serverConfig.getConfig("listen")[0];
 	std::cout << "Port: " << this->m_port << std::endl;
+	this->m_ServerName = serverConfig.getConfig("server_name")[0];
+	std::cout << "Server Name: " << this->m_ServerName << std::endl;
 
 	this->m_myAddr.sin_family = AF_INET;
 	this->m_myAddr.sin_port = htons(atoi(this->m_port.c_str()));
@@ -85,7 +88,10 @@ int Server::_setupServer(void)
 	hints.ai_family = AF_UNSPEC; // use AF_INET6 to force IPv6
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE; // use my IP
-	return getaddrinfo(NULL, port, &hints, &this->m_serverInfo);
+	if (this->m_ServerName == "localhost")
+		return getaddrinfo(NULL, port, &hints, &this->m_serverInfo);
+	else
+		return getaddrinfo(this->m_ServerName.c_str(), port, &hints, &this->m_serverInfo);
 }
 
 void Server::_printAddressInfo(struct addrinfo *p)
