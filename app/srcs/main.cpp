@@ -212,7 +212,8 @@ int main(int argc, char **argv)
 
 	// creat_server_v1();
 	// create_server_v2();
-	Server server;
+	// Server server;
+	Server server(config.getServerConfig()[0]);
 	server.connectServer();
 	return (0);
 }

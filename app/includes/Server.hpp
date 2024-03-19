@@ -9,6 +9,7 @@
 # include <arpa/inet.h>
 # include <netdb.h>
 # include <algorithm>
+# include "ServerConfig.hpp"
 
 # ifndef LOG
 #  define LOG 0
@@ -17,6 +18,7 @@
 class Server {
 	public:
 		Server();
+		Server(ServerConfig serverConfig);
 		~Server();
 		Server(Server const &src);
 		Server &operator=(Server const &rhs);

@@ -13,6 +13,20 @@ Server::Server()
 	FD_ZERO(&this->m_socketSet);
 }
 
+Server::Server(ServerConfig serverConfig)
+{
+	this->m_port = serverConfig.getConfig("listen")[0];
+	std::cout << "Port: " << this->m_port << std::endl;
+
+	this->m_myAddr.sin_family = AF_INET;
+	this->m_myAddr.sin_port = htons(atoi(this->m_port.c_str()));
+	this->m_myAddr.sin_addr.s_addr = INADDR_ANY;
+
+	this->m_serverInfo = NULL;
+
+	FD_ZERO(&this->m_socketSet);
+}
+
 Server::~Server()
 {
 }
