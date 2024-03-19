@@ -1,4 +1,5 @@
 #include "Webserv.hpp"
+#include <arpa/inet.h>
 
 int creat_server_v1(void)
 {
@@ -60,45 +61,44 @@ int creat_server_v1(void)
 	return (0);
 }
 
-#include <arpa/inet.h>
-void printAddressInfo(struct addrinfo *p)
-{
-	char ipstr[INET6_ADDRSTRLEN];
-	void *addr;
-	std::string ipver;
-	struct addrinfo *serverinfo = p; // will point to the results
+// void printAddressInfo(struct addrinfo *p)
+// {
+// 	char ipstr[INET6_ADDRSTRLEN];
+// 	void *addr;
+// 	std::string ipver;
+// 	struct addrinfo *serverinfo = p; // will point to the results
 
-	while (serverinfo != NULL)
-	{
+// 	while (serverinfo != NULL)
+// 	{
 
-		// get the pointer to the address itself,
-		// different fields in IPv4 and IPv6:
-		if (serverinfo->ai_family == AF_INET) { // IPv4
-			struct sockaddr_in *ipv4 = (struct sockaddr_in *)serverinfo->ai_addr;
-			addr = &(ipv4->sin_addr);
-			ipver="IPv4";
-		}
-		else { // IPv6
-			struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)serverinfo->ai_addr;
-			addr = &(ipv6->sin6_addr);
-			ipver="IPv6";
-		}
+// 		// get the pointer to the address itself,
+// 		// different fields in IPv4 and IPv6:
+// 		if (serverinfo->ai_family == AF_INET) { // IPv4
+// 			struct sockaddr_in *ipv4 = (struct sockaddr_in *)serverinfo->ai_addr;
+// 			addr = &(ipv4->sin_addr);
+// 			ipver="IPv4";
+// 		}
+// 		else { // IPv6
+// 			struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)serverinfo->ai_addr;
+// 			addr = &(ipv6->sin6_addr);
+// 			ipver="IPv6";
+// 		}
 
-		// convert the IP to a string and print it:
-		inet_ntop(serverinfo->ai_family, addr, ipstr, sizeof(ipstr));
-		std::cout << "  " << ipver << ": " << ipstr << std::endl;
+// 		// convert the IP to a string and print it:
+// 		inet_ntop(serverinfo->ai_family, addr, ipstr, sizeof(ipstr));
+// 		std::cout << "  " << ipver << ": " << ipstr << std::endl;
 
-		// show content in struct
-		std::cout << "  ai_family: " << serverinfo->ai_family << std::endl;
-		std::cout << "  ai_socktype: " << serverinfo->ai_socktype << std::endl;
-		std::cout << "  ai_protocol: " << serverinfo->ai_protocol << std::endl;
-		std::cout << "  ai_addrlen: " << serverinfo->ai_addrlen << std::endl;
-		// std::cout << "  ai_canonname: " << serverinfo->ai_canonname << std::endl;
-		std::cout << "  ai_addr: " << serverinfo->ai_addr << std::endl;
-		std::cout << "  ai_next: " << serverinfo->ai_next << std::endl;
-		serverinfo = serverinfo->ai_next;
-	}
-}
+// 		// show content in struct
+// 		std::cout << "  ai_family: " << serverinfo->ai_family << std::endl;
+// 		std::cout << "  ai_socktype: " << serverinfo->ai_socktype << std::endl;
+// 		std::cout << "  ai_protocol: " << serverinfo->ai_protocol << std::endl;
+// 		std::cout << "  ai_addrlen: " << serverinfo->ai_addrlen << std::endl;
+// 		// std::cout << "  ai_canonname: " << serverinfo->ai_canonname << std::endl;
+// 		std::cout << "  ai_addr: " << serverinfo->ai_addr << std::endl;
+// 		std::cout << "  ai_next: " << serverinfo->ai_next << std::endl;
+// 		serverinfo = serverinfo->ai_next;
+// 	}
+// }
 
 // ใช้ Recv และ Send แทน Read และ Write
 int create_server_v2(void)
@@ -211,7 +211,16 @@ int main(int argc, char **argv)
 	//create server
 
 	// creat_server_v1();
-	create_server_v2();
+	// create_server_v2();
+	ServerCluster cluster;
+	SelectServer server1("8080");
+
+	server1.setupServer();
+	cluster.addServer(server1);
+	cluster.run();
+	
+
+
 	return (0);
 }
 

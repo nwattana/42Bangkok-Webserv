@@ -18,6 +18,7 @@
 
 #include "ConfigParser.hpp"
 #include "Constant.hpp"
+#include "ServerCluster.hpp"
 
 
 #include <sys/types.h>
@@ -35,5 +36,5 @@ void 						printStringVector(std::vector<std::string> vec, std::string delimiter
 int 						findCharInString(std::string str, const char *c);
 std::string 				ft_strtrim(std::string str);
 std::vector<std::string> 	ft_split(std::string str, const char *delimiter);
-
+void printAddressInfo(struct addrinfo *p);
 #endif
