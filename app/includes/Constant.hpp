@@ -43,3 +43,15 @@
 #define L_UPLOAD_FILE 7
 #define L_UPLOAD_PATH 8
 #define L_METHOD_ALLOW 9
+
+/*
+* Http Method
+*/
+#define GET 1
+#define POST 2
+#define PUT 4
+#define DELETE 8
+#define HEAD 16
+#define OPTIONS 32
+#define TRACE 64
+#define CONNECT 128
