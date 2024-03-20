@@ -183,3 +183,12 @@ std::string LocationBlock::get_directive_str(int directive) const
 		return ("");
 	}
 }
+
+std::vector<std::string> LocationBlock::getConfig(int directive) const
+{
+	std::map<int, std::vector<std::string> >::const_iterator it;
+	it = this->location_configs.find(directive);
+	if (it == this->location_configs.end())
+		return (std::vector<std::string>());
+	return (it->second);
+}
