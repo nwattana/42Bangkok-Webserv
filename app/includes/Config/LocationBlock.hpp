@@ -33,6 +33,8 @@ public:
 	int set_current_directive(std::string directive);
 	std::string get_directive_str(int directive) const;
 
+	std::vector<std::string> getConfig(int directive) const;
+
 private:
 	std::string _location_match;
 	std::map<int, std::vector<std::string> > location_configs;
