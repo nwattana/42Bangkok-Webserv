@@ -128,12 +128,12 @@ int ConfigParser::is_allow_directive(std::string str)
 {
 	if (str == "server")
 	{
-		return (SERVER);
+		return (1);
 	}
 	if (str == "server{")
 	{
 		this->server_bracket += 1;
-		return (SERVER);
+		return (1);
 	}
 	return (0);
 }
