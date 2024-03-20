@@ -85,7 +85,7 @@ void ConfigParser::read_file_config(void)
 		std::size_t i = 0;
 		while (i < splited.size())
 		{
-			if (this->is_allow_directive(splited[i]) == SERVER)
+			if (this->is_allow_directive(splited[i]) == 1)
 			{
 				this->_isSetServer = SET;
 			}
