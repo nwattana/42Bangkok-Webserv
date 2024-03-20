@@ -16,9 +16,9 @@ Server::Server()
 
 Server::Server(ServerConfig serverConfig)
 {
-	this->m_port = serverConfig.getConfig("listen")[0];
+	this->m_port = serverConfig.getConfig(S_LISTEN)[0];
 	std::cout << "Port: " << this->m_port << std::endl;
-	this->m_ServerName = serverConfig.getConfig("server_name")[0];
+	this->m_ServerName = serverConfig.getConfig(S_SERVER_NAME)[0];
 	std::cout << "Server Name: " << this->m_ServerName << std::endl;
 
 	this->m_myAddr.sin_family = AF_INET;
