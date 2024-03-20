@@ -9,7 +9,9 @@
 
 NAME        := webserv
 CXX         	:= c++
-CFLAGS    	:= -Wall -Wextra -Werror -std=c++98
+# SANITIZE	:= -fsanitize=address
+# GDB			:= -g
+CFLAGS    	:= -Wall -Wextra -Werror -std=c++98 $(GDB) $(SANITIZE)
 INC_DIR    	:= $(shell find ./includes -type d)
 
 ################################################################################

@@ -37,6 +37,11 @@ std::string ft_strtrim(std::string str)
 
 void printStringVector(std::vector<std::string> vec, std::string delimiter)
 {
+	if (vec.empty())
+	{
+		std::cout << "[Empty vector]" << std::endl;
+		return;
+	}
 	for (size_t i = 0; i < vec.size(); i++)
 	{
 		std::cout << vec[i] << delimiter;

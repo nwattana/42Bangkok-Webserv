@@ -27,20 +27,22 @@ public:
 	int isSetLocationMatch(void);
 	int isAcceptedPath(std::string path);
 	int isSetDirective(void);
-	int checkDirective(std::string directive);
 	int endDirective(void);
+
+	int check_directive(std::string directive);
+	int set_current_directive(std::string directive);
+	std::string get_directive_str(int directive) const;
 
 private:
 	std::string _location_match;
-	std::vector<std::string> allow_directive;
-	std::map<std::string, std::vector<std::string> > location_configs;
+	std::map<int, std::vector<std::string> > location_configs;
 
 	int _isSetDirective;
 	int _isSetDirectiveArgument;
 	int _isSetLocationMatch;
 	int _isEndConfig;
 	int _isOpenConfig;
-	std::string _currentDirective;
+	int _currentDirective;
 };
 
 // std::ostream &operator<<(std::ostream &os, const LocationBlock &rhs);

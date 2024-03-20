@@ -16,35 +16,33 @@ class ServerConfig
 		void printServerConfig(void) const;
 		int isGetArgument(void);
 		int isGetDirective(void);
-		int isAllowDirective(std::string str);
 		int isCloseConfig(void);
 		int isEndDirective(void);
 		int isSetLocation(void);
-		int toSetDirective(std::string str);
+		int toSetDirective(int directive);
 		int setDirectiveArgument(std::string str);
 		int closeConfig(void);
 		int endDirective(void);
 		int addLocationBlock(LocationBlock location);
 
+		int check_directive(std::string str);
+
 		//pls just let me get config info easily TT
-		std::vector<std::string> getConfig(std::string directive) {
-			if (this->configs.find(directive) != this->configs.end())
-				return this->configs.find(directive)->second;
-			else
-				return std::vector<std::string>(0);
-		}
+		std::vector<std::string> getConfig(int directive);
+		// std::string get_directive_string(int directive);
 
 	private:
-		std::vector<std::string> allow_directive;
-		std::map<std::string, std::vector<std::string> > configs;
+		// std::vector<std::string> allow_directive;
+		std::map<int, std::vector<std::string> > configs;
 		std::vector<LocationBlock> location_config;
-		std::string current_set_directive;
+		int current_set_directive;
 
 		short int is_error;
-		short int arguement_count;
+		short int argument_count;
 		short int _isSetDirective;
 		short int _isDoneConfig;
 		short int _isSetLocation;
 		short int _isCloseConfig;
 		short int _isEndDirective;
 };
+

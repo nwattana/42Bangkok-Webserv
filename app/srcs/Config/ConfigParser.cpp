@@ -82,28 +82,28 @@ void ConfigParser::read_file_config(void)
 			continue;
 		splited = ft_split(line_trim, "\t\r\n\v\f 	");
 		it = splited.begin();
-
-		while (it != splited.end())
+		std::size_t i = 0;
+		while (i < splited.size())
 		{
-			if (this->is_allow_directive(*it) == SERVER)
+			if (this->is_allow_directive(splited[i]) == SERVER)
 			{
 				this->_isSetServer = SET;
 			}
 			else if (this->_isSetServer && this->_isSetLocation == NOTSET)
 			{
-				this->processServerBlock(it);
+				this->processServerBlock(splited[i]);
 			}
 			else if (this->_isSetLocation == SET)
 			{
-				this->processLocationBlock(it);
+				this->processLocationBlock(splited[i]);
 			}
 			else
 			{
-				std::cout << "Error config token : " << *it << std::endl;
+				std::cout << "Error config token : " << splited[i] << std::endl;
 				// std::cout << this->_isSetLocation << " " << this->_isSetServer << std::endl;
+				std::cout <<"Flow control state (sever, location) (" <<this->_isSetServer << "," << this->_isSetLocation <<")"<< std::endl;
 			}
-
-			it++;
+			i++;
 		}
 		// TODO: maybe have bug here
 		tmp_server.endDirective();
@@ -116,21 +116,21 @@ void ConfigParser::read_file_config(void)
 
 void ConfigParser::printServerConfig(void) const
 {
-	for (size_t i = 0; i < this->server_config.size(); i++)
+	for (size_t i = 0; i < server_config.size(); i++)
 	{
 		std::cout << "Server " << i << std::endl;
-		this->server_config[i].printServerConfig();
+		server_config[i].printServerConfig();
 	}
 }
 
 // check top level directive
 int ConfigParser::is_allow_directive(std::string str)
 {
-	if (str.compare("server") == 0)
+	if (str == "server")
 	{
 		return (SERVER);
 	}
-	if (str.compare("server{") == 0)
+	if (str == "server{")
 	{
 		this->server_bracket += 1;
 		return (SERVER);
@@ -138,57 +138,72 @@ int ConfigParser::is_allow_directive(std::string str)
 	return (0);
 }
 
-void ConfigParser::processLocationBlock(std::vector<std::string>::iterator &it)
+void ConfigParser::processLocationBlock(std::string token)
 {
 	// LOCATION HERE
 	if (tmp_location.isSetLocationMatch() == NOTSET)
 	{
-		if (tmp_location.isAcceptedPath(*it) == 0)
+		if (tmp_location.isAcceptedPath(token) == 0)
 			throw std::invalid_argument("Invalid location path");
-		tmp_location.setLocationMatch(*it);
+		tmp_location.setLocationMatch(token);
 	}
-	else if (*it == "{")
+	else if (token == "{")
 	{
 		tmp_location.openConfig();
 	}
-	else if (*it == "}")
+	else if (token == "}")
 	{
 		tmp_location.closeConfig();
 		tmp_server.addLocationBlock(tmp_location);
 		tmp_location = LocationBlock();
 		this->_isSetLocation = NOTSET;
 	}
-	else if (tmp_location.isSetDirective())
+	else if (tmp_location.isSetDirective() && tmp_location.check_directive(token) > 0)
 	{
-		tmp_location.checkDirective(*it);
+		tmp_location.set_current_directive(token);
 	}
 	else if (tmp_location.isSetDirectiveArgument())
 	{
-		tmp_location.setDirectiveArgument(*it);
+		tmp_location.setDirectiveArgument(token);
+	}
+	else
+	{
+		// print other state
+		std::cout << "Error token :| " << token << " | " << std::endl;
 	}
 }
 
-void ConfigParser::processServerBlock(std::vector<std::string>::iterator &it)
+void ConfigParser::processServerBlock(std::string token)
 {
-	if (tmp_server.isGetDirective() && tmp_server.isAllowDirective(*it))
+	int directive;
+	if (tmp_server.isGetDirective() && tmp_server.check_directive(token) != 0)
 	{
-		tmp_server.toSetDirective(*it);
+		directive = tmp_server.check_directive(token);
+		if (directive == 0)
+		{
+			std::cout << "Error directive : " << token << std::endl;
+			throw std::invalid_argument("Invalid directive");
+		}
+		else
+		{
+			tmp_server.toSetDirective(directive);
+		}
 	}
-	else if (this->_isSetLocation == NOTSET && *it == "location")
+	else if (this->_isSetLocation == NOTSET && token == "location")
 	{
 		this->_isSetLocation = SET;
 	}
 	else if (tmp_server.isGetArgument())
 	{
-		tmp_server.setDirectiveArgument(*it);
+		tmp_server.setDirectiveArgument(token);
 	}
-	else if (*it == "{" || *it == "}")
+	else if (token == "{" || token == "}")
 	{
-		handleBrackets(*it);
+		handleBrackets(token);
 	}
 	else
 	{
-		std::cout << "Error token :| " << *it << " | " << std::endl;
+		std::cout << "Error token :| " << token << " | " << std::endl;
 	}
 }
 

@@ -12,7 +12,6 @@
 #include <vector>
 
 #include <sys/socket.h>
-
 #include <netinet/in.h>
 #include <unistd.h>
 
@@ -28,8 +27,6 @@
 #define EXIT_FAILURE 1
 #endif
 
-#define SERVER 1
-#define INDEX 2
 
 void						exitWithError(std::string errorMessage = "error", int mode = 0, int errnum = errno);
 void 						printStringVector(std::vector<std::string> vec, std::string delimiter);
