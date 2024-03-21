@@ -12,6 +12,15 @@ class LocationRule{
 		~LocationRule();
 
 		void printSetting(void) const;
+
+		bool operator>(LocationRule const &rhs);
+		bool operator<(LocationRule const &rhs);
+		bool operator==(LocationRule const &rhs);
+
+		int get_depth(void) const;
+		bool match_uri_path(std::string uri) const;
+
+
 	private:
 		LocationRule();
 

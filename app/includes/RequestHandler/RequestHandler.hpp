@@ -31,6 +31,9 @@ public:
 	void read_requst(std::string request);
 
 private:
+
+	LocationRule *_find_location_rule(std::string uri);
+	int _request_serializer(Request &request);
 	int _allowed_method;
 	std::vector<LocationRule *> _locations_rules;
 	std::string _root_dir;

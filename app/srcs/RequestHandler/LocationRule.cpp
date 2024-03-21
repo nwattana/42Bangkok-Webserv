@@ -47,6 +47,26 @@ void LocationRule::_set_up_default()
 	_cgi_bin = "./";
 }
 
+bool LocationRule::operator>(LocationRule const &rhs)
+{
+	return (this->_depth > rhs.get_depth());
+}
+
+bool LocationRule::operator<(LocationRule const &rhs)
+{
+	return (this->_depth < rhs.get_depth());
+}
+
+bool LocationRule::operator==(LocationRule const &rhs)
+{
+	return (this->_depth == rhs.get_depth());
+}
+
+int LocationRule::get_depth(void) const
+{
+	return _depth;
+}
+
 void LocationRule::printSetting(void) const
 {
 	std::cout << "LocationRule::printSetting" << std::endl;
@@ -60,4 +80,11 @@ void LocationRule::printSetting(void) const
 	std::cout << "\t\tallow_upload: " << _allow_upload << std::endl;
 	std::cout << "\t\tupload_path: " << _upload_path << std::endl;
 	std::cout << "\t\tcgi_bin: " << _cgi_bin << std::endl;
+}
+
+bool LocationRule::match_uri_path(std::string uri) const
+{
+	if (uri.find(_handle_route) == 0)
+		return true;
+	return false;
 }

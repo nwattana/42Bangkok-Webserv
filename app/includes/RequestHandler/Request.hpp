@@ -49,6 +49,9 @@ public:
 
 	std::string raw_request(void);
 
+	int get_method(void);
+	std::string get_uri(void);
+
 private:
 	Request();
 
@@ -58,6 +61,10 @@ private:
 	std::string _body;
 	int _method;
 	std::string _uri;
+
+	std::string _path_to_resource;
+	std::string _resource;
+
 	std::string _version;
 
 	void _parse_request_line(std::string line);

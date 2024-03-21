@@ -57,13 +57,6 @@ int RequestHandler::read_request(std::string request)
 	std::stringstream ss;
 	std::string methode, uri, version;
 
-	// Raw Request
-	// std::cout << "====================" << std::endl;
-	// std::cout << "RequestHandler::read_request" << std::endl;
-	// std::cout << "====================" << std::endl;
-	// std::cout << "Request : " << request << std::endl;
-	// std::cout << "====================" << std::endl;
-
 	// seperate header and body
 	int seperator = request.find("\r\n\r\n");
 	if (seperator == -1)
@@ -76,7 +69,9 @@ int RequestHandler::read_request(std::string request)
 	std::string body = request.substr(seperator + 4);
 	// Create Request object
 	Request req(header, body);
-	req.printSetting();
+	req.printSetting(); 
+	_request_serializer(req);
+
 
 	return 0;
 }
@@ -105,3 +100,36 @@ void RequestHandler::printSetting(void) const
 	}
 }
 
+int RequestHandler::_request_serializer(Request &request)
+{
+	std::string uri = request.get_uri();
+	LocationRule *rule = _find_location_rule(uri);
+
+	std::cout << "RequestHandler::_request_serializer : uri : " << uri << std::endl;
+	if (rule == NULL)
+	{
+		std::cerr << "RequestHandler::_request_serializer : no location rule found" << std::endl;
+		return -1;
+	}
+	// rule->printSetting();
+
+	return 0;
+}
+
+
+LocationRule *RequestHandler::_find_location_rule(std::string uri)
+{
+	LocationRule *rule, *res;
+	// for each location rule, check if uri match and most depth
+
+	for (std::vector<LocationRule *>::iterator it = _locations_rules.begin(); it != _locations_rules.end(); it++)
+	{
+		rule = *it;
+		if (rule->match_uri_path(uri))
+		{
+			if (res == NULL || *res < *rule)
+				res = rule;
+		}
+	}
+	return res;
+}
