@@ -16,11 +16,12 @@ int main(int argc, char **argv, char **envp)
 	std::cout << "=============== Connecting to http://localhost:8080/ ===============" << std::endl;
 	//create server
 
-	// creat_server_v1();
-	// create_server_v2();
-	// Server server;
-	Server server(config.getServerConfig()[0]);
-	server.connectServer();
+
+	ServerManager serverManager(config.getServerConfig());
+	serverManager.setupServer();
+	serverManager.handleConnection();
+	serverManager.closeAll();
+
 	return (0);
 }
 

@@ -1,29 +1,29 @@
 #ifndef CFILEMANAGER_HPP
 #define CFILEMANAGER_HPP
 
-#include "Cfile.hpp"
+#include "MySocket.hpp"
 #include <map>
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
-class CfileManager{
+class MySocketManager{
 	public:
-		CfileManager();
-		~CfileManager();
-		CfileManager(CfileManager const &src);
-		CfileManager &operator=(CfileManager const &rhs);
+		MySocketManager();
+		~MySocketManager();
+		MySocketManager(MySocketManager const &src);
+		MySocketManager &operator=(MySocketManager const &rhs);
 
-		Cfile get(int fd);
-		void add(int fd, bool isOpen, bool isSocket);
+		MySocket* get(int fd);
+		void add(MySocket* socketPtr);
 		void remove(int fd);
-		int toggleOpen(int fd, bool toOpen=true);
 		int closeAll(void);
 		int tryRecv(int fd, const char *buffer, size_t size, int flags);
 		int trySend(int fd, const char *buffer, size_t size, int flags);
 		int getMaxFd(void);
 
 	private:
-		std::map<int, Cfile> m_cfileList;
+		std::map<int, MySocket* > m_socketList;
 };
 
 #endif
