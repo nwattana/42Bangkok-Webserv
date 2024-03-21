@@ -11,6 +11,7 @@
 # include <netdb.h>
 # include <algorithm>
 # include <string> // Include the <string> header
+# include "RequestHandler.hpp"
 
 # ifndef LOG
 #  define LOG 0
@@ -22,7 +23,6 @@
 
 class Server {
 	public:
-		Server();
 		Server(ServerConfig serverConfig);
 		~Server();
 		Server(Server const &src);
@@ -34,10 +34,14 @@ class Server {
 		int acceptConnection(void);
 		int communicate(int sockfd);
 		int closeServer(void);
+
 	private:
+		Server();
 		std::string m_port;
 		std::string m_ServerName;
 		struct addrinfo *m_serverInfo;
+
+		RequestHandler *m_requestHandler;
 
 		MySocketManager m_sockMan;
 		MySocket *m_listener;

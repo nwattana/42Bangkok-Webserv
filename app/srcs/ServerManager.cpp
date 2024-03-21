@@ -30,9 +30,7 @@ ServerManager &ServerManager::operator=(ServerManager const &rhs)
 
 ServerManager::~ServerManager()
 {
-	for (size_t i = 0; i < this->m_serverList.size(); i++) {
-		delete this->m_serverList[i];
-	}
+	closeAll();
 }
 
 int ServerManager::setupServer(void)

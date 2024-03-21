@@ -24,6 +24,8 @@ Server::Server(ServerConfig serverConfig) {
 	this->m_listener->m_myAddr.sin_port = htons(atoi(this->m_port.c_str()));
 	this->m_listener->m_myAddr.sin_addr.s_addr = INADDR_ANY;
 
+	m_requestHandler = new RequestHandler(serverConfig);
+
 	// this->m_serverInfo = NULL;
 }
 
@@ -188,7 +190,8 @@ int Server::communicate(int sockfd)
 		return sockfd;
 	}
 	printLog("Message from client");
-	std::cout << this->m_readBuffer;
+	// std::cout << this->m_readBuffer;
+	m_requestHandler->read_request(this->m_readBuffer);
 	this->_generateResponse();
 	if (this->_writeSocket(sockfd) < 0) {
 		std::cerr << "Error: unable to write to socket " << sockfd << std::endl;
@@ -210,6 +213,9 @@ int Server::_readSocket(int sockfd)
 int Server::_generateResponse(void)
 {
 	this->m_writeBuffer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
+
+	// this->m_writeBuffer = response.getResponse();
+	
 	return 0;
 }
 
@@ -238,6 +244,7 @@ int Server::closeServer(void)
 	if (this->m_serverInfo != NULL)
 		freeaddrinfo(this->m_serverInfo);
 	this->m_sockMan.closeAll();
+	delete this->m_requestHandler;
 	// close(this->m_acceptfd);
 	// close(this->m_sockfd);
 	return 0;

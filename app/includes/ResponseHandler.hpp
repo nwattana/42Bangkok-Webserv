@@ -24,5 +24,3 @@ class ResponseHandler {
 		void setStatusCode(int status_code);
 		void setBody(std::string body);
 };
-
-

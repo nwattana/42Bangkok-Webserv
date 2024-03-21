@@ -21,7 +21,7 @@
 #include "ConfigParser.hpp"
 #include "Constant.hpp"
 #include "ServerManager.hpp"
-// #include "RequestHandler.hpp"
+#include "RequestHandler.hpp"
 #include "ResponseHandler.hpp"
 #include "utils.hpp"
 
