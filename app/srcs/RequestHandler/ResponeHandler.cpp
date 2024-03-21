@@ -64,4 +64,3 @@ void ResponseHandler::setStatusCode(int status_code)
 	_status_code = status_code;
 	_status_line = _version + " " + SSTR(_status_code) + " " + getReasonPhrase(_status_code) + "\r\n";
 }
-
