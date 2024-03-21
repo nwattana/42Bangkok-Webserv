@@ -7,7 +7,7 @@
  * cgi_file - which file to execute if the request is a cgi request -> default is not set
  * cgi_pass - which file to execute if the request is a cgi request -> default is not set
  * method_allow - which methods are allowed -> default is GET, POST
-*/
+ */
 LocationBlock::LocationBlock()
 {
 	this->_isSetDirective = NOTSET;
@@ -124,7 +124,6 @@ int LocationBlock::endDirective(void)
 	return (SUCCESS);
 }
 
-
 int LocationBlock::set_current_directive(std::string str)
 {
 	int directive = check_directive(str);
@@ -189,11 +188,27 @@ std::string LocationBlock::get_directive_str(int directive) const
 	}
 }
 
+/**
+ * @brief Retrieves the configuration for a given directive.
+ * 
+ * This function returns the configuration associated with the specified directive.
+ * If the directive is found in the map of configurations, the corresponding vector
+ * of strings is returned. Otherwise, a ConfigNotFoundException is thrown.
+ * 
+ * @param directive The directive to retrieve the configuration for.
+ * @return The configuration associated with the directive.
+ * @throws ConfigNotFoundException if the directive is not found.
+ */
 std::vector<std::string> LocationBlock::getConfig(int directive) const
 {
 	std::map<int, std::vector<std::string> >::const_iterator it;
 	it = this->location_configs.find(directive);
 	if (it == this->location_configs.end())
-		return (std::vector<std::string>());
+		throw ConfigNotFoundException("Config not found \"" + get_directive_str(directive) + "\"");
 	return (it->second);
+}
+
+std::string LocationBlock::getLocationMatch(void) const
+{
+	return (this->_location_match);
 }
