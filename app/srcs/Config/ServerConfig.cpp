@@ -104,7 +104,7 @@ int ServerConfig::setDirectiveArgument(std::string str)
 int ServerConfig::closeConfig(void)
 {
 	// this->printServerConfig();
-	// TODO Check parsed completly set and all valid
+	// NOTE Check parsed completly set and all valid
 	// check if default value is set is not set set default value
 	_isDoneConfig = SET;
 	return (1);
@@ -131,7 +131,7 @@ int ServerConfig::endDirective()
 /// @brief check is current directive is done
 int ServerConfig::isEndDirective()
 {
-	// TODO if close before done should throw error
+	// NOTE if close before done should throw error
 	return (this->_isEndDirective == SET);
 }
 

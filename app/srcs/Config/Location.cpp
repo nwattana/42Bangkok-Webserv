@@ -104,7 +104,6 @@ int LocationBlock::isSetDirective(void)
 	return this->_isSetDirective == SET;
 }
 
-// TODO ไม่เข้า add location directive
 int LocationBlock::isSetDirectiveArgument(void)
 {
 	return this->_isSetDirectiveArgument == SET;

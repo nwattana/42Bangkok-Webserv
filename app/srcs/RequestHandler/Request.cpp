@@ -109,7 +109,7 @@ std::string Request::get_header(std::string key)
 	{
 		return it->second[0];
 	}
-	throw std::invalid_argument("Request::get_header : key not found");
+	throw std::invalid_argument("Request::get_header : key not found \"" + key + "\"");
 }
 
 std::string Request::get_body(void)

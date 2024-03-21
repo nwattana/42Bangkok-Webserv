@@ -43,23 +43,27 @@ class LocationRule{
 	private:
 
 		void _set_up_default();
-
-		std::string _handle_route;
 		std::string _full_path;
-		// std::string _dir_path;
-		std::string _root_dir;
-		std::string _cgi_bin;
+
 		int _depth;
-		int _allow_method;
-		int _allow_upload;
+		std::string _handle_route;
+
+		std::string _root_dir;
+
 		int _cgi_handle;
+		std::string _cgi_bin;
+		
+		int _allow_method;
+
+		int _allow_upload;
 		std::string _upload_path;
 
 		void _set_handle_route(LocationBlock block);
 		// void _set_dir_path(LocationBlock block, std::string server_dir);
 		void _set_root_dir(LocationBlock block, std::string server_dir);
 		void _set_cgi_bin(LocationBlock block, std::string server_dir);
-
+		void _set_depth();
 		void _set_allow_method(LocationBlock block);
 		void _set_upload(LocationBlock block);
+		void _set_cgi(LocationBlock block, std::string server_dir);
 };
