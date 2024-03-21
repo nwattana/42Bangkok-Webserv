@@ -1,4 +1,4 @@
-#include "Server.hpp"
+#include "../includes/Server.hpp"
 
 Server::Server()
 {
@@ -19,7 +19,7 @@ Server::Server(ServerConfig serverConfig)
 	this->m_port = serverConfig.getConfig(S_LISTEN)[0];
 	std::cout << "Port: " << this->m_port << std::endl;
 	this->m_ServerName = serverConfig.getConfig(S_SERVER_NAME)[0];
-	std::cout << "Server Name: " << this->m_ServerName << std::endl;
+	std::cout << "Server Name: " << this->m_ServerName.c_str() << std::endl;
 
 	this->m_myAddr.sin_family = AF_INET;
 	this->m_myAddr.sin_port = htons(atoi(this->m_port.c_str()));
@@ -83,15 +83,21 @@ int Server::connectServer(void)
 int Server::_setupServer(void)
 {
 	struct addrinfo hints;
-	char *port = (char *)this->m_port.c_str();
+	char *serverName;
+	if (this->m_ServerName == "localhost")
+		serverName = "127.0.0.1";
+	else
+		serverName = (char *) this->m_ServerName.c_str();
+	const char *port = this->m_port.c_str();
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC; // use AF_INET6 to force IPv6
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE; // use my IP
-	if (this->m_ServerName == "localhost")
-		return getaddrinfo(NULL, port, &hints, &this->m_serverInfo);
-	else
-		return getaddrinfo(this->m_ServerName.c_str(), port, &hints, &this->m_serverInfo);
+	return getaddrinfo(serverName, port, &hints, &this->m_serverInfo);
+	// if (this->m_ServerName == "localhost")
+	// 	return getaddrinfo(NULL, port, &hints, &this->m_serverInfo);
+	// else
+	// 	return getaddrinfo(serverName, port, &hints, &this->m_serverInfo);
 }
 
 void Server::_printAddressInfo(struct addrinfo *p)
@@ -132,23 +138,22 @@ void Server::_printAddressInfo(struct addrinfo *p)
 	}
 }
 
-#include <string> // Include the <string> header
-
 int Server::_createSocket(void)
 {
 	int yes = 1;
 	this->m_sockfd = socket(this->m_serverInfo->ai_family, this->m_serverInfo->ai_socktype, this->m_serverInfo->ai_protocol);
-	this->m_fdList.push_back(this->m_sockfd);
-	sort(this->m_fdList.begin(), this->m_fdList.end());
+	this->m_cfileMan.add(this->m_sockfd, true, true);
 	fcntl(this->m_sockfd, F_SETFL, O_NONBLOCK);
 	setsockopt(this->m_sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
-	printLog("Socket created successfully at fd " + (this->m_sockfd));
+	printLog("Socket created with fd " + SSTR(this->m_sockfd));
 	return this->m_sockfd;
 }
 
 int Server::_bindAddress(void)
 {
-	return bind(this->m_sockfd, (struct sockaddr *)&this->m_myAddr, sizeof(this->m_myAddr));
+	std::cout << "Binding to fd " << this->m_sockfd << std::endl;
+	// return bind(this->m_sockfd, (struct sockaddr *)&this->m_myAddr, sizeof(this->m_myAddr));
+	return bind(this->m_sockfd, this->m_serverInfo->ai_addr, this->m_serverInfo->ai_addrlen);
 }
 
 int Server::_listenSocket(void)
@@ -165,8 +170,6 @@ int Server::_handleConnection(void)
 
 	for (;;) {
 		readfds = this->m_socketSet;
-		int fdMax = this->m_fdList.back() + 1;
-		std::cout << fdMax << std::endl;
 		struct timeval tv;
 		tv.tv_sec = 10;
 		tv.tv_usec = 0;
@@ -177,7 +180,7 @@ int Server::_handleConnection(void)
 
 		for (int i = 0; i <= FD_SETSIZE; i++) {
 			if (FD_ISSET(i, &readfds)) {
-				printLog("Found Connection on fd " + i);
+				printLog("Found Connection on fd " + SSTR(i));
 				if (i == this->m_sockfd) {
 					if (this->_acceptConnection() < 0) {
 						this->_closeServer();
@@ -189,12 +192,9 @@ int Server::_handleConnection(void)
 				else {
 					if (this->_readSocket(i) <= 0) {
 						std::cerr << "Error: unable to read from socket " << i << std::endl;
-						close(i);
-						this->m_fdList.erase(std::find(this->m_fdList.begin(), this->m_fdList.end(), i));
+						this->m_cfileMan.remove(i);
 						FD_CLR(i, &this->m_socketSet);
 						continue;
-						// this->_closeServer();
-						// exitWithError("Error: unable to read from socket", 1);
 					}
 					printLog("Message from client");
 					std::cout << this->m_readBuffer;
@@ -203,8 +203,6 @@ int Server::_handleConnection(void)
 						this->_closeServer();
 						exitWithError("Error: unable to write to socket", 1);
 					}
-					// this->m_fdList.erase(std::find(this->m_fdList.begin(), this->m_fdList.end(), this->m_acceptfd));
-					// close(this->m_acceptfd);
 				}
 			}
 		}
@@ -218,10 +216,9 @@ int Server::_acceptConnection(void)
 	this->m_acceptfd = accept(this->m_sockfd, (struct sockaddr *)&this->m_theirAddr, &addr_size);
 	if (this->m_acceptfd < 0)
 		return -1;
-	this->m_fdList.push_back(this->m_acceptfd);
-	sort(this->m_fdList.begin(), this->m_fdList.end());
+	this->m_cfileMan.add(this->m_acceptfd, true, true);
 	FD_SET(this->m_acceptfd, &this->m_socketSet);
-	printLog("Accepted connection on socket " + this->m_acceptfd);
+	printLog("Accepted connection on socket " + SSTR(this->m_acceptfd));
 	return this->m_acceptfd;
 }
 
@@ -263,10 +260,7 @@ int Server::_closeServer(void)
 {
 	if (this->m_serverInfo != NULL)
 		freeaddrinfo(this->m_serverInfo);
-	for (int i = 0; i < (int) this->m_fdList.size(); i++) {
-		if (this->m_fdList[i] > 2)
-			close(this->m_fdList[i]);
-	}
+	this->m_cfileMan.closeAll();
 	// close(this->m_acceptfd);
 	// close(this->m_sockfd);
 	return 0;

@@ -1,15 +1,17 @@
-#pragma once
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
 # include "Webserv.hpp"
+# include "ServerConfig.hpp"
+# include "CfileManager.hpp"
+# include "utils.hpp"
 # include <fcntl.h>
 # include <sys/select.h>
 # include <sys/time.h>
 # include <arpa/inet.h>
 # include <netdb.h>
 # include <algorithm>
-# include "ServerConfig.hpp"
+# include <string> // Include the <string> header
 
 # ifndef LOG
 #  define LOG 0
@@ -35,7 +37,7 @@ class Server {
 		fd_set m_socketSet;
 		char m_readBuffer[30001];
 		std::string m_writeBuffer;
-		std::vector<int> m_fdList;
+		CfileManager m_cfileMan;
 
 		int _setupServer(void);
 		void _printAddressInfo(struct addrinfo *p);
