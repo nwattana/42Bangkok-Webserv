@@ -3,6 +3,8 @@
 def handle_call():
 	# print env
 	import os
+	import sys
+	print("argv: ", sys.argv)
 	print(os.environ)
 	
 

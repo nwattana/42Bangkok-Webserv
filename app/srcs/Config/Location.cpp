@@ -140,22 +140,23 @@ int LocationBlock::set_current_directive(std::string str)
 
 int LocationBlock::check_directive(std::string directive)
 {
-	if (directive == "allow")
-		return (L_ALLOW);
-	else if (directive == "deny")
-		return (L_DENY);
-	else if (directive == "autoindex")
-		return (L_AUTOINDEX);
+
+	if (directive == "method_allow")
+		return (L_METHOD_ALLOW);
 	else if (directive == "error_page")
 		return (L_ERROR_PAGE);
-	else if (directive == "client_max_size")
-		return (L_CLIENT_MAX_SIZE);
 	else if (directive == "upload_file")
 		return (L_UPLOAD_FILE);
 	else if (directive == "upload_path")
 		return (L_UPLOAD_PATH);
-	else if (directive == "method_allow")
-		return (L_METHOD_ALLOW);
+	else if (directive == "root_dir")
+		return (L_ROOT_DIR);
+	else if (directive == "cgi_handle")
+		return (L_CGI_HANDLER);
+	else if (directive == "cgi_path")
+		return (L_CGI_PATH);
+	else if (directive == "auto_index")
+		return (L_AUTOINDEX);
 	return (0);
 }
 
@@ -163,8 +164,12 @@ std::string LocationBlock::get_directive_str(int directive) const
 {
 	switch (directive)
 	{
-	case L_ALLOW:
-		return ("allow");
+	case L_ROOT_DIR:
+		return ("root_dir");
+	case L_CGI_HANDLER:
+		return ("cgi_handle");
+	case L_CGI_PATH:
+		return ("cgi_path");
 	case L_DENY:
 		return ("deny");
 	case L_AUTOINDEX:
