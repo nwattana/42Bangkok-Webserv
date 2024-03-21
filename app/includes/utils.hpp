@@ -31,3 +31,7 @@ std::string execute_cgi(int argc, char *argv[], char * const * envp);
 
 int allow_method_parser(std::string allow_method);
 int allow_method_str_to_int(std::string method);
+
+
+std::string method_allow_to_string(int method);
+

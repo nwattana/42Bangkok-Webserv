@@ -161,7 +161,7 @@ std::vector<std::string> ServerConfig::getConfig(int directive)
 	}
 	if (it != this->configs.end())
 		return it->second;
-	throw std::runtime_error("Error: Directive not found");
+	throw std::runtime_error("Error: Directive not found \"" + get_directive_string(directive) +"\"" + SSTR(directive));
 }
 
 int ServerConfig::check_directive(std::string str)
@@ -178,7 +178,7 @@ int ServerConfig::check_directive(std::string str)
 	{
 		return (S_SERVER_NAME);
 	}
-	else if (str == "root")
+	else if (str == "root_dir")
 	{
 		return (S_ROOT);
 	}
@@ -186,9 +186,9 @@ int ServerConfig::check_directive(std::string str)
 	{
 		return (S_METHOD_ALLOW);
 	}
-	else if (str == "directory_list")
+	else if (str == "auto_index")
 	{
-		return (S_DIRECTORY_LIST);
+		return (S_AUTO_INDEX);
 	}
 	else if (str == "client_max_size")
 	{
@@ -223,11 +223,11 @@ std::string get_directive_string(int directive)
 	case S_SERVER_NAME:
 		return "server_name";
 	case S_ROOT:
-		return "root";
+		return "root_dir";
 	case S_METHOD_ALLOW:
 		return "method_allow";
-	case S_DIRECTORY_LIST:
-		return "directory_list";
+	case S_AUTO_INDEX:
+		return "auto_index";
 	case S_CLIENT_MAX_SIZE:
 		return "client_max_size";
 	case S_ERROR_PAGE:
@@ -239,4 +239,9 @@ std::string get_directive_string(int directive)
 	default:
 		return "unknown";
 	}
+}
+
+std::vector<LocationBlock>  ServerConfig::getLocationConfig(void)
+{
+	return (this->location_config);
 }

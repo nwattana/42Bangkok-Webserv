@@ -24,6 +24,7 @@ class ServerConfig
 		int closeConfig(void);
 		int endDirective(void);
 		int addLocationBlock(LocationBlock location);
+		std::vector<LocationBlock> getLocationConfig(void);
 
 		int check_directive(std::string str);
 

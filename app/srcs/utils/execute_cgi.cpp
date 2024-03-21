@@ -16,8 +16,17 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 	{								
 		close(fd[0]);				
 		dup2(fd[1], STDOUT_FILENO); 
-		char *args[] = {"./cgi-bin/hello_world.py", NULL};
+		
+		// DELETE ME
+		char *args[2];
+		args[0] = strdup("./cgi-bin/hello_world.py");
+		args[1] = NULL;
+
 		execve(args[0], args, envp);
+
+		// DELETE ME
+		free(args[0]);
+
 		close(fd[1]);
 		exit(1);
 	}
