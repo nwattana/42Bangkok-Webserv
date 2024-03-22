@@ -116,14 +116,6 @@ int ServerManager::handleConnection(void)
 					continue;
 				}
 			}
-
-
-			// 	this->loopOneConnection(loopFd);
-			// 	int res = this->m_serverList[j]->communicate(fd);
-			// 	if (res > 0) {
-			// 		FD_CLR(fd, &this->m_socketSet);
-			// 	}
-			// }
 			else {
 				flag = false;
 				request += '\0';
@@ -153,10 +145,6 @@ bool ServerManager::checkAllConnection(fd_set *readfds, int *loopFd, int *loopSe
 						FD_SET(newfd, &this->m_socketSet);
 					}
 					else if (this->m_serverList[j]->getSocket(i) != NULL) {
-						// int res = this->m_serverList[j]->communicate(i);
-						// if (res > 0) {
-						// 	FD_CLR(i, &this->m_socketSet);
-						// }
 						*loopFd = i;
 						*loopServer = j;
 						return true;
@@ -167,11 +155,6 @@ bool ServerManager::checkAllConnection(fd_set *readfds, int *loopFd, int *loopSe
 		}
 	}
 	return false;
-}
-
-int ServerManager::loopOneConnection(int fd)
-{
-	return 0;
 }
 
 void ServerManager::closeAll(void) {

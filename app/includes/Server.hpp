@@ -33,7 +33,6 @@ class Server {
 		int getClientMaxSize(void);
 		int setupServer(void);
 		int acceptConnection(void);
-		int readSocket(int sockfd);
 		void disconnectClient(int sockfd);
 		int respond(int sockfd, std::string request, int statusCode=200);
 		int closeServer(void);
@@ -49,14 +48,7 @@ class Server {
 
 		MySocketManager m_sockMan;
 		MySocket *m_listener;
-		// int m_sockfd;
-		// struct sockaddr_in m_myAddr;
-		// int m_acceptfd;
-		// struct sockaddr_storage m_theirAddr;
-		// fd_set m_socketSet; //removing
-		// CfileManager m_cfileMan;
 
-		// char m_readBuffer[BUFFER_SIZE + 1];
 		std::string m_readBuffer;
 		std::string m_writeBuffer;
 
@@ -65,7 +57,6 @@ class Server {
 		int _createSocket(void);
 		int _bindAddress(void);
 		int _listenSocket(void);
-		int _readBuffer(int sockfd);
 		int _generateResponse(int statusCode=200);
 		int _writeSocket(int sockfd);
 		int _printPeerName(MySocket *sock);

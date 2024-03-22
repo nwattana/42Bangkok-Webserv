@@ -188,51 +188,9 @@ int Server::acceptConnection(void)
 	return newFd;
 }
 
-int Server::readSocket(int sockfd)
-{
-	int totalBytesRead = this->_readBuffer(sockfd);
-	if (totalBytesRead <= 0) {
-		std::cerr << "Error: unable to read from socket " << sockfd << std::endl;
-		this->m_sockMan.remove(sockfd);
-		return sockfd;
-	}
-	else if (totalBytesRead > this->m_clientMaxSize) {
-		std::cerr << "Error: client message too large" << std::endl;
-		return 0;
-	}
-	printLog("Message from client");
-	std::cout << this->m_readBuffer;
-}
-
 void Server::disconnectClient(int sockfd)
 {
 	this->m_sockMan.remove(sockfd);
-}
-
-int Server::_readBuffer(int sockfd)
-{
-	int bytesRead, totalBytesRead = 0;
-	char cbuffer[BUFFER_SIZE + 1];
-	std::string cppbuffer;
-
-	this->m_readBuffer = "";
-	while (totalBytesRead < this->m_clientMaxSize) {
-		memset(cbuffer, 0, BUFFER_SIZE + 1);
-		cppbuffer.clear();
-		bytesRead = recv(sockfd, cbuffer, BUFFER_SIZE, 0);
-		cbuffer[bytesRead] = '\0';
-		std::cout << "Bytes read: " << bytesRead << std::endl;
-		std::cout << "Buffer: " << cbuffer << std::endl;
-		if (bytesRead <= 0)
-			break;
-		cppbuffer = cbuffer;
-		totalBytesRead += bytesRead;
-		this->m_readBuffer += cppbuffer.substr(0, bytesRead);
-		if (bytesRead < BUFFER_SIZE)
-			break;
-	}
-	this->m_readBuffer += '\0';
-	return totalBytesRead;
 }
 
 int Server::respond(int sockfd, std::string request, int statusCode)
@@ -262,7 +220,6 @@ int Server::_generateResponse(int statusCode)
 		this->m_writeBuffer = "HTTP/1.1 500 Internal Server Error\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
 
 	// this->m_writeBuffer = response.getResponse();
-
 	return 0;
 }
 
@@ -292,8 +249,6 @@ int Server::closeServer(void)
 		freeaddrinfo(this->m_serverInfo);
 	this->m_sockMan.closeAll();
 	delete this->m_requestHandler;
-	// close(this->m_acceptfd);
-	// close(this->m_sockfd);
 	return 0;
 }
 
