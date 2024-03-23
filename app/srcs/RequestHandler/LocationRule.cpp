@@ -301,11 +301,11 @@ std::string LocationRule::generate_response(Request * request)
 	else
 	{
 		// method not allowed return error
-		res = "HTTP/1.1 405 Method Not Allowed\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n";
+		res = generate_error_response(405);
 	}
 	if (res.empty())
 	{
-		res = "HTTP/1.1 404 Not Found\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n";
+		res = generate_error_response(404);
 	}
 	return res;
 }
@@ -338,4 +338,38 @@ void LocationRule::set_error_page(std::map<int, std::string> error_page)
 void LocationRule::_set_error_page(std::map<int, std::string> error_page)
 {
 	_error_page = error_page;
+}
+
+
+/// @brief Create error response depending status code
+/// @param status_code 
+/// @return 
+std::string LocationRule::generate_error_response(int status_code)
+{
+	std::string res;
+	std::string path;
+
+	try
+	{
+		path = _error_page.at(status_code);
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	
+	if (path.empty())
+	{
+		// use default error
+		Response response(status_code, "");
+		res = response.getResponse();
+	}
+	else
+	{
+		// serve a static file
+		Response response(status_code, read_file(path));
+		response.setHeader("Content-Type", "text/html");
+		res = response.getResponse();
+	}
+	return (res);
 }

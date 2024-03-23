@@ -49,6 +49,10 @@ class LocationRule{
 
 		void set_request_resource(Request * request);
 		void set_error_page(std::map<int, std::string> error_page);
+
+
+		// response handler
+		std::string generate_error_response(int error_code);
 	
 	private:
 

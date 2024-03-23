@@ -215,9 +215,9 @@ int Server::_generateResponse(int statusCode)
 	if (statusCode == 200)
 		this->m_writeBuffer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
 	else if (statusCode == 413)
-		this->m_writeBuffer = "HTTP/1.1 413 Request Entity Too Large\nContent-Type: text/plain\nContent-Length: 31\n\nERROR Request entity too large!\n";
+		this->m_writeBuffer = this->m_requestHandler->generate_error_response("/", 413);
 	else
-		this->m_writeBuffer = "HTTP/1.1 500 Internal Server Error\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
+		this->m_writeBuffer = this->m_requestHandler->generate_error_response("/", 404);
 
 	// this->m_writeBuffer = response.getResponse();
 	return 0;

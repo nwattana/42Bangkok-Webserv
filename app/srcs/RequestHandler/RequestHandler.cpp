@@ -150,3 +150,17 @@ void RequestHandler::create_defualt_rule(void)
 	_default_rule->setIndexPage("index.html");
 	// _default_rule->printSetting();
 }
+
+/// @brief Serve a error response asoociated with the error code and route
+/// @param route 
+/// @param error_code 
+/// @return 
+std::string RequestHandler::generate_error_response(std::string route, int error_code)
+{
+	LocationRule *rule = _find_location_rule(route);
+	if (rule == NULL)
+	{
+		rule = _default_rule;
+	}
+	return rule->generate_error_response(error_code);
+}
