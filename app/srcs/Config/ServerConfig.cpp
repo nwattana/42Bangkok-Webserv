@@ -285,9 +285,9 @@ void ServerConfig::setErrorPage(void)
 	std::vector<LocationBlock> location = this->getLocationConfig();
 	for (size_t i = 0; i < location.size(); i++)
 	{
-		std::cout << "Set eror page for location" << std::endl;
 		location[i].setErrorPage();
 	}
+	this->location_config = location;
 }
 
 std::map<int, std::string> ServerConfig::getErrorPage(void) const
