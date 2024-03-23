@@ -16,6 +16,7 @@ LocationRule::LocationRule(LocationBlock block, std::string server_dir)
 	_set_allow_method(block);
 	_set_cgi(block, server_dir);
 	_set_index_page(block);
+	_set_error_page(block.getErrorPage());
 	std::cout << "Index Page : " << _index_page << std::endl;
 
 	_m_response_handler = new ResponseHandler();
@@ -326,4 +327,15 @@ void LocationRule::set_request_resource(Request * request)
 	if (resource.empty() || resource == "/" || resource.end()[-1] == '/')
 		resource = get_index_page();
 	request->set_resource(uri);
+}
+
+void LocationRule::set_error_page(std::map<int, std::string> error_page)
+{
+	_error_page = error_page;
+}
+
+
+void LocationRule::_set_error_page(std::map<int, std::string> error_page)
+{
+	_error_page = error_page;
 }

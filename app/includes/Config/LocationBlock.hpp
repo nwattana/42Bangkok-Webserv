@@ -38,6 +38,7 @@ public:
 	std::string getLocationMatch(void) const;
 
 	void setErrorPage(void);
+	std::map<int, std::string> getErrorPage(void) const;
 	void print_error_page(void) const;
 
 private:

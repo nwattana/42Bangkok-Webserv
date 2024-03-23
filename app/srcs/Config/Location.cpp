@@ -255,3 +255,8 @@ void LocationBlock::print_error_page(void) const
 		std::cout << "\t\t\t" << it->first << " : " << it->second << std::endl;
 	}
 }
+
+std::map<int, std::string> LocationBlock::getErrorPage(void) const
+{
+	return (this->error_page);
+}

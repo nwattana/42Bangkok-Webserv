@@ -20,6 +20,8 @@ RequestHandler::RequestHandler(ServerConfig serverConfig)
 
 	// Location Rule to Match Location when recieved request
 	create_defualt_rule();
+	this->_default_rule->set_error_page(serverConfig.getErrorPage());
+
 	std::vector<LocationBlock> location_configs = serverConfig.getLocationConfig();
 	create_location_rule(location_configs);
 }
