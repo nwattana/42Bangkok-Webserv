@@ -22,7 +22,6 @@
 #include "Constant.hpp"
 #include "ServerManager.hpp"
 #include "RequestHandler.hpp"
-#include "ResponseHandler.hpp"
 #include "utils.hpp"
 
 #ifndef EXIT_FAILURE

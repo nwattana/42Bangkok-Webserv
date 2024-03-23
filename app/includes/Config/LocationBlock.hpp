@@ -5,6 +5,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include "exception.hpp"
 
 class LocationBlock
 {
@@ -34,6 +35,7 @@ public:
 	std::string get_directive_str(int directive) const;
 
 	std::vector<std::string> getConfig(int directive) const;
+	std::string getLocationMatch(void) const;
 
 private:
 	std::string _location_match;
@@ -46,5 +48,3 @@ private:
 	int _isOpenConfig;
 	int _currentDirective;
 };
-
-// std::ostream &operator<<(std::ostream &os, const LocationBlock &rhs);

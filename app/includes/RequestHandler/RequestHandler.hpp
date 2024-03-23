@@ -7,6 +7,7 @@
 #include "utils.hpp"
 #include "LocationRule.hpp"
 #include "Request.hpp"
+
 /*
  * Factory class Crete RequestHandler for Server
  * each Server will have a RequestHandler
@@ -23,18 +24,22 @@ public:
 	~RequestHandler();
 
 	int check_allowed_method(int method);
-	int read_request(std::string request);
+	std::string read_request(std::string request);
 
 	void create_location_rule(std::vector<LocationBlock> location_config);
+	void create_defualt_rule(void);
 	void printSetting(void) const;
 
 	void read_requst(std::string request);
 
 private:
-
 	LocationRule *_find_location_rule(std::string uri);
-	int _request_serializer(Request &request);
+
+	LocationRule *_default_rule;
+	std::string _request_serializer(void);
 	int _allowed_method;
 	std::vector<LocationRule *> _locations_rules;
 	std::string _root_dir;
+
+	Request *_current_request;
 };

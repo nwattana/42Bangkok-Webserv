@@ -7,7 +7,7 @@
  * cgi_file - which file to execute if the request is a cgi request -> default is not set
  * cgi_pass - which file to execute if the request is a cgi request -> default is not set
  * method_allow - which methods are allowed -> default is GET, POST
-*/
+ */
 LocationBlock::LocationBlock()
 {
 	this->_isSetDirective = NOTSET;
@@ -104,7 +104,6 @@ int LocationBlock::isSetDirective(void)
 	return this->_isSetDirective == SET;
 }
 
-// TODO ไม่เข้า add location directive
 int LocationBlock::isSetDirectiveArgument(void)
 {
 	return this->_isSetDirectiveArgument == SET;
@@ -123,7 +122,6 @@ int LocationBlock::endDirective(void)
 	this->_isSetDirectiveArgument = NOTSET;
 	return (SUCCESS);
 }
-
 
 int LocationBlock::set_current_directive(std::string str)
 {
@@ -157,6 +155,11 @@ int LocationBlock::check_directive(std::string directive)
 		return (L_CGI_PATH);
 	else if (directive == "auto_index")
 		return (L_AUTOINDEX);
+	else if (directive == "index")
+		return (L_INDEX);
+	else if (directive == "error_page")
+		return (L_ERROR_PAGE);
+
 	return (0);
 }
 
@@ -184,16 +187,34 @@ std::string LocationBlock::get_directive_str(int directive) const
 		return ("upload_path");
 	case L_METHOD_ALLOW:
 		return ("method_allow");
+	case L_INDEX:
+		return ("index");
 	default:
-		return ("");
+		return ("UNKNOWN");
 	}
 }
 
+/**
+ * @brief Retrieves the configuration for a given directive.
+ * 
+ * This function returns the configuration associated with the specified directive.
+ * If the directive is found in the map of configurations, the corresponding vector
+ * of strings is returned. Otherwise, a ConfigNotFoundException is thrown.
+ * 
+ * @param directive The directive to retrieve the configuration for.
+ * @return The configuration associated with the directive.
+ * @throws ConfigNotFoundException if the directive is not found.
+ */
 std::vector<std::string> LocationBlock::getConfig(int directive) const
 {
 	std::map<int, std::vector<std::string> >::const_iterator it;
 	it = this->location_configs.find(directive);
 	if (it == this->location_configs.end())
-		return (std::vector<std::string>());
+		throw ConfigNotFoundException("Config not found \"" + get_directive_str(directive) + "\"");
 	return (it->second);
+}
+
+std::string LocationBlock::getLocationMatch(void) const
+{
+	return (this->_location_match);
 }

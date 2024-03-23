@@ -104,7 +104,7 @@ int ServerConfig::setDirectiveArgument(std::string str)
 int ServerConfig::closeConfig(void)
 {
 	// this->printServerConfig();
-	// TODO Check parsed completly set and all valid
+	// NOTE Check parsed completly set and all valid
 	// check if default value is set is not set set default value
 	_isDoneConfig = SET;
 	return (1);
@@ -131,7 +131,7 @@ int ServerConfig::endDirective()
 /// @brief check is current directive is done
 int ServerConfig::isEndDirective()
 {
-	// TODO if close before done should throw error
+	// NOTE if close before done should throw error
 	return (this->_isEndDirective == SET);
 }
 
@@ -148,20 +148,25 @@ int ServerConfig::addLocationBlock(LocationBlock location)
 	return (SET);
 }
 
+
+/**
+ * @brief Retrieves the configuration for a given directive.
+ * 
+ * This function returns the configuration associated with the specified directive.
+ * If the directive is found in the map of configurations, the corresponding vector
+ * of strings is returned. Otherwise, a ConfigNotFoundException is thrown.
+ * 
+ * @param directive The directive to retrieve the configuration for.
+ * @return The configuration associated with the directive.
+ * @throws ConfigNotFoundException if the directive is not found.
+ */
 std::vector<std::string> ServerConfig::getConfig(int directive)
 {
 	std::map<int, std::vector<std::string> >::iterator it;
-	try
-	{
-		it = this->configs.find(directive);
-	}
-	catch (std::exception &e)
-	{
-		std::cerr << "Error: " << e.what() << std::endl;
-	}
+	it = this->configs.find(directive);
 	if (it != this->configs.end())
 		return it->second;
-	throw std::runtime_error("Error: Directive not found \"" + get_directive_string(directive) +"\"" + SSTR(directive));
+	throw ConfigNotFoundException("Error: Directive not found \"" + get_directive_string(directive) +"\"" + SSTR(directive));
 }
 
 int ServerConfig::check_directive(std::string str)

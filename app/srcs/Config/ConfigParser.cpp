@@ -105,7 +105,6 @@ void ConfigParser::read_file_config(void)
 			}
 			i++;
 		}
-		// TODO: maybe have bug here
 		tmp_server.endDirective();
 		tmp_location.endDirective();
 		this->m_raw_config += line_trim;
