@@ -35,3 +35,4 @@ int allow_method_str_to_int(std::string method);
 
 std::string method_allow_to_string(int method);
 std::string read_file(std::string file_path);
+std::string resolve_double_slash(std::string path);

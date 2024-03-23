@@ -53,6 +53,7 @@ int RequestHandler::check_allowed_method(int method)
 	return (method & _allowed_method);
 }
 
+// accept request and return response string
 std::string RequestHandler::read_request(std::string request)
 {
 	std::stringstream ss;

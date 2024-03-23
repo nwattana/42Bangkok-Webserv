@@ -264,20 +264,11 @@ void LocationRule::_set_index_page(LocationBlock block)
 	_index_page = temp;
 }
 
+// join root and index page if index page at location not set use default index page
 std::string LocationRule::get_index_page(void) const
 {
 	std::string res = _root_dir + _index_page;
-	int pos;
-
-	std::cout << "Index Page : " << _index_page << std::endl;
-	pos = res.find("//");
-	while (pos != std::string::npos)
-	{
-		res = res.substr(0, pos) + res.substr(pos + 1);
-		pos = res.find("//");
-	}
-
-
+	res = resolve_double_slash(res);
 	return res;
 }
 
@@ -297,7 +288,7 @@ std::string LocationRule::generate_response(Request * request)
 		}
 		else
 		{
-			// static file read and serve static file
+			// serve a static file
 			std::string resource = request->get_resource();
 			// TODO ไป set index Page ตอน match path ต้อง เอา ส่วนที่ไม่เหมือนมา ต่อ root dir ด้วย
 			std::cout << "LocationRule::generate_response : resouce : | " << resource << " | " << std::endl;
