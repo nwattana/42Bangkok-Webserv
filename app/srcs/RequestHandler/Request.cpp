@@ -57,21 +57,6 @@ void Request::_parse_request_line(std::string line)
 	_uri = uri;
 	_version = version;
 
-	// triming path uri
-	// find last /
-	// size_t pos = _uri.find_last_of("/");
-	// if (pos != std::string::npos)
-	// {
-	// 	_path_to_resource = _uri.substr(0, pos + 1);
-	// 	_resource = _uri.substr(pos + 1);
-	// }
-	// else
-	// {
-	// 	_path_to_resource = "/";
-	// 	_resource = "";
-	// }
-	// std::cout << "path_to_resource: " << _path_to_resource << std::endl;
-	// std::cout << "resource: " << _resource << std::endl;
 }
 
 void Request::_parse_header(std::string header)
@@ -161,4 +146,14 @@ std::string Request::get_uri(void)
 int Request::get_method(void)
 {
 	return _method;
+}
+
+void Request::set_resource(std::string resource)
+{
+	_resource = resource;
+}
+
+std::string Request::get_resource(void)
+{
+	return _resource;
 }

@@ -155,6 +155,11 @@ int LocationBlock::check_directive(std::string directive)
 		return (L_CGI_PATH);
 	else if (directive == "auto_index")
 		return (L_AUTOINDEX);
+	else if (directive == "index")
+		return (L_INDEX);
+	else if (directive == "error_page")
+		return (L_ERROR_PAGE);
+
 	return (0);
 }
 
@@ -182,8 +187,10 @@ std::string LocationBlock::get_directive_str(int directive) const
 		return ("upload_path");
 	case L_METHOD_ALLOW:
 		return ("method_allow");
+	case L_INDEX:
+		return ("index");
 	default:
-		return ("");
+		return ("UNKNOWN");
 	}
 }
 

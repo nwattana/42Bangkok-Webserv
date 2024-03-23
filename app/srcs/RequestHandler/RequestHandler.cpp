@@ -53,7 +53,7 @@ int RequestHandler::check_allowed_method(int method)
 	return (method & _allowed_method);
 }
 
-int RequestHandler::read_request(std::string request)
+std::string RequestHandler::read_request(std::string request)
 {
 	std::stringstream ss;
 	std::string methode, uri, version;
@@ -63,15 +63,15 @@ int RequestHandler::read_request(std::string request)
 	if (seperator == -1)
 	{
 		std::cerr << "RequestHandler::read_request : no header/body seperator" << std::endl;
-		return -1;
+		// bad request
+		return "HTTP/1.1 400 Bad Request\r\n\r\n";
 	}
 	std::string header = request.substr(0, seperator + 2);
 	std::string body = request.substr(seperator + 4);
 	// Create Request object
-	Request req(header, body);
-	req.printSetting(); 
-	_request_serializer(req);
-	return 0;
+	_current_request = new Request(header, body);
+	_current_request->printSetting();
+	return _request_serializer();
 }
 
 void RequestHandler::create_location_rule(std::vector<LocationBlock> location_config)
@@ -101,9 +101,9 @@ void RequestHandler::printSetting(void) const
 	}
 }
 
-int RequestHandler::_request_serializer(Request &request)
+std::string RequestHandler::_request_serializer(void)
 {
-	std::string uri = request.get_uri();
+	std::string uri = _current_request->get_uri();
 	LocationRule *rule = _find_location_rule(uri);
 
 	std::cout << "RequestHandler::_request_serializer : uri : " << uri << std::endl;
@@ -112,7 +112,10 @@ int RequestHandler::_request_serializer(Request &request)
 		rule = _default_rule;
 	}
 	rule->printSetting();
-	return 0;
+	rule->set_request_resource(_current_request);
+
+	std::string response = rule->generate_response(_current_request);
+	return response;
 }
 
 
@@ -141,5 +144,6 @@ void RequestHandler::create_defualt_rule(void)
 	_default_rule = new LocationRule();
 	_default_rule->setRootDir(_root_dir);
 	_default_rule->setAllowMethod(_allowed_method);
+	_default_rule->setIndexPage("index.html");
 	// _default_rule->printSetting();
 }

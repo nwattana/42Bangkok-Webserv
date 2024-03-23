@@ -1,5 +1,4 @@
 #include "ResponseHandler.hpp"
-
 /*
 Response  = Status-Line
 			*(( general-header
@@ -11,19 +10,6 @@ Response  = Status-Line
 ResponseHandler::ResponseHandler()
 {
 	std::string str;
-	// Return HTTP/1.1 200 OK
-	_version = "HTTP/1.1";
-	_status_code = 200;
-	_status_line = _version + " " + SSTR(200) + " " + getReasonPhrase(_status_code) + "\r\n";
-	_header_set = "";
-}
-
-ResponseHandler::ResponseHandler(int status_code, std::string body)
-{
-	_version = "HTTP/1.1";
-	_status_code = status_code;
-	_status_line = _version + " " + SSTR(_status_code) + " " + getReasonPhrase(_status_code) + "\r\n";
-	_header_set = "";
 }
 
 ResponseHandler::~ResponseHandler()
@@ -44,23 +30,22 @@ ResponseHandler &ResponseHandler::operator=(ResponseHandler const &rhs)
 	return *this;
 }
 
-std::string ResponseHandler::getResponse()
+
+void ResponseHandler::add_error_page(std::string path, int status_code)
 {
-	// TODO delete me
-	_body = read_htlm_file("./www/index.html");
-	_header_set += "Content-Type: text/html\r\n";
-	_header_set += "Content-Length: " + SSTR(_body.length()) + "\r\n";
-	// _header_set += "Connection: close\r\n";
-	return _status_line + _header_set + "\r\n" + _body;
+	_error_page[status_code] = path;
 }
 
-void ResponseHandler::setBody(std::string body)
+std::string ResponseHandler::generate_error_response(int status_code)
 {
-	_body = body;
-}
+	// Response response;
+	std::string path = _error_page.at(status_code);
+	if (path.empty())
+	{
+		// use default error page
+	}
+	std::string res = read_file(path);
 
-void ResponseHandler::setStatusCode(int status_code)
-{
-	_status_code = status_code;
-	_status_line = _version + " " + SSTR(_status_code) + " " + getReasonPhrase(_status_code) + "\r\n";
+	// return (response);
+	return "400 Bad Request\n\n<html><body><h1>400 Bad Request</h1></body></html>";
 }

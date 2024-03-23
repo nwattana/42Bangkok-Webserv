@@ -5,6 +5,9 @@
 #include "Constant.hpp"
 #include "utils.hpp"
 #include "exception.hpp"
+#include "Request.hpp"
+#include "Response.hpp"
+#include "ResponseHandler.hpp"
 
 class LocationRule{
 	public:
@@ -39,7 +42,13 @@ class LocationRule{
 		std::string get_handle_route(void) const;
 		std::string get_full_path(void) const;
 
+		std::string generate_response(Request * srequest);
 
+		std::string get_index_page(void) const;
+		void setIndexPage(std::string index_page);
+
+		void set_request_resource(Request * request);
+	
 	private:
 
 		void _set_up_default();
@@ -58,6 +67,8 @@ class LocationRule{
 		int _allow_upload;
 		std::string _upload_path;
 
+		std::string _index_page;
+
 		void _set_handle_route(LocationBlock block);
 		// void _set_dir_path(LocationBlock block, std::string server_dir);
 		void _set_root_dir(LocationBlock block, std::string server_dir);
@@ -66,4 +77,7 @@ class LocationRule{
 		void _set_allow_method(LocationBlock block);
 		void _set_upload(LocationBlock block);
 		void _set_cgi(LocationBlock block, std::string server_dir);
+		void _set_index_page(LocationBlock block);
+
+		ResponseHandler *_m_response_handler;
 };
