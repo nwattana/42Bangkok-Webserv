@@ -224,12 +224,13 @@ std::string LocationBlock::getLocationMatch(void) const
 void LocationBlock::setErrorPage(void)
 {
 	std::vector<std::string> error_pages;
-	int key;
+	int key = 0;
 	try
 	{
 		error_pages = this->getConfig(L_ERROR_PAGE);
 		for (size_t i = 0; i < error_pages.size(); i++)
 		{
+			std::cout << "Error Page: " << error_pages[i] << " key = " << key << std::endl;
 			if (key == 0)
 			{
 				key = atoi(error_pages[i].c_str());
@@ -248,9 +249,9 @@ void LocationBlock::setErrorPage(void)
 
 void LocationBlock::print_error_page(void) const
 {
-	std::map<int, std::string>::const_iterator it;
+	std::map<int, std::string>::const_iterator it =this->error_page.begin();
 	std::cout << "\t\tError pages : " << std::endl;
-	for (it = this->error_page.begin(); it != this->error_page.end(); it++)
+	for (it ; it != this->error_page.end(); it++)
 	{
 		std::cout << "\t\t\t" << it->first << " : " << it->second << std::endl;
 	}

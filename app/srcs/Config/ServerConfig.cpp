@@ -248,6 +248,10 @@ std::string get_directive_string(int directive)
 
 std::vector<LocationBlock>  ServerConfig::getLocationConfig(void)
 {
+	for (size_t i = 0; i < location_config.size(); i++)
+	{
+		location_config[i].setErrorPage();
+	}
 	return (this->location_config);
 }
 
@@ -274,15 +278,15 @@ void ServerConfig::setErrorPage(void)
 				key = 0;
 			}
 		}
-		std::vector<LocationBlock> location = this->getLocationConfig();
-		for (size_t i = 0; i < location.size(); i++)
-		{
-			location[i].setErrorPage();
-		}
+
 	}
 	catch (ConfigNotFoundException)
+	{}
+	std::vector<LocationBlock> location = this->getLocationConfig();
+	for (size_t i = 0; i < location.size(); i++)
 	{
-		return ;
+		std::cout << "Set eror page for location" << std::endl;
+		location[i].setErrorPage();
 	}
 }
 
