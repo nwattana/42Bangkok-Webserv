@@ -30,29 +30,26 @@ class Server {
 
 		const MySocket* getSocket(int fd);
 		int getListenerFd(void);
+		int getClientMaxSize(void);
 		int setupServer(void);
 		int acceptConnection(void);
-		int communicate(int sockfd);
+		void disconnectClient(int sockfd);
+		int respond(int sockfd, std::string request, int statusCode=200);
 		int closeServer(void);
 
 	private:
 		Server();
 		std::string m_port;
 		std::string m_ServerName;
+		int m_clientMaxSize;
 		struct addrinfo *m_serverInfo;
 
 		RequestHandler *m_requestHandler;
 
 		MySocketManager m_sockMan;
 		MySocket *m_listener;
-		// int m_sockfd;
-		// struct sockaddr_in m_myAddr;
-		// int m_acceptfd;
-		// struct sockaddr_storage m_theirAddr;
-		// fd_set m_socketSet; //removing
-		// CfileManager m_cfileMan;
 
-		char m_readBuffer[BUFFER_SIZE + 1];
+		std::string m_readBuffer;
 		std::string m_writeBuffer;
 
 		int _initServer(void);
@@ -60,9 +57,7 @@ class Server {
 		int _createSocket(void);
 		int _bindAddress(void);
 		int _listenSocket(void);
-		int _handleConnection(void);
-		int _readSocket(int sockfd);
-		int _generateResponse(void);
+		int _generateResponse(int statusCode=200);
 		int _writeSocket(int sockfd);
 		int _printPeerName(MySocket *sock);
 		int _printHostName(void);

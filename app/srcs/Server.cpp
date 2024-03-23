@@ -18,6 +18,8 @@ Server::Server(ServerConfig serverConfig) {
 	std::cout << "Port: " << this->m_port << std::endl;
 	this->m_ServerName = serverConfig.getConfig(S_SERVER_NAME)[0];
 	std::cout << "Server Name: " << this->m_ServerName.c_str() << std::endl;
+	this->m_clientMaxSize = atoi(serverConfig.getConfig(S_CLIENT_MAX_SIZE)[0].c_str());
+	std::cout << "Client Max Size: " << this->m_clientMaxSize << std::endl;
 
 	this->m_listener = new MySocket();
 	this->m_listener->m_myAddr.sin_family = AF_INET;
@@ -51,6 +53,10 @@ const MySocket* Server::getSocket(int fd) {
 
 int Server::getListenerFd(void) {
 	return this->m_listener->getFd();
+}
+
+int Server::getClientMaxSize(void) {
+	return this->m_clientMaxSize;
 }
 
 int Server::setupServer(void)
@@ -182,17 +188,19 @@ int Server::acceptConnection(void)
 	return newFd;
 }
 
-int Server::communicate(int sockfd)
+void Server::disconnectClient(int sockfd)
 {
-	if (this->_readSocket(sockfd) <= 0) {
-		std::cerr << "Error: unable to read from socket " << sockfd << std::endl;
-		this->m_sockMan.remove(sockfd);
-		return sockfd;
+	this->m_sockMan.remove(sockfd);
+}
+
+int Server::respond(int sockfd, std::string request, int statusCode)
+{
+	if (statusCode == 200) {
+		m_requestHandler->read_request(this->m_readBuffer);
+		this->_generateResponse();
 	}
-	printLog("Message from client");
-	// std::cout << this->m_readBuffer;
-	m_requestHandler->read_request(this->m_readBuffer);
-	this->_generateResponse();
+	else
+		this->_generateResponse(statusCode);
 	if (this->_writeSocket(sockfd) < 0) {
 		std::cerr << "Error: unable to write to socket " << sockfd << std::endl;
 		this->m_sockMan.remove(sockfd);
@@ -202,20 +210,16 @@ int Server::communicate(int sockfd)
 	return 0;
 }
 
-int Server::_readSocket(int sockfd)
+int Server::_generateResponse(int statusCode)
 {
-	int bytesRead;
-	bytesRead = recv(sockfd, this->m_readBuffer, BUFFER_SIZE, 0);
-	this->m_readBuffer[bytesRead] = '\0';
-	return bytesRead;
-}
-
-int Server::_generateResponse(void)
-{
-	this->m_writeBuffer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
+	if (statusCode == 200)
+		this->m_writeBuffer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
+	else if (statusCode == 413)
+		this->m_writeBuffer = "HTTP/1.1 413 Request Entity Too Large\nContent-Type: text/plain\nContent-Length: 31\n\nERROR Request entity too large!\n";
+	else
+		this->m_writeBuffer = "HTTP/1.1 500 Internal Server Error\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
 
 	// this->m_writeBuffer = response.getResponse();
-	
 	return 0;
 }
 
@@ -245,8 +249,6 @@ int Server::closeServer(void)
 		freeaddrinfo(this->m_serverInfo);
 	this->m_sockMan.closeAll();
 	delete this->m_requestHandler;
-	// close(this->m_acceptfd);
-	// close(this->m_sockfd);
 	return 0;
 }
 

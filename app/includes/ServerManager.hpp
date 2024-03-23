@@ -17,6 +17,7 @@ class ServerManager {
 
 	private:
 		ServerManager();
+		bool checkAllConnection(fd_set *readfds, int *loopFd, int *loopServer);
 
 		std::vector<Server* >	m_serverList;
 		fd_set				m_socketSet;
