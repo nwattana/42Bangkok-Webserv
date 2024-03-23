@@ -69,6 +69,7 @@ void LocationBlock::printConfig(void) const
 		value = it->second;
 		printStringVector(value, ", ");
 	}
+	print_error_page();
 }
 
 int LocationBlock::setLocationMatch(std::string location_match)
@@ -217,4 +218,45 @@ std::vector<std::string> LocationBlock::getConfig(int directive) const
 std::string LocationBlock::getLocationMatch(void) const
 {
 	return (this->_location_match);
+}
+
+
+void LocationBlock::setErrorPage(void)
+{
+	std::vector<std::string> error_pages;
+	int key = 0;
+	try
+	{
+		error_pages = this->getConfig(L_ERROR_PAGE);
+		for (size_t i = 0; i < error_pages.size(); i++)
+		{
+			if (key == 0)
+			{
+				key = atoi(error_pages[i].c_str());
+			}
+			else
+			{
+				this->error_page[key] = error_pages[i];
+				key = 0;
+			}
+		}
+	}
+	catch(ConfigNotFoundException)
+	{}
+	return ;
+}
+
+void LocationBlock::print_error_page(void) const
+{
+	std::map<int, std::string>::const_iterator it =this->error_page.begin();
+	std::cout << "\t\tError pages : " << std::endl;
+	for (it ; it != this->error_page.end(); it++)
+	{
+		std::cout << "\t\t\t" << it->first << " : " << it->second << std::endl;
+	}
+}
+
+std::map<int, std::string> LocationBlock::getErrorPage(void) const
+{
+	return (this->error_page);
 }

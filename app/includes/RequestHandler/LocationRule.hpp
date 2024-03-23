@@ -48,6 +48,11 @@ class LocationRule{
 		void setIndexPage(std::string index_page);
 
 		void set_request_resource(Request * request);
+		void set_error_page(std::map<int, std::string> error_page);
+
+
+		// response handler
+		std::string generate_error_response(int error_code);
 	
 	private:
 
@@ -78,6 +83,8 @@ class LocationRule{
 		void _set_upload(LocationBlock block);
 		void _set_cgi(LocationBlock block, std::string server_dir);
 		void _set_index_page(LocationBlock block);
+		void _set_error_page(std::map<int, std::string> error_page);
 
 		ResponseHandler *_m_response_handler;
+		std::map<int, std::string> _error_page;
 };

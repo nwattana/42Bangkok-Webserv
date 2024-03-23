@@ -23,4 +23,5 @@ class Response{
 		std::string getResponse();
 		void setStatusCode(int status_code);
 		void setBody(std::string body);
+		void setHeader(std::string key, std::string value);
 };

@@ -65,3 +65,8 @@ void Response::setStatusCode(int status_code)
 	_status_code = status_code;
 	_status_line = _version + " " + SSTR(_status_code) + " " + getReasonPhrase(_status_code) + "\r\n";
 }
+
+void Response::setHeader(std::string key, std::string value)
+{
+	_header_set += key + ": " + value + "\r\n";
+}

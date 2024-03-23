@@ -62,8 +62,8 @@ void ServerConfig::printServerConfig() const
 	{
 		std::cout << "\t"<<get_directive_string(it->first) << ":\t";
 		printStringVector(it->second, ",");
-
 	}
+	this->print_error_page();
 	for (size_t i = 0; i < location_config.size(); i++)
 	{
 		location_config[i].printConfig();
@@ -248,5 +248,59 @@ std::string get_directive_string(int directive)
 
 std::vector<LocationBlock>  ServerConfig::getLocationConfig(void)
 {
+	for (size_t i = 0; i < location_config.size(); i++)
+	{
+		location_config[i].setErrorPage();
+	}
 	return (this->location_config);
+}
+
+
+/// @brief Be called After done read config file parse error and store in map
+/// @param  
+void ServerConfig::setErrorPage(void)
+{
+
+	std::vector<std::string> error_pages;
+	int key = 0;
+	try
+	{
+		error_pages  = this->getConfig(S_ERROR_PAGE);
+		for (size_t i = 0; i < error_pages.size(); i++)
+		{
+			if (key == 0)
+			{
+				key = atoi(error_pages[i].c_str());
+			}
+			else
+			{
+				this->error_page[key] = error_pages[i];
+				key = 0;
+			}
+		}
+
+	}
+	catch (ConfigNotFoundException)
+	{}
+	std::vector<LocationBlock> location = this->getLocationConfig();
+	for (size_t i = 0; i < location.size(); i++)
+	{
+		location[i].setErrorPage();
+	}
+	this->location_config = location;
+}
+
+std::map<int, std::string> ServerConfig::getErrorPage(void) const
+{
+	return (this->error_page);
+}
+
+void ServerConfig::print_error_page(void) const
+{
+	std::map<int, std::string>::const_iterator it;
+	std::cout << "\tError Page Configs" << std::endl;
+	for (it = this->error_page.begin(); it != this->error_page.end(); it++)
+	{
+		std::cout << "\t\t" << it->first << ":\t" << it->second << std::endl;
+	}
 }

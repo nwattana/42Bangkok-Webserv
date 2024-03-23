@@ -13,6 +13,7 @@ int main(int argc, char **argv, char **envp)
 	ConfigParser config(filename);
 	std::cout  << "=============== Initializing server from: " << filename << " =============== " << std::endl;
 	config.printServerConfig();
+	
 	std::cout << "=============== Connecting to http://localhost:8080/ ===============" << std::endl;
 	//create server
 
@@ -26,10 +27,10 @@ int main(int argc, char **argv, char **envp)
 	// 	"Accept: */*\r\n"
 	// 	"\r\n"
 	// );
-	ServerManager serverManager(config.getServerConfig());
-	serverManager.setupServer();
-	serverManager.handleConnection();
-	serverManager.closeAll();
+	// ServerManager serverManager(config.getServerConfig());
+	// serverManager.setupServer();
+	// serverManager.handleConnection();
+	// serverManager.closeAll();
 
 	return (0);
 }

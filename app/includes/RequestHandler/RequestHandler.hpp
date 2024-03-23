@@ -31,6 +31,7 @@ public:
 	void printSetting(void) const;
 
 	void read_requst(std::string request);
+	std::string generate_error_response(std::string route, int error_code);
 
 private:
 	LocationRule *_find_location_rule(std::string uri);
