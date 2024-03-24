@@ -211,11 +211,16 @@ int Server::closeServer(void) {
 	if (this->m_listener != NULL) {
 		close(this->m_listener->getFd());
 		delete this->m_listener;
+		this->m_listener = NULL;
 	}
-	if (this->m_serverInfo != NULL)
+	if (this->m_serverInfo != NULL) {
 		freeaddrinfo(this->m_serverInfo);
-	if (this->m_requestHandler != NULL)
+		this->m_serverInfo = NULL;
+	}
+	if (this->m_requestHandler != NULL) {
 		delete this->m_requestHandler;
+		this->m_requestHandler = NULL;
+	}
 	this->m_sockMan.closeAll();
 	return 0;
 }

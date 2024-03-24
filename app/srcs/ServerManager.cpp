@@ -110,12 +110,12 @@ int ServerManager::handleConnection(void) {
 }
 
 void ServerManager::closeAll(void) {
-	for (std::vector<Server*>::iterator it = this->m_servList.begin(); it != this->m_servList.end(); it++) {
-		delete *it;
-	}
+	// for (std::vector<Server*>::iterator it = this->m_servList.begin(); it != this->m_servList.end(); it++) {
+	// 	delete *it;
+	// }
+	this->m_servList.clear();
 	FD_ZERO(&this->m_readSockSet);
 	FD_ZERO(&this->m_writeSockSet);
-	this->m_servList.clear();
 }
 
 void ServerManager::_tooglerw(int sockfd, bool isNowRead) {
