@@ -26,6 +26,8 @@ Server::Server(ServerConfig serverConfig) : m_serverConfig(serverConfig) {
 	printLog("Server Name: " + this->m_ServerName);
 	this->m_clientMaxSize = atoi(serverConfig.getConfig(S_CLIENT_MAX_SIZE)[0].c_str());
 	printLog("Client Max Size: " + SSTR(this->m_clientMaxSize));
+	this->m_wouldAutoIdx = (serverConfig.getConfig(S_AUTO_INDEX)[0] == "enable");
+	printLog("Auto Index: " + SSTR(this->m_wouldAutoIdx));
 
 	this->m_listener = NULL;
 	this->m_serverInfo = NULL;
