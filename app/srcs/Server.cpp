@@ -174,26 +174,27 @@ int Server::handleRequest(int sockfd, std::string request) {
 	if (request.size() > this->m_clientMaxSize) {
 		return this->_generateResponse(413);;
 	}
-	m_requestHandler->read_request(this->m_readBuffer);
-	return this->_generateResponse();
+	this->m_readBuffer[sockfd] = request;
+	m_requestHandler->read_request(this->m_readBuffer[sockfd]);
+	return this->_generateResponse(sockfd);
 }
 
-int Server::_generateResponse(int statusCode)
+int Server::_generateResponse(int sockfd, int statusCode)
 {
 	if (statusCode == 200)
-		this->m_writeBuffer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
+		this->m_writeBuffer[sockfd] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
 	else if (statusCode == 413)
-		this->m_writeBuffer = "HTTP/1.1 413 Request Entity Too Large\nContent-Type: text/plain\nContent-Length: 31\n\nERROR Request entity too large!\n";
+		this->m_writeBuffer[sockfd] = "HTTP/1.1 413 Request Entity Too Large\nContent-Type: text/plain\nContent-Length: 31\n\nERROR Request entity too large!\n";
 	else
-		this->m_writeBuffer = "HTTP/1.1 500 Internal Server Error\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
+		this->m_writeBuffer[sockfd] = "HTTP/1.1 500 Internal Server Error\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
 
 	// this->m_writeBuffer = response.getResponse();
 	return statusCode;
 }
 
 int Server::sendRespond(int sockfd) {
-	int res = send(sockfd, this->m_writeBuffer.c_str(), this->m_writeBuffer.length(), 0);
-	if (res != this->m_writeBuffer.length()) {
+	int res = send(sockfd, this->m_writeBuffer[sockfd].c_str(), this->m_writeBuffer[sockfd].length(), 0);
+	if (res != this->m_writeBuffer[sockfd].length()) {
 		std::cerr << "Failed to send response" << std::endl;
 		return -1;
 	}

@@ -68,10 +68,10 @@ class Server {
 		void _printAddressInfo(struct addrinfo *p);
 		int _printPeerName(MySocket *sock);
 		int _printHostName(void);
-		int _generateResponse(int statusCode=200);
+		int _generateResponse(int sockfd, int statusCode=200);
 
-		std::string m_readBuffer;
-		std::string m_writeBuffer;
+		std::map<int, std::string> m_readBuffer;
+		std::map<int, std::string> m_writeBuffer;
 		bool m_isListening;
 };
 
