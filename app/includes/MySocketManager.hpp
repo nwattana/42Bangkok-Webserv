@@ -21,6 +21,7 @@ class MySocketManager{
 		int tryRecv(int fd, const char *buffer, size_t size, int flags);
 		int trySend(int fd, const char *buffer, size_t size, int flags);
 		int getMaxFd(void);
+		bool hasSocket(int fd);
 
 	private:
 		std::map<int, MySocket* > m_socketList;

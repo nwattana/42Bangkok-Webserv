@@ -19,6 +19,10 @@ inline std::string SSTR(int x) {
 	return oss.str();
 }
 
+#ifndef LOG
+# define LOG 1
+#endif
+
 std::string getReasonPhrase(int statusCode);
 std::string read_htlm_file(std::string file_path);
 void						exitWithError(std::string errorMessage = "error", int mode = 0, int errnum = errno);

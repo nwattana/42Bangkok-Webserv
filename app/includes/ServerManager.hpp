@@ -3,7 +3,7 @@
 
 # include "Server.hpp"
 # include "ConfigParser.hpp"
-# include <bitset>
+# include <sys/select.h>
 
 class ServerManager {
 	public:
@@ -26,15 +26,17 @@ class ServerManager {
 		void _tooglerw(int sockfd, bool isNowRead);
 		int _readBuffer(int sockfd);
 		void _disconnectClient(int sockfd);
-		void _clearBufCache(void);
+		void _clearBufCache(int fd);
 		int _readFrom(int sockfd);
 		int _writeTo(int sockfd);
+
 
 		std::vector<Server* >	m_servList;
 		fd_set				m_readSockSet;
 		fd_set				m_writeSockSet;
-		std::string			m_buffer;
-		int					m_totalBytesRead;
+		std::map<int, std::string> m_bufCache;
+		std::map<int, int>		m_totalBytesRead;
+		// int					m_totalBytesRead;
 		bool				m_isReadLoop;
 		std::map<int, int> m_sockStatCode;
 		Server* m_currServ;

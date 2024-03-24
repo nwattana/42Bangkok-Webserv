@@ -53,6 +53,7 @@ int ServerManager::setupServer(void) {
 }
 
 int ServerManager::handleConnection(void) {
+	std::cout << "Server ready to accept connections" << std::endl;
 	fd_set readfds, writefds;
 
 	this->m_isReadLoop = false;
@@ -64,8 +65,8 @@ int ServerManager::handleConnection(void) {
 		FD_ZERO(&writefds);
 		if (this->m_isReadLoop) {
 			FD_SET(loopFd, &readfds);
-			tv.tv_sec = 1;
-			tv.tv_usec = 0;
+			tv.tv_sec = 0;
+			tv.tv_usec = 10000;
 		}
 		else {
 			readfds = this->m_readSockSet;
@@ -91,9 +92,15 @@ int ServerManager::handleConnection(void) {
 		else {
 			for (int i = 0; i <= FD_SETSIZE; i++) {
 				if (FD_ISSET(i, &readfds)) {
-					this->_readFrom(i);
+					printLog("Reading from " + SSTR(i));
+					res = this->_readFrom(i);
+					if (res == 1) {
+						loopFd = i;
+						break;
+					}
 				}
-				if (FD_ISSET(i, &writefds)) {
+				else if (FD_ISSET(i, &writefds)) {
+					printLog("Writing to " + SSTR(i));
 					this->_writeTo(i);
 				}
 			}
@@ -113,13 +120,15 @@ void ServerManager::closeAll(void) {
 
 void ServerManager::_tooglerw(int sockfd, bool isNowRead) {
 	if (isNowRead) {
-		FD_CLR(sockfd, &this->m_readSockSet);
+		if (FD_ISSET(sockfd, &this->m_readSockSet))
+			FD_CLR(sockfd, &this->m_readSockSet);
 		FD_SET(sockfd, &this->m_writeSockSet);
 	}
 	else {
-		FD_CLR(sockfd, &this->m_writeSockSet);
+		if (FD_ISSET(sockfd, &this->m_writeSockSet))
+			FD_CLR(sockfd, &this->m_writeSockSet);
 		FD_SET(sockfd, &this->m_readSockSet);
-		this->_clearBufCache();
+		this->_clearBufCache(sockfd);
 	}
 }
 
@@ -133,42 +142,46 @@ int ServerManager::_readBuffer(int sockfd) {
 
 	bytesRead = recv(sockfd, buffer, BUFFER_SIZE, 0);
 	buffer[bytesRead] = '\0';
+	printLog("Bytes read: " + SSTR(bytesRead));
+	printLog("\n" + std::string(buffer) + "\n");
 	if (bytesRead <= 0) {
 		this->_disconnectClient(sockfd);
 		return bytesRead;
 	}
 
 	cppbuffer = buffer;
-	this->m_buffer += cppbuffer.substr(0, bytesRead);
-	this->m_totalBytesRead += bytesRead;
-	if (this->m_totalBytesRead > this->m_currServ->getClientMaxSize()) {
-		m_sockStatCode[sockfd] = this->m_currServ->handleRequest(sockfd, this->m_buffer);
+	this->m_bufCache[sockfd] += cppbuffer.substr(0, bytesRead);
+	this->m_totalBytesRead[sockfd] += bytesRead;
+	if (this->m_totalBytesRead[sockfd] > this->m_currServ->getClientMaxSize()) {
+		m_sockStatCode[sockfd] = this->m_currServ->handleRequest(sockfd, this->m_bufCache[sockfd]);
 		this->_tooglerw(sockfd, true);
 	}
-	if (this->m_buffer.find("\r\n\r\n") != std::string::npos) {
-		this->m_buffer += '\0';
-		std::cout << "Request:\n" << this->m_buffer << std::endl;
-		m_sockStatCode[sockfd] = this->m_currServ->handleRequest(sockfd, this->m_buffer);
+	if (this->m_bufCache[sockfd].find("\r\n") != std::string::npos) {
+		this->m_bufCache[sockfd] += '\0';
+		std::cout << "Request:\n" << this->m_bufCache[sockfd] << std::endl;
+		m_sockStatCode[sockfd] = this->m_currServ->handleRequest(sockfd, this->m_bufCache[sockfd]);
 		this->_tooglerw(sockfd, true);
 	}
+	return bytesRead;
 }
 
 void ServerManager::_disconnectClient(int sockfd) {
 	m_currServ->disconnectClient(sockfd);
 	FD_CLR(sockfd, &this->m_readSockSet);
 	this->m_isReadLoop = false;
-	this->_clearBufCache();
+	this->_clearBufCache(sockfd);
 }
 
-void ServerManager::_clearBufCache(void) {
-	this->m_buffer.clear();
-	this->m_totalBytesRead = 0;
+void ServerManager::_clearBufCache(int sockfd) {
+	this->m_bufCache[sockfd].clear();
+	this->m_totalBytesRead[sockfd] = 0;
 }
 
 int ServerManager::_readFrom(int sockfd) {
 	for (std::vector<Server*>::iterator it = this->m_servList.begin(); it != this->m_servList.end(); it++) {
-		if ((*it)->getListenerFd() == sockfd) {
+		if ((*it)->isSocketValid(sockfd)) {
 			this->m_currServ = *it;
+			printLog("Reading from server #" + SSTR(it - this->m_servList.begin()));
 		}
 		else {
 			continue;
@@ -176,6 +189,8 @@ int ServerManager::_readFrom(int sockfd) {
 		if (this->m_currServ->getListenerFd() == sockfd) {
 			if (!this->m_currServ->isListening()) {
 				this->m_currServ->startListening();
+				printLog("The server now started listening");
+				return 0;
 			}
 			else {
 				int newSock = this->m_currServ->acceptConnection();
@@ -184,22 +199,36 @@ int ServerManager::_readFrom(int sockfd) {
 					return -1;
 				}
 				FD_SET(newSock, &this->m_readSockSet);
+				printLog("Accepted connection on socket " + SSTR(newSock));
+				return 0;
 			}
 		}
 		else {
+			printLog("Reading from client " + SSTR(sockfd));
 			this->m_isReadLoop = true;
 			this->_tooglerw(sockfd, false);
+			return 1;
 		}
 	}
 	return -1;
 }
 
-int ServerManager::_allowRespond(int sockfd) {
-	if (m_sockStatCode[sockfd] == 200) {
-		m_currServ->sendRespond(sockfd);
+int ServerManager::_writeTo(int sockfd) {
+	for (std::vector<Server*>::iterator it = this->m_servList.begin(); it != this->m_servList.end(); it++) {
+		if ((*it)->isSocketValid(sockfd)) {
+			this->m_currServ = *it;
+		}
+		else {
+			continue;
+		}
+		int res = m_currServ->sendRespond(sockfd);
+		if (res < 0) {
+			std::cerr << "Error: failed to send response" << std::endl;
+			this->_disconnectClient(sockfd);
+		}
+		this->_tooglerw(sockfd, false);
+		printLog("Sent response to client " + SSTR(sockfd));
+		return 0;
 	}
-	else {
-		m_currServ->sendRespond(sockfd);
-	}
-	FD_CLR(sockfd, &this->m_writeSockSet);
+	return -1;
 }

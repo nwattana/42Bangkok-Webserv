@@ -13,10 +13,6 @@
 # include <algorithm>
 # include <string>
 
-# ifndef LOG
-#  define LOG 0
-# endif
-
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 30000
 #endif
@@ -51,9 +47,10 @@ class Server {
 		return 0 if success, -1 if all servers needs to be closed */
 		int	closeServer(void);
 
-		int getListenerFd(void);
-		int getClientMaxSize(void);
-		bool isListening(void);
+		int		getListenerFd(void);
+		bool	isSocketValid(int sockfd);
+		int		getClientMaxSize(void);
+		bool	isListening(void);
 
 	private:
 		Server();
@@ -68,10 +65,10 @@ class Server {
 
 		RequestHandler *m_requestHandler;
 
-		void Server::_printAddressInfo(struct addrinfo *p);
-		int Server::_printPeerName(MySocket *sock);
-		int Server::_printHostName(void);
-		int Server::_generateResponse(int statusCode=200);
+		void _printAddressInfo(struct addrinfo *p);
+		int _printPeerName(MySocket *sock);
+		int _printHostName(void);
+		int _generateResponse(int statusCode=200);
 
 		std::string m_readBuffer;
 		std::string m_writeBuffer;

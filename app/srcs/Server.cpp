@@ -197,6 +197,7 @@ int Server::sendRespond(int sockfd) {
 		std::cerr << "Failed to send response" << std::endl;
 		return -1;
 	}
+	return 0;
 }
 
 void Server::disconnectClient(int sockfd) {
@@ -218,6 +219,12 @@ int Server::closeServer(void) {
 
 int Server::getListenerFd(void) {
 	return this->m_listener->getFd();
+}
+
+bool Server::isSocketValid(int sockfd) {
+	if (this->getListenerFd() == sockfd)
+		return true;
+	return this->m_sockMan.hasSocket(sockfd);
 }
 
 int Server::getClientMaxSize(void) {
