@@ -35,3 +35,5 @@ int allow_method_str_to_int(std::string method);
 
 std::string method_allow_to_string(int method);
 
+void printLog(std::string message);
+

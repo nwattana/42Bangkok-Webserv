@@ -1,34 +1,6 @@
-#include "../includes/Server.hpp"
+#include "Server.hpp"
 
 Server::Server() {
-	this->m_port = "8080";
-	this->m_ServerName = "localhost";
-
-	this->m_listener = new MySocket();
-	this->m_listener->m_myAddr.sin_family = AF_INET;
-	this->m_listener->m_myAddr.sin_port = htons(atoi(this->m_port.c_str()));
-	this->m_listener->m_myAddr.sin_addr.s_addr = INADDR_ANY;
-
-	this->m_serverInfo = NULL;
-
-}
-
-Server::Server(ServerConfig serverConfig) {
-	this->m_port = serverConfig.getConfig(S_LISTEN)[0];
-	std::cout << "Port: " << this->m_port << std::endl;
-	this->m_ServerName = serverConfig.getConfig(S_SERVER_NAME)[0];
-	std::cout << "Server Name: " << this->m_ServerName.c_str() << std::endl;
-	this->m_clientMaxSize = atoi(serverConfig.getConfig(S_CLIENT_MAX_SIZE)[0].c_str());
-	std::cout << "Client Max Size: " << this->m_clientMaxSize << std::endl;
-
-	this->m_listener = new MySocket();
-	this->m_listener->m_myAddr.sin_family = AF_INET;
-	this->m_listener->m_myAddr.sin_port = htons(atoi(this->m_port.c_str()));
-	this->m_listener->m_myAddr.sin_addr.s_addr = INADDR_ANY;
-
-	m_requestHandler = new RequestHandler(serverConfig);
-
-	// this->m_serverInfo = NULL;
 }
 
 Server::~Server() {
@@ -42,72 +14,60 @@ Server::Server(Server const &src)
 
 Server &Server::operator=(Server const &rhs) {
 	if (this != &rhs) {
-		// copy
+		//copy
 	}
 	return *this;
 }
 
-const MySocket* Server::getSocket(int fd) {
-	return this->m_sockMan.get(fd);
+Server::Server(ServerConfig serverConfig) : m_serverConfig(serverConfig) {
+	this->m_port = serverConfig.getConfig(S_LISTEN)[0];
+	printLog("Port: " + this->m_port);
+	this->m_ServerName = serverConfig.getConfig(S_SERVER_NAME)[0];
+	printLog("Server Name: " + this->m_ServerName);
+	this->m_clientMaxSize = atoi(serverConfig.getConfig(S_CLIENT_MAX_SIZE)[0].c_str());
+	printLog("Client Max Size: " + SSTR(this->m_clientMaxSize));
+
+	this->m_listener = NULL;
+	this->m_serverInfo = NULL;
+	this->m_requestHandler = NULL;
+	this->m_isListening = false;
 }
 
-int Server::getListenerFd(void) {
-	return this->m_listener->getFd();
-}
-
-int Server::getClientMaxSize(void) {
-	return this->m_clientMaxSize;
-}
-
-int Server::setupServer(void)
-{
-	std::cout << "Setting up serverrr" << std::endl;
+int Server::setupServer() {
 	int res;
-	res = this->_initServer();
-	std::cout << "Server setup successfully" << std::endl;
-	if (res < 0) {
-
-		this->closeServer();
-		// exitWithError("Error: unable to setup server", 1);
-		exitWithError(gai_strerror(res), 1);
+	//malloc things
+	//setup listener
+	this->m_listener = new MySocket();
+	if (this->m_listener == NULL) {
+		std::cerr << "Failed to allocate memory for listener" << std::endl;
+		return -1;
 	}
-	printLog("Server setup successfully");
-	this->_printAddressInfo(this->m_serverInfo);
-	if (this->_createSocket() < 0) {
-		this->closeServer();
-		exitWithError("Error: unable to create a socket", 1);
+	this->m_listener->m_myAddr.sin_family = AF_INET;
+	this->m_listener->m_myAddr.sin_port = htons(atoi(this->m_port.c_str()));
+	this->m_listener->m_myAddr.sin_addr.s_addr = INADDR_ANY;
+	//setup request handler
+	m_requestHandler = new RequestHandler(this->m_serverConfig);
+	if (m_requestHandler == NULL) {
+		std::cerr << "Failed to allocate memory for request handler" << std::endl;
+		return -1;
 	}
-	printLog("Socket created successfully");
-	if (this->_bindAddress() < 0) {
-		this->closeServer();
-		// std::string errorMsg = "Error: unable to bind to port " + this->m_port;
-		// exitWithError(errorMsg, 1);
-		exitWithError();
-	}
-	printLog("Binded to port " + this->m_port);
-	if (this->_listenSocket() < 0) {
-		this->closeServer();
-		exitWithError("Error: unable to listen", 1);
-	}
-	printLog("Listening on port " + this->m_port);
-	std::cout << "fd: " << this->m_listener->getFd() << std::endl;
-	return this->m_listener->getFd();
-}
-
-int Server::_initServer(void)
-{
+	// get address info
 	struct addrinfo hints;
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC; // use AF_INET6 to force IPv6
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE; // use my IP
-	std::cout << "Server Name: " << this->m_ServerName << std::endl;
-	std::cout << "Port: " << this->m_port.c_str() << std::endl;
-	// return getaddrinfo(serverName, this->m_port.c_str(), &hints, &this->m_serverInfo);
 	if (this->m_ServerName == "localhost")
-		return getaddrinfo(NULL, this->m_port.c_str(), &hints, &this->m_serverInfo);
+		res = getaddrinfo(NULL, this->m_port.c_str(), &hints, &this->m_serverInfo);
 	else
-		return getaddrinfo(this->m_ServerName.c_str(), this->m_port.c_str(), &hints, &this->m_serverInfo);
+		res = getaddrinfo(this->m_ServerName.c_str(), this->m_port.c_str(), &hints, &this->m_serverInfo);
+	if (res != 0) {
+		std::cerr << "getaddrinfo() error: " << gai_strerror(res) << std::endl;
+		return res;
+	}
+	// print address info
+	this->_printAddressInfo(this->m_serverInfo);
+	return 0;
 }
 
 void Server::_printAddressInfo(struct addrinfo *p)
@@ -118,7 +78,6 @@ void Server::_printAddressInfo(struct addrinfo *p)
 
 	while (p != NULL)
 	{
-
 		// get the pointer to the address itself,
 		// different fields in IPv4 and IPv6:
 		if (p->ai_family == AF_INET) { // IPv4
@@ -148,33 +107,41 @@ void Server::_printAddressInfo(struct addrinfo *p)
 	}
 }
 
-int Server::_createSocket(void)
-{
+int Server::setupSocket(void) {
+	//create a socket
 	int yes = 1;
 	int sockfd = socket(this->m_serverInfo->ai_family, this->m_serverInfo->ai_socktype, this->m_serverInfo->ai_protocol);
+	if (sockfd == -1) {
+		std::cerr << "Failed to create socket" << std::endl;
+		return -1;
+	}
 	this->m_listener->setFd(sockfd);
 	this->m_sockMan.add(this->m_listener);
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 	printLog("Socket created with fd " + SSTR(sockfd));
-	return sockfd;
+	// bind socket to address
+	int res = bind(sockfd, this->m_serverInfo->ai_addr, this->m_serverInfo->ai_addrlen);
+	if (res == -1) {
+		std::cerr << "Failed to bind socket" << std::endl;
+		return -1;
+	}
+	printLog("Socket binded to address");
+	return (sockfd);
 }
 
-int Server::_bindAddress(void)
-{
-	std::cout << "Binding to fd " << this->m_listener->getFd() << std::endl;
-	// return bind(this->m_sockfd, (struct sockaddr *)&this->m_myAddr, sizeof(this->m_myAddr));
-	return bind(this->m_listener->getFd(), this->m_serverInfo->ai_addr, this->m_serverInfo->ai_addrlen);
+int Server::startListening(void) {
+	int res = listen(this->m_listener->getFd(), 10);
+	if (res == -1) {
+		std::cerr << "Failed to listen" << std::endl;
+		return -1;
+	}
+	printLog("Listening on port " + this->m_port);
+	this->m_isListening = true;
+	return 0;
 }
 
-int Server::_listenSocket(void)
-{
-	int result = listen(this->m_listener->getFd(), 10);
-	return result;
-}
-
-int Server::acceptConnection(void)
-{
+int Server::acceptConnection(void) {
 	MySocket *newSocket = new MySocket(-1, true);
 	socklen_t addr_size = sizeof(newSocket->m_theirAddr);
 	int newFd = accept(this->m_listener->getFd(), (struct sockaddr *)&newSocket->m_theirAddr, &addr_size);
@@ -186,46 +153,6 @@ int Server::acceptConnection(void)
 	this->_printPeerName(newSocket);
 	this->_printHostName();
 	return newFd;
-}
-
-void Server::disconnectClient(int sockfd)
-{
-	this->m_sockMan.remove(sockfd);
-}
-
-int Server::respond(int sockfd, std::string request, int statusCode)
-{
-	if (statusCode == 200) {
-		m_requestHandler->read_request(this->m_readBuffer);
-		this->_generateResponse();
-	}
-	else
-		this->_generateResponse(statusCode);
-	if (this->_writeSocket(sockfd) < 0) {
-		std::cerr << "Error: unable to write to socket " << sockfd << std::endl;
-		this->m_sockMan.remove(sockfd);
-		return sockfd;
-	}
-	printLog("Response sent to client");
-	return 0;
-}
-
-int Server::_generateResponse(int statusCode)
-{
-	if (statusCode == 200)
-		this->m_writeBuffer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
-	else if (statusCode == 413)
-		this->m_writeBuffer = "HTTP/1.1 413 Request Entity Too Large\nContent-Type: text/plain\nContent-Length: 31\n\nERROR Request entity too large!\n";
-	else
-		this->m_writeBuffer = "HTTP/1.1 500 Internal Server Error\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
-
-	// this->m_writeBuffer = response.getResponse();
-	return 0;
-}
-
-int Server::_writeSocket(int sockfd)
-{
-	return send(sockfd, this->m_writeBuffer.c_str(), this->m_writeBuffer.length(), 0);
 }
 
 int Server::_printPeerName(MySocket *sock) {
@@ -243,17 +170,60 @@ int Server::_printHostName(void) {
 	return 0;
 }
 
-int Server::closeServer(void)
+int Server::handleRequest(int sockfd, std::string request) {
+	if (request.size() > this->m_clientMaxSize) {
+		return this->_generateResponse(413);;
+	}
+	m_requestHandler->read_request(this->m_readBuffer);
+	return this->_generateResponse();
+}
+
+int Server::_generateResponse(int statusCode)
 {
+	if (statusCode == 200)
+		this->m_writeBuffer = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
+	else if (statusCode == 413)
+		this->m_writeBuffer = "HTTP/1.1 413 Request Entity Too Large\nContent-Type: text/plain\nContent-Length: 31\n\nERROR Request entity too large!\n";
+	else
+		this->m_writeBuffer = "HTTP/1.1 500 Internal Server Error\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
+
+	// this->m_writeBuffer = response.getResponse();
+	return statusCode;
+}
+
+int Server::sendRespond(int sockfd) {
+	int res = send(sockfd, this->m_writeBuffer.c_str(), this->m_writeBuffer.length(), 0);
+	if (res != this->m_writeBuffer.length()) {
+		std::cerr << "Failed to send response" << std::endl;
+		return -1;
+	}
+}
+
+void Server::disconnectClient(int sockfd) {
+	this->m_sockMan.remove(sockfd);
+}
+
+int Server::closeServer(void) {
+	if (this->m_listener != NULL) {
+		close(this->m_listener->getFd());
+		delete this->m_listener;
+	}
 	if (this->m_serverInfo != NULL)
 		freeaddrinfo(this->m_serverInfo);
+	if (this->m_requestHandler != NULL)
+		delete this->m_requestHandler;
 	this->m_sockMan.closeAll();
-	delete this->m_requestHandler;
 	return 0;
 }
 
-void printLog(std::string message)
-{
-	if (LOG)
-		std::cout << "========= " << message << " =========\n";
+int Server::getListenerFd(void) {
+	return this->m_listener->getFd();
+}
+
+int Server::getClientMaxSize(void) {
+	return this->m_clientMaxSize;
+}
+
+bool Server::isListening(void) {
+	return this->m_isListening;
 }
