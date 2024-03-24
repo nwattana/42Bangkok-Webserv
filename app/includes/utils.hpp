@@ -41,3 +41,5 @@ std::string method_allow_to_string(int method);
 
 void printLog(std::string message);
 
+std::string read_file(std::string file_path);
+std::string resolve_double_slash(std::string path);

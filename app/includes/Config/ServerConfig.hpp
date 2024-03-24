@@ -26,7 +26,12 @@ class ServerConfig
 		int addLocationBlock(LocationBlock location);
 		std::vector<LocationBlock> getLocationConfig(void);
 
+		std::map<int, std::string> getErrorPage(void) const;
+		void setErrorPage(void);
+
 		int check_directive(std::string str);
+
+		void print_error_page(void) const;
 
 		//pls just let me get config info easily TT
 		std::vector<std::string> getConfig(int directive);
@@ -45,5 +50,7 @@ class ServerConfig
 		short int _isSetLocation;
 		short int _isCloseConfig;
 		short int _isEndDirective;
+
+		std::map<int, std::string > error_page;
 };
 

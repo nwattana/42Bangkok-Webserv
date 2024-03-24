@@ -1,4 +1,4 @@
-#include "ResponseHandler.hpp"
+#include "Response.hpp"
 
 /*
 Response  = Status-Line
@@ -8,7 +8,7 @@ Response  = Status-Line
 			CRLF
 			[ message-body ]
 */
-ResponseHandler::ResponseHandler()
+Response::Response()
 {
 	std::string str;
 	// Return HTTP/1.1 200 OK
@@ -18,24 +18,25 @@ ResponseHandler::ResponseHandler()
 	_header_set = "";
 }
 
-ResponseHandler::ResponseHandler(int status_code, std::string body)
+Response::Response(int status_code, std::string body)
 {
 	_version = "HTTP/1.1";
 	_status_code = status_code;
 	_status_line = _version + " " + SSTR(_status_code) + " " + getReasonPhrase(_status_code) + "\r\n";
 	_header_set = "";
+	_body = body;
 }
 
-ResponseHandler::~ResponseHandler()
+Response::~Response()
 {
 }
 
-ResponseHandler::ResponseHandler(ResponseHandler const &src)
+Response::Response(Response const &src)
 {
 	*this = src;
 }
 
-ResponseHandler &ResponseHandler::operator=(ResponseHandler const &rhs)
+Response &Response::operator=(Response const &rhs)
 {
 	if (this != &rhs)
 	{
@@ -44,24 +45,28 @@ ResponseHandler &ResponseHandler::operator=(ResponseHandler const &rhs)
 	return *this;
 }
 
-std::string ResponseHandler::getResponse()
+std::string Response::getResponse()
 {
 	// TODO delete me
-	_body = read_htlm_file("./www/index.html");
+	// _body = read_htlm_file("./www/index.html");
 	_header_set += "Content-Type: text/html\r\n";
 	_header_set += "Content-Length: " + SSTR(_body.length()) + "\r\n";
 	// _header_set += "Connection: close\r\n";
 	return _status_line + _header_set + "\r\n" + _body;
 }
 
-void ResponseHandler::setBody(std::string body)
+void Response::setBody(std::string body)
 {
 	_body = body;
 }
 
-void ResponseHandler::setStatusCode(int status_code)
+void Response::setStatusCode(int status_code)
 {
 	_status_code = status_code;
 	_status_line = _version + " " + SSTR(_status_code) + " " + getReasonPhrase(_status_code) + "\r\n";
 }
 
+void Response::setHeader(std::string key, std::string value)
+{
+	_header_set += key + ": " + value + "\r\n";
+}

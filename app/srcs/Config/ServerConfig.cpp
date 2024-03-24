@@ -62,8 +62,8 @@ void ServerConfig::printServerConfig() const
 	{
 		std::cout << "\t"<<get_directive_string(it->first) << ":\t";
 		printStringVector(it->second, ",");
-
 	}
+	this->print_error_page();
 	for (size_t i = 0; i < location_config.size(); i++)
 	{
 		location_config[i].printConfig();
@@ -104,7 +104,7 @@ int ServerConfig::setDirectiveArgument(std::string str)
 int ServerConfig::closeConfig(void)
 {
 	// this->printServerConfig();
-	// TODO Check parsed completly set and all valid
+	// NOTE Check parsed completly set and all valid
 	// check if default value is set is not set set default value
 	_isDoneConfig = SET;
 	return (1);
@@ -131,7 +131,7 @@ int ServerConfig::endDirective()
 /// @brief check is current directive is done
 int ServerConfig::isEndDirective()
 {
-	// TODO if close before done should throw error
+	// NOTE if close before done should throw error
 	return (this->_isEndDirective == SET);
 }
 
@@ -148,20 +148,25 @@ int ServerConfig::addLocationBlock(LocationBlock location)
 	return (SET);
 }
 
+
+/**
+ * @brief Retrieves the configuration for a given directive.
+ * 
+ * This function returns the configuration associated with the specified directive.
+ * If the directive is found in the map of configurations, the corresponding vector
+ * of strings is returned. Otherwise, a ConfigNotFoundException is thrown.
+ * 
+ * @param directive The directive to retrieve the configuration for.
+ * @return The configuration associated with the directive.
+ * @throws ConfigNotFoundException if the directive is not found.
+ */
 std::vector<std::string> ServerConfig::getConfig(int directive)
 {
 	std::map<int, std::vector<std::string> >::iterator it;
-	try
-	{
-		it = this->configs.find(directive);
-	}
-	catch (std::exception &e)
-	{
-		std::cerr << "Error: " << e.what() << std::endl;
-	}
+	it = this->configs.find(directive);
 	if (it != this->configs.end())
 		return it->second;
-	throw std::runtime_error("Error: Directive not found \"" + get_directive_string(directive) +"\"" + SSTR(directive));
+	throw ConfigNotFoundException("Error: Directive not found \"" + get_directive_string(directive) +"\"" + SSTR(directive));
 }
 
 int ServerConfig::check_directive(std::string str)
@@ -243,5 +248,59 @@ std::string get_directive_string(int directive)
 
 std::vector<LocationBlock>  ServerConfig::getLocationConfig(void)
 {
+	for (size_t i = 0; i < location_config.size(); i++)
+	{
+		location_config[i].setErrorPage();
+	}
 	return (this->location_config);
+}
+
+
+/// @brief Be called After done read config file parse error and store in map
+/// @param  
+void ServerConfig::setErrorPage(void)
+{
+
+	std::vector<std::string> error_pages;
+	int key = 0;
+	try
+	{
+		error_pages  = this->getConfig(S_ERROR_PAGE);
+		for (size_t i = 0; i < error_pages.size(); i++)
+		{
+			if (key == 0)
+			{
+				key = atoi(error_pages[i].c_str());
+			}
+			else
+			{
+				this->error_page[key] = error_pages[i];
+				key = 0;
+			}
+		}
+
+	}
+	catch (ConfigNotFoundException)
+	{}
+	std::vector<LocationBlock> location = this->getLocationConfig();
+	for (size_t i = 0; i < location.size(); i++)
+	{
+		location[i].setErrorPage();
+	}
+	this->location_config = location;
+}
+
+std::map<int, std::string> ServerConfig::getErrorPage(void) const
+{
+	return (this->error_page);
+}
+
+void ServerConfig::print_error_page(void) const
+{
+	std::map<int, std::string>::const_iterator it;
+	std::cout << "\tError Page Configs" << std::endl;
+	for (it = this->error_page.begin(); it != this->error_page.end(); it++)
+	{
+		std::cout << "\t\t" << it->first << ":\t" << it->second << std::endl;
+	}
 }

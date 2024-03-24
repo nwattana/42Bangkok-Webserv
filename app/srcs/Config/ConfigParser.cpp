@@ -105,11 +105,14 @@ void ConfigParser::read_file_config(void)
 			}
 			i++;
 		}
-		// TODO: maybe have bug here
 		tmp_server.endDirective();
 		tmp_location.endDirective();
 		this->m_raw_config += line_trim;
 		this->m_raw_config += '\n';
+	}
+	for (size_t i = 0; i < server_config.size(); i++)
+	{
+		server_config[i].setErrorPage();
 	}
 	m_file.close();
 }
@@ -120,6 +123,7 @@ void ConfigParser::printServerConfig(void) const
 	{
 		std::cout << "Server " << i << std::endl;
 		server_config[i].printServerConfig();
+		// server_config[i].print_error_page();
 	}
 }
 

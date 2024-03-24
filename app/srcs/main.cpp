@@ -13,14 +13,24 @@ int main(int argc, char **argv, char **envp)
 	ConfigParser config(filename);
 	std::cout  << "=============== Initializing server from: " << filename << " =============== " << std::endl;
 	config.printServerConfig();
+	
 	std::cout << "=============== Connecting to http://localhost:8080/ ===============" << std::endl;
 	//create server
 
 
-	ServerManager serverManager(config.getServerConfig());
-	serverManager.setupServer();
-	serverManager.handleConnection();
-	serverManager.closeAll();
+	// RequestHandler requestHandler(config.getServerConfig()[0]);
+
+	// requestHandler.read_request(
+	// 	"GET / HTTP/1.1\r\n"
+	// 	"Host: localhost:8080\r\n"
+	// 	"User-Agent: curl/7.68.0\r\n"
+	// 	"Accept: */*\r\n"
+	// 	"\r\n"
+	// );
+	// ServerManager serverManager(config.getServerConfig());
+	// serverManager.setupServer();
+	// serverManager.handleConnection();
+	// serverManager.closeAll();
 
 	return (0);
 }

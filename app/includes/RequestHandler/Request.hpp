@@ -52,6 +52,9 @@ public:
 	int get_method(void);
 	std::string get_uri(void);
 
+	void set_resource(std::string resource);
+	std::string get_resource(void);
+
 private:
 	Request();
 

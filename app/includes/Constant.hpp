@@ -34,7 +34,6 @@
 * Location Config
 */
 #define L_ROOT_DIR 1
-#define L_CGI_HANDLER 2
 #define L_DENY 3
 #define L_AUTOINDEX 4
 #define L_ERROR_PAGE 5
@@ -42,7 +41,7 @@
 #define L_UPLOAD_FILE 7
 #define L_UPLOAD_PATH 8
 #define L_METHOD_ALLOW 9
-#define L_CGI_ENABLE 10
+#define L_CGI_HANDLER 2
 #define L_CGI_PATH 11
 #define L_INDEX 12
 

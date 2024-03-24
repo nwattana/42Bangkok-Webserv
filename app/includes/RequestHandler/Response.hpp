@@ -2,7 +2,7 @@
 #include <string>
 #include "utils.hpp"
 
-class ResponseHandler {
+class Response{
 
 	private:
 
@@ -14,13 +14,14 @@ class ResponseHandler {
 		std::string _body;
 
 	public:
-		ResponseHandler();
-		ResponseHandler(int status_code, std::string body);
-		~ResponseHandler();
-		ResponseHandler(ResponseHandler const &src);
-		ResponseHandler &operator=(ResponseHandler const &rhs);
+		Response();
+		Response(int status_code, std::string body);
+		~Response();
+		Response(Response const &src);
+		Response &operator=(Response const &rhs);
 
 		std::string getResponse();
 		void setStatusCode(int status_code);
 		void setBody(std::string body);
+		void setHeader(std::string key, std::string value);
 };
