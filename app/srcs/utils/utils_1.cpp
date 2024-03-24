@@ -63,3 +63,9 @@ int findCharInString(std::string str, const char *c)
 	}
 	return 0;
 }
+
+void printLog(std::string message)
+{
+	if (LOG)
+		std::cout << "========= " << message << " =========\n";
+}

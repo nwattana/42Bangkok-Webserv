@@ -68,3 +68,7 @@ int MySocketManager::getMaxFd(void) {
 	}
 	return max;
 }
+
+bool MySocketManager::hasSocket(int fd) {
+	return this->m_socketList.find(fd) != this->m_socketList.end();
+}
