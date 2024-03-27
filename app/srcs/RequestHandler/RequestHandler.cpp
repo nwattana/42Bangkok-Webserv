@@ -69,12 +69,30 @@ std::string RequestHandler::read_request(std::string request)
 		// bad request
 		return "HTTP/1.1 400 Bad Request\r\n\r\n";
 	}
-	std::string header = request.substr(0, seperator + 2);
-	std::string body = request.substr(seperator + 4);
+	std::string header, body;
+	try
+	{
+		header = request.substr(0, seperator + 2);
+		body = request.substr(seperator + 4);
+	}
+	catch(const std::exception& e)
+	{
+		std::cout << e.what() << std::endl;
+	}
+	
 	// Create Request object
 	_current_request = new Request(header, body);
-	_current_request->printSetting();
+	try
+	{
+		_current_request->printSetting();
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+
 	return _request_serializer();
+
 }
 
 void RequestHandler::create_location_rule(std::vector<LocationBlock> location_config)
