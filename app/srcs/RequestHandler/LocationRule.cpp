@@ -323,9 +323,25 @@ void LocationRule::set_request_resource(Request * request)
 	// trim handle route
 	uri = uri.substr(_handle_route.length());
 	uri = _root_dir + uri;
-	std::string resource = uri.substr(_handle_route.length());
+	std::string resource;
+	try
+	{
+		// ToDO error here uri shorter than handle route
+		std::cout << uri << " " << _handle_route << std::endl;
+		// resource = uri.substr(_handle_route.length());
+		/* code */
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	
 	if (resource.empty() || resource == "/" || resource.end()[-1] == '/')
+	{
 		resource = get_index_page();
+		uri = resource;
+	}
+	
 	request->set_resource(uri);
 }
 

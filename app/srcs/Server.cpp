@@ -182,7 +182,10 @@ int Server::handleRequest(int sockfd, std::string request) {
 int Server::_generateResponse(int sockfd, int statusCode)
 {
 	if (statusCode == 200)
-		this->m_writeBuffer[sockfd] = "HTTP/1.1 200 OK\nContent-Type: text/plain\nContent-Length: 12\n\nHello world!\n";
+	{
+		this->m_writeBuffer[sockfd] = this->m_requestHandler->read_request(this->m_readBuffer[sockfd]);
+		std::cout << (this->m_requestHandler->read_request(this->m_readBuffer[sockfd]));
+	}
 	else if (statusCode == 413)
 		this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_error_response("/", 413);
 	else
