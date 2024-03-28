@@ -24,6 +24,17 @@ std::vector<std::string> ft_split(std::string str, const char * delimiter_set)
 	return result;
 }
 
+char **ft_vector_string_to_char_array(std::vector<std::string> vec)
+{
+	char **result = new char*[vec.size() + 1];
+	for (size_t i = 0; i < vec.size(); i++)
+	{
+		result[i] = strdup(vec[i].c_str());
+	}
+	result[vec.size()] = NULL;
+	return result;
+}
+
 std::string ft_strtrim(std::string str)
 {
 	size_t start = 0;

@@ -79,7 +79,6 @@ std::string RequestHandler::read_request(std::string request)
 	{
 		std::cout << e.what() << std::endl;
 	}
-	
 	// Create Request object
 	_current_request = new Request(header, body);
 	try
@@ -90,9 +89,9 @@ std::string RequestHandler::read_request(std::string request)
 	{
 		std::cerr << e.what() << '\n';
 	}
-
-	return _request_serializer();
-
+	std::string response = _request_serializer();
+	delete _current_request;
+	return response;
 }
 
 void RequestHandler::create_location_rule(std::vector<LocationBlock> location_config)
@@ -144,9 +143,9 @@ LocationRule *RequestHandler::_find_location_rule(std::string uri)
 {
 	LocationRule *rule, *res;
 	// for each location rule, check if uri match and most depth
-	uri = uri.find_last_of("/") == uri.size() - 1 ? uri : uri.substr(0, uri.find_last_of("/") + 1);
-	std::cout << "RequestHandler::_find_location_rule : uri : " << uri << std::endl;
 
+	// Search for last '/' in uri check it followed by a file or not
+	uri = uri.find_last_of("/") == uri.size() - 1 ? uri : uri.substr(0, uri.find_last_of("/") + 1);
 	res = NULL;
 	for (std::vector<LocationRule *>::iterator it = _locations_rules.begin(); it != _locations_rules.end(); it++)
 	{
@@ -170,8 +169,6 @@ void RequestHandler::create_defualt_rule(void)
 }
 
 /// @brief Serve a error response asoociated with the error code and route
-/// @param route 
-/// @param error_code 
 /// @return 
 std::string RequestHandler::generate_error_response(std::string route, int error_code)
 {

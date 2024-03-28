@@ -16,7 +16,9 @@ int main(int argc, char **argv, char **envp)
 	
 	std::cout << "=============== Connecting to http://localhost:8080/ ===============" << std::endl;
 	//create server
+		// DELETE ME
 
+	test_use_execute_cgi();
 
 	// RequestHandler requestHandler(config.getServerConfig()[0]);
 
