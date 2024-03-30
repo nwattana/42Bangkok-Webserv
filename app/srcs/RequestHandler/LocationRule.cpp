@@ -18,9 +18,9 @@ LocationRule::LocationRule(LocationBlock block, std::string server_dir)
 	_set_index_page(block);
 	_set_error_page(block.getErrorPage());
 	std::cout << "Index Page : " << _index_page << std::endl;
-
+	_set_cwd();
+	std::cout << "CWD : " << _cwd << std::endl;
 	_m_response_handler = new ResponseHandler();
-
 }
 
 LocationRule::LocationRule(LocationRule const &src)
@@ -268,12 +268,10 @@ void LocationRule::_set_index_page(LocationBlock block)
 // join root and index page if index page at location not set use default index page
 std::string LocationRule::get_index_page(void) const
 {
-	std::string res = _root_dir + _index_page;
-	res = resolve_double_slash(res);
-	return res;
+	return _index_page;
 }
 
-
+// TODO work on this
 std::string LocationRule::generate_response(Request * request)
 {
 	std::string res;
@@ -282,14 +280,13 @@ std::string LocationRule::generate_response(Request * request)
 	{
 		if (_cgi_handle)
 		{
-			// cgi
-			// execute cgi and return response
-			std::cout << "Not implemented yet" << std::endl;
-			res = "HTTP/1.1 501 Not Implemented\r\nContent-Type: text/plain\r\nContent-Length: 0\r\n\r\n";
+			std::string path_to_cgi = request->get_resource();
+			ExecveAdapter execve_adapter(path_to_cgi, std::vector<std::string>());
+			res = execute_cgi(execve_adapter.get_argv_size(),execve_adapter.get_argv(), execve_adapter.get_envp());
+			execve_adapter.destory();
 		}
 		else
 		{
-			// serve a static file
 			std::string resource = request->get_resource();
 			// TODO ไป set index Page ตอน match path ต้อง เอา ส่วนที่ไม่เหมือนมา ต่อ root dir ด้วย
 			std::cout << "LocationRule::generate_response : resouce : | " << resource << " | " << std::endl;
@@ -315,34 +312,24 @@ void LocationRule::setIndexPage(std::string index_page)
 	_index_page = index_page;
 }
 
-
-void LocationRule::set_request_resource(Request * request)
+/// @brief generate resource path from uri path
+/// @param uri 
+/// @return actual path to resource in current server
+std::string LocationRule::generate_request_resource(std::string uri)
 {
-	std::string uri = request->get_uri();
+	std::string result, path_till_handle_route, remaining_path;
+	path_till_handle_route = uri.substr(_handle_route.length());
+	remaining_path = uri.substr(path_till_handle_route.length(), uri.length());
+	// NOTE Hard Code "/" for now handdle path like ./www/
+	result = _cwd + "/" + _root_dir + "/" + _handle_route + "/" + path_till_handle_route;
 
-	// trim handle route
-	uri = uri.substr(_handle_route.length());
-	uri = _root_dir + uri;
-	std::string resource;
-	try
+	if (result.empty() || result == "/" || result.end()[-1] == '/')
 	{
-		// ToDO error here uri shorter than handle route
-		std::cout << uri << " " << _handle_route << std::endl;
-		// resource = uri.substr(_handle_route.length());
-		/* code */
+		std::cout << "LocationRule::generate_request_resource : resource is empty or end with /" << std::endl;
+		result += _index_page;
 	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-	
-	if (resource.empty() || resource == "/" || resource.end()[-1] == '/')
-	{
-		resource = get_index_page();
-		uri = resource;
-	}
-	
-	request->set_resource(uri);
+	result = resolve_double_slash(result);
+	return (result);
 }
 
 void LocationRule::set_error_page(std::map<int, std::string> error_page)
@@ -388,4 +375,14 @@ std::string LocationRule::generate_error_response(int status_code)
 		res = response.getResponse();
 	}
 	return (res);
+}
+
+void LocationRule::_set_cwd(void)
+{
+	char cwd[PATH_MAX];
+	if (getcwd(cwd, sizeof(cwd)) == NULL)
+	{
+		perror("getcwd() error");
+	}
+	_cwd = std::string(cwd);
 }

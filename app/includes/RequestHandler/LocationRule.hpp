@@ -1,5 +1,7 @@
 #pragma once
 #include <iostream>
+#include <linux/limits.h>
+#include <unistd.h>
 #include "LocationBlock.hpp"
 #include "ServerConfig.hpp"
 #include "Constant.hpp"
@@ -8,6 +10,7 @@
 #include "Request.hpp"
 #include "Response.hpp"
 #include "ResponseHandler.hpp"
+#include "ExecvAdapter.hpp"
 
 class LocationRule{
 	public:
@@ -41,15 +44,12 @@ class LocationRule{
 		
 		std::string get_handle_route(void) const;
 		std::string get_full_path(void) const;
-
 		std::string generate_response(Request * srequest);
-
 		std::string get_index_page(void) const;
 		void setIndexPage(std::string index_page);
 
-		void set_request_resource(Request * request);
+		std::string generate_request_resource(std::string uri);  
 		void set_error_page(std::map<int, std::string> error_page);
-
 
 		// response handler
 		std::string generate_error_response(int error_code);
@@ -68,10 +68,8 @@ class LocationRule{
 		std::string _cgi_bin;
 		
 		int _allow_method;
-
 		int _allow_upload;
 		std::string _upload_path;
-
 		std::string _index_page;
 
 		void _set_handle_route(LocationBlock block);
@@ -84,7 +82,9 @@ class LocationRule{
 		void _set_cgi(LocationBlock block, std::string server_dir);
 		void _set_index_page(LocationBlock block);
 		void _set_error_page(std::map<int, std::string> error_page);
+		void _set_cwd(void);
 
 		ResponseHandler *_m_response_handler;
 		std::map<int, std::string> _error_page;
+		std::string _cwd;
 };

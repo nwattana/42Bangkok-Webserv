@@ -24,6 +24,7 @@ std::vector<std::string> ft_split(std::string str, const char * delimiter_set)
 	return result;
 }
 
+// Should Delete result
 char **ft_vector_string_to_char_array(std::vector<std::string> vec)
 {
 	char **result = new char*[vec.size() + 1];
@@ -79,4 +80,14 @@ void printLog(std::string message)
 {
 	if (LOG)
 		std::cout << "========= " << message << " =========\n";
+}
+
+
+void free_char_array(char **arr)
+{
+	for (size_t i = 0; arr[i] != NULL; i++)
+	{
+		free(arr[i]);
+	}
+	delete[] arr;
 }

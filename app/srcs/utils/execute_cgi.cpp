@@ -5,6 +5,8 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 	int fd[2];
 	pipe(fd);
 	std::string result;
+	
+	std::cout <<"Do execut"<< argv[0] << std::endl;
 
 	pid_t c_pid = fork();
 	if (c_pid == -1)
@@ -41,6 +43,7 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 	return result;
 }
 
+// just for test purpose
 void test_use_execute_cgi()
 {
 	char *args[2];
@@ -48,7 +51,7 @@ void test_use_execute_cgi()
 	args[1] = NULL;
 
 	char *argvs[2];
-	argvs[0] = strdup("ALLOWED_METHOD=GET");
+	argvs[0] = strdup("REQUEST_METHOD=GET");
 	argvs[1] = NULL;
 
 	execute_cgi(0, args, argvs);

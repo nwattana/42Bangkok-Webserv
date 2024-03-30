@@ -70,27 +70,13 @@ std::string RequestHandler::read_request(std::string request)
 		return "HTTP/1.1 400 Bad Request\r\n\r\n";
 	}
 	std::string header, body;
-	try
-	{
-		header = request.substr(0, seperator + 2);
-		body = request.substr(seperator + 4);
-	}
-	catch(const std::exception& e)
-	{
-		std::cout << e.what() << std::endl;
-	}
-	// Create Request object
+	header = request.substr(0, seperator + 2);
+	body = request.substr(seperator + 4);
+
 	_current_request = new Request(header, body);
-	try
-	{
-		_current_request->printSetting();
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
 	std::string response = _request_serializer();
 	delete _current_request;
+
 	return response;
 }
 
@@ -121,19 +107,17 @@ void RequestHandler::printSetting(void) const
 	}
 }
 
+// TODO work on this
 std::string RequestHandler::_request_serializer(void)
 {
 	std::string uri = _current_request->get_uri();
 	LocationRule *rule = _find_location_rule(uri);
-
-	std::cout << "RequestHandler::_request_serializer : uri : " << uri << std::endl;
 	if (rule == NULL)
 	{
 		rule = _default_rule;
 	}
-	rule->printSetting();
-	rule->set_request_resource(_current_request);
-
+	// rule->printSetting();
+	_current_request->set_resource(rule->generate_request_resource(uri));
 	std::string response = rule->generate_response(_current_request);
 	return response;
 }
