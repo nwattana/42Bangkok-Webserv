@@ -30,7 +30,6 @@ void 						printStringVector(std::vector<std::string> vec, std::string delimiter
 int 						findCharInString(std::string str, const char *c);
 std::string 				ft_strtrim(std::string str);
 std::vector<std::string> 	ft_split(std::string str, const char *delimiter);
-
 std::string execute_cgi(int argc, char *argv[], char * const * envp);
 
 int allow_method_parser(std::string allow_method);
@@ -43,3 +42,8 @@ void printLog(std::string message);
 
 std::string read_file(std::string file_path);
 std::string resolve_double_slash(std::string path);
+char **ft_vector_string_to_char_array(std::vector<std::string> vec);
+void free_char_array(char **arr);
+
+// delete me
+void test_use_execute_cgi();

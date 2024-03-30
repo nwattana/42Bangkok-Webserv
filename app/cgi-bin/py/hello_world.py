@@ -1,13 +1,17 @@
 #!/usr/bin/python3
 
-def handle_call():
-	# print env
-	import os
-	import sys
-	print("argv: ", sys.argv)
-	print(os.environ)
-	
+print ("Content-type:text/html\r\n\r\n")
+print ('<html>')
+print ('<head>')
+print ('<title>Hello Word - First CGI Program</title>')
+print ('</head>')
+print ('<body>')
+print ('<h2>Hello Word! This is my first CGI program</h2>')
+print ('</body>')
+print ('</html>')
 
-if __name__ == '__main__':
-	handle_call()
-	exit(0)
+import os
+print(os.environ)
+
+if __name__ == "__main__":
+	print(os.environ)
