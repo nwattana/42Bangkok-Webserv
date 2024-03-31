@@ -19,9 +19,22 @@ RequestHandler::RequestHandler(ServerConfig serverConfig)
 	_root_dir = serverConfig.getConfig(S_ROOT)[0];
 
 	// Location Rule to Match Location when recieved request
+	
+	// Default Rule for unmatched location
 	create_defualt_rule();
 	this->_default_rule->set_error_page(serverConfig.getErrorPage());
+	try
+	{
+		this->_default_rule->setIndexPage(serverConfig.getConfig(S_INDEX)[0]);
+	}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cerr << "RequestHandler::RequestHandler : " << e.what() << std::endl;
+		this->_default_rule->setIndexPage("index.html");
+	}
 
+
+	// Other location rules
 	std::vector<LocationBlock> location_configs = serverConfig.getLocationConfig();
 	create_location_rule(location_configs);
 }
@@ -143,12 +156,13 @@ LocationRule *RequestHandler::_find_location_rule(std::string uri)
 	return res;
 }
 
+// TODO alot of bug here
 void RequestHandler::create_defualt_rule(void)
 {
 	_default_rule = new LocationRule();
 	_default_rule->setRootDir(_root_dir);
 	_default_rule->setAllowMethod(_allowed_method);
-	_default_rule->setIndexPage("index.html");
+	// _default_rule->setIndexPage("index.html");
 	// _default_rule->printSetting();
 }
 

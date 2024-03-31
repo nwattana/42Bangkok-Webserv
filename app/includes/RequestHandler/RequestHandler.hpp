@@ -7,7 +7,8 @@
 #include "utils.hpp"
 #include "LocationRule.hpp"
 #include "Request.hpp"
-
+#include "Constant.hpp"
+#include "exception.hpp"
 /*
  * Factory class Crete RequestHandler for Server
  * each Server will have a RequestHandler
