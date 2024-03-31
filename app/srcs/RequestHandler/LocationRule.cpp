@@ -3,6 +3,7 @@
 LocationRule::LocationRule()
 {
 	_set_up_default();
+	_set_cwd();
 }
 
 LocationRule::LocationRule(LocationBlock block, std::string server_dir)
