@@ -3,14 +3,12 @@
 LocationRule::LocationRule()
 {
 	_set_up_default();
-	_set_cwd();
 }
 
 LocationRule::LocationRule(LocationBlock block, std::string server_dir)
 {
 	_set_up_default();
 	std::string temp;
-
 	_handle_route = block.getLocationMatch();
 	_set_root_dir(block, server_dir);
 	_set_depth();
@@ -54,6 +52,7 @@ void LocationRule::_set_up_default()
 	_upload_path = "./";
 	_cgi_bin = "./";
 	_cgi_handle = 0;
+	_set_cwd();
 }
 
 bool LocationRule::operator>(LocationRule const &rhs)
@@ -279,26 +278,32 @@ std::string LocationRule::generate_response(Request * request)
 
 	if (request->get_method() & _allow_method)
 	{
+		std::string resource = request->get_resource();
+		std::cout << "LocationRule::generate_response : resouce : | " << resource << " | " << std::endl;
 		if (_cgi_handle)
 		{
-			std::string path_to_cgi = request->get_resource();
-			ExecveAdapter execve_adapter(path_to_cgi, std::vector<std::string>());
+			ExecveAdapter execve_adapter(resource, std::vector<std::string>());
 			res = execute_cgi(execve_adapter.get_argv_size(),execve_adapter.get_argv(), execve_adapter.get_envp());
 			execve_adapter.destory();
 		}
 		else
 		{
-			std::string resource = request->get_resource();
-			// TODO ไป set index Page ตอน match path ต้อง เอา ส่วนที่ไม่เหมือนมา ต่อ root dir ด้วย
-			std::cout << "LocationRule::generate_response : resouce : | " << resource << " | " << std::endl;
-			std::string body = read_file(resource);
-			Response response(200, body);
-			return response.getResponse();
+			try
+			{
+				StaticFileWaiter static_file_waiter(resource);
+				std::string body = static_file_waiter.read_file();
+				Response response(200, body);
+				response.setHeader("Content-Type", static_file_waiter.get_content_type());
+				return response.getResponse();
+			}
+			catch (FileNotAccessibleException)
+			{
+				res = generate_error_response(404);
+			}
 		}
 	}
 	else
 	{
-		// method not allowed return error
 		res = generate_error_response(405);
 	}
 	if (res.empty())

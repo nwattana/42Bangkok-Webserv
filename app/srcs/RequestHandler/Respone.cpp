@@ -47,11 +47,8 @@ Response &Response::operator=(Response const &rhs)
 
 std::string Response::getResponse()
 {
-	// TODO delete me
-	// _body = read_htlm_file("./www/index.html");
-	_header_set += "Content-Type: text/html\r\n";
+	
 	_header_set += "Content-Length: " + SSTR(_body.length()) + "\r\n";
-	// _header_set += "Connection: close\r\n";
 	return _status_line + _header_set + "\r\n" + _body;
 }
 
