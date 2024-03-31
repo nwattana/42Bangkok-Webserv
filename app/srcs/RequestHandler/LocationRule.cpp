@@ -279,7 +279,8 @@ std::string LocationRule::generate_response(Request * request)
 	if (request->get_method() & _allow_method)
 	{
 		std::string resource = request->get_resource();
-		std::cout << "LocationRule::generate_response : resouce : | " << resource << " | " << std::endl;
+		std::cout << "LocationRule::METHOD:" << method_allow_to_string(request->get_method());
+		std::cout << "::generate_response :resouce: \"" << resource << "\"" << std::endl;
 		if (_cgi_handle)
 		{
 			ExecveAdapter execve_adapter(resource, std::vector<std::string>());
@@ -293,6 +294,8 @@ std::string LocationRule::generate_response(Request * request)
 				StaticFileWaiter static_file_waiter(resource);
 				std::string body = static_file_waiter.read_file();
 				Response response(200, body);
+				response.setHeader("Content-Type", static_file_waiter.get_content_type());
+				response.setHeader("Content-Type", static_file_waiter.get_content_type());
 				response.setHeader("Content-Type", static_file_waiter.get_content_type());
 				return response.getResponse();
 			}
@@ -326,12 +329,10 @@ std::string LocationRule::generate_request_resource(std::string uri)
 	std::string result, path_till_handle_route, remaining_path;
 	path_till_handle_route = uri.substr(_handle_route.length());
 	remaining_path = uri.substr(path_till_handle_route.length(), uri.length());
-	// NOTE Hard Code "/" for now handdle path like ./www/
 	result = _cwd + "/" + _root_dir + "/" + _handle_route + "/" + path_till_handle_route;
 
 	if (result.empty() || result == "/" || result.end()[-1] == '/')
 	{
-		std::cout << "LocationRule::generate_request_resource : resource is empty or end with /" << std::endl;
 		result += _index_page;
 	}
 	result = resolve_double_slash(result);
@@ -360,16 +361,19 @@ std::string LocationRule::generate_error_response(int status_code)
 
 	try
 	{
+		std::cout << "Status Code : " << status_code << std::endl;
 		path = _error_page.at(status_code);
 	}
 	catch(const std::exception& e)
 	{
-		std::cerr << e.what() << '\n';
+		// std::cerr << e.what() << '\n';
+		std::cerr << "Error Page not set for status code : " << status_code;
 	}
 	
 	if (path.empty())
 	{
 		// use default error
+		std::cerr << " Use default error " << std::endl;
 		Response response(status_code, "");
 		res = response.getResponse();
 	}

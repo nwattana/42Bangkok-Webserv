@@ -63,7 +63,20 @@ void Response::setStatusCode(int status_code)
 	_status_line = _version + " " + SSTR(_status_code) + " " + getReasonPhrase(_status_code) + "\r\n";
 }
 
+// check if key is already in header
+// if yes, replace it
+// if no, add it
 void Response::setHeader(std::string key, std::string value)
 {
-	_header_set += key + ": " + value + "\r\n";
+	if (_header_set.find(key + ":") != std::string::npos)
+	{
+		size_t start = _header_set.find(key + ":");
+		size_t end = _header_set.find("\r\n", start);
+		_header_set.replace(start, end - start, key + ": " + value);
+	}
+	else
+	{
+		_header_set += key + ": " + value + "\r\n";
+	}
+	// std::cout << "Header set: " << _header_set << std::endl;
 }
