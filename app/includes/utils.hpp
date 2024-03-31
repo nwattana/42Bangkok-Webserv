@@ -20,7 +20,7 @@ inline std::string SSTR(int x) {
 }
 
 #ifndef LOG
-# define LOG 1
+# define LOG 0
 #endif
 
 std::string getReasonPhrase(int statusCode);

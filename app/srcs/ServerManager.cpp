@@ -110,12 +110,12 @@ int ServerManager::handleConnection(void) {
 }
 
 void ServerManager::closeAll(void) {
-	for (std::vector<Server*>::iterator it = this->m_servList.begin(); it != this->m_servList.end(); it++) {
-		delete *it;
-	}
+	// for (std::vector<Server*>::iterator it = this->m_servList.begin(); it != this->m_servList.end(); it++) {
+	// 	delete *it;
+	// }
+	this->m_servList.clear();
 	FD_ZERO(&this->m_readSockSet);
 	FD_ZERO(&this->m_writeSockSet);
-	this->m_servList.clear();
 }
 
 void ServerManager::_tooglerw(int sockfd, bool isNowRead) {
@@ -159,11 +159,11 @@ int ServerManager::_readBuffer(int sockfd) {
 	if (this->m_bufCache[sockfd].find("\r\n") != std::string::npos) {
 		this->m_bufCache[sockfd].append("\0");
 		this->m_totalBytesRead[sockfd]++;
-		std::cout << "Request:\n" << this->m_bufCache[sockfd] << std::endl;
-		for (int i = 0; i < this->m_bufCache[sockfd].size(); i++) {
-			std::cout << (int) this->m_bufCache[sockfd][i] << " ";
-		}
-		std::cout << std::endl;
+		// std::cout << "Request:\n" << this->m_bufCache[sockfd] << std::endl;
+		// for (int i = 0; i < this->m_bufCache[sockfd].size(); i++) {
+		// 	std::cout << (int) this->m_bufCache[sockfd][i] << " ";
+		// }
+		// std::cout << std::endl;
 		m_sockStatCode[sockfd] = this->m_currServ->handleRequest(sockfd, this->m_bufCache[sockfd]);
 		this->_tooglerw(sockfd, true);
 	}
