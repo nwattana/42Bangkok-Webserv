@@ -11,6 +11,7 @@
 #include "Response.hpp"
 #include "ResponseHandler.hpp"
 #include "ExecvAdapter.hpp"
+#include "StaticFileWaiter.hpp"
 
 class LocationRule{
 	public:

@@ -49,6 +49,7 @@ RequestHandler &RequestHandler::operator=(RequestHandler const &rhs)
 	if (this != &rhs)
 	{
 		// copy
+		std::cout << "Copy Constructor of RequestHandler call but it no implement yet." << std::endl;
 	}
 	return *this;
 }
@@ -78,10 +79,9 @@ std::string RequestHandler::read_request(std::string request)
 	int seperator = request.find("\r\n\r\n");
 	if (seperator == -1)
 	{
-		std::cerr << "RequestHandler::read_request : no header/body seperator" << std::endl;
-		// bad request
-		return "HTTP/1.1 400 Bad Request\r\n\r\n";
+		return _default_rule->generate_error_response(400);
 	}
+
 	std::string header, body;
 	header = request.substr(0, seperator + 2);
 	body = request.substr(seperator + 4);
@@ -129,12 +129,11 @@ std::string RequestHandler::_request_serializer(void)
 	{
 		rule = _default_rule;
 	}
-	// rule->printSetting();
 	_current_request->set_resource(rule->generate_request_resource(uri));
+
 	std::string response = rule->generate_response(_current_request);
 	return response;
 }
-
 
 LocationRule *RequestHandler::_find_location_rule(std::string uri)
 {
@@ -162,8 +161,6 @@ void RequestHandler::create_defualt_rule(void)
 	_default_rule = new LocationRule();
 	_default_rule->setRootDir(_root_dir);
 	_default_rule->setAllowMethod(_allowed_method);
-	// _default_rule->setIndexPage("index.html");
-	// _default_rule->printSetting();
 }
 
 /// @brief Serve a error response asoociated with the error code and route
