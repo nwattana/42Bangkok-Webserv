@@ -177,7 +177,7 @@ int Server::handleRequest(int sockfd, std::string request) {
 		return this->_generateResponse(413);;
 	}
 	this->m_readBuffer[sockfd] = request;
-	m_requestHandler->read_request(this->m_readBuffer[sockfd]);
+	// m_requestHandler->read_request(this->m_readBuffer[sockfd]);
 	return this->_generateResponse(sockfd);
 }
 
