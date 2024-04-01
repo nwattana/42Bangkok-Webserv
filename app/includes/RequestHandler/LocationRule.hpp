@@ -49,7 +49,7 @@ class LocationRule{
 		std::string get_full_path(void) const;
 		std::string generate_response(Request * srequest);
 		std::string get_index_page(void) const;
-		void setIndexPage(std::string index_page);
+		void setIndexPage(std::string index_page, int defalt);
 
 		std::string generate_resource_GET(std::string uri);
 		std::string generate_resource_POST(std::string uri);
@@ -59,11 +59,14 @@ class LocationRule{
 		// response handler
 		std::string generate_error_response(int error_code);
 		std::string execute_request(Request& request);
+		std::string set_auto_index(std::string auto_index);
+		std::string set_auto_index(LocationBlock& block);
 	
 	private:
 
 		void _set_up_default();
 		std::string _full_path;
+		int _is_set_index_page;
 		int _depth;
 		std::string _handle_route;
 		std::string _root_dir;
@@ -73,6 +76,8 @@ class LocationRule{
 		int _allow_upload;
 		std::string _upload_path;
 		std::string _index_page;
+		std::string _auto_index;
+		std::string _auto_index_cgi;
 
 		void _set_handle_route(LocationBlock block);
 		// void _set_dir_path(LocationBlock block, std::string server_dir);
@@ -92,6 +97,8 @@ class LocationRule{
 		std::string _handle_post(Request& request);
 		std::string _handle_put(Request& request);
 		std::string _handle_delete(Request& request);
+
+		std::string _build_in_cgi(Request& request);
 
 		ResponseHandler *_m_response_handler;
 		std::map<int, std::string> _error_page;

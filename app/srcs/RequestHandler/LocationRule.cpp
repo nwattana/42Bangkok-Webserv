@@ -5,12 +5,11 @@ LocationRule::LocationRule()
 	_set_up_default();
 }
 
-LocationRule::LocationRule(LocationBlock& block, std::string server_dir)
+LocationRule::LocationRule(LocationBlock &block, std::string server_dir)
 {
 	_set_up_default();
 	std::string temp;
 	_handle_route = block.getLocationMatch();
-
 	_set_root_dir(block, server_dir);
 	_set_depth();
 	_set_allow_method(block);
@@ -18,7 +17,9 @@ LocationRule::LocationRule(LocationBlock& block, std::string server_dir)
 	_set_index_page(block);
 	_set_error_page(block.getErrorPage());
 	_set_cwd();
+	set_auto_index(block);
 	_m_response_handler = new ResponseHandler();
+	
 }
 
 LocationRule::LocationRule(LocationRule const &src)
@@ -52,6 +53,8 @@ void LocationRule::_set_up_default()
 	_cgi_bin = "./";
 	_cgi_handle = 0;
 	_set_cwd();
+	_auto_index_cgi = "./cgi-bin/py/auto_index.py";
+	_is_set_index_page = 0;
 }
 
 bool LocationRule::operator>(LocationRule const &rhs)
@@ -259,9 +262,11 @@ void LocationRule::_set_index_page(LocationBlock block)
 	catch (ConfigNotFoundException)
 	{
 		_index_page = "index.html";
+		_is_set_index_page = 0;
 		return;
 	}
 	_index_page = temp;
+	_is_set_index_page = 1;
 }
 
 // join root and index page if index page at location not set use default index page
@@ -270,54 +275,46 @@ std::string LocationRule::get_index_page(void) const
 	return _index_page;
 }
 
-// TODO work on this
-// std::string LocationRule::generate_response(Request * request)
-// {
-// 	std::string res;
-// 	int request_method = request->get_method();
-
-// 	if (request_method & _allow_method)
-// 	{
-// 		std::string resource = request->get_resource();
-// 		std::cout << "LocationRule::METHOD: " << method_allow_to_string(request->get_method());
-// 		std::cout << "::generate_response :resouce: \"" << resource << "\"" << std::endl;
-// 		if (_cgi_handle)
-// 		{
-// 			ExecveAdapter execve_adapter(resource, std::vector<std::string>());
-// 			res = execute_cgi(execve_adapter.get_argv_size(),execve_adapter.get_argv(), execve_adapter.get_envp());
-// 			execve_adapter.destory();
-// 		}
-// 		else if (request_method & GET)
-// 		{
-// 			res = _handle_get(*request);
-// 		}
-// 		else if (request_method & POST)
-// 		{
-// 			res = _handle_post(*request);
-// 		}
-// 		else
-// 		{
-// 			res = generate_error_response(405);
-// 		}
-// 	}
-// 	else
-// 	{
-// 		res = generate_error_response(405);
-// 	}
-// 	if (res.empty())
-// 	{
-// 		res = generate_error_response(404);
-// 	}
-// 	return res;
-// }
-
-void LocationRule::setIndexPage(std::string index_page)
+void LocationRule::setIndexPage(std::string index_page, int defalt)
 {
 	_index_page = index_page;
+	_is_set_index_page = defalt;
+}
+
+std::string LocationRule::set_auto_index(std::string auto_index)
+{
+	if (auto_index == "enable")
+		_auto_index = auto_index;
+	else if (auto_index == "disable")
+		_auto_index = auto_index;
+	else 
+		throw ConfigNotFoundException("in valid auto index value");
+	return _auto_index;
+}
+
+std::string LocationRule::set_auto_index(LocationBlock &block)
+{
+	std::string temp;
+	try
+	{
+		temp = block.getConfig(L_AUTOINDEX)[0];
+	}
+	catch (ConfigNotFoundException)
+	{
+		_auto_index = "disable";
+		return _auto_index;
+	}
+	if (temp == "enable")
+		_auto_index = temp;
+	else if (temp == "disable")
+		_auto_index = temp;
+	else 
+		throw ConfigNotFoundException("in valid auto index value");
+	return _auto_index;
 }
 
 /// @brief generate resource path from uri path
-/// @param uri 
+/// @param uri
 /// @return actual path to resource in current server
 std::string LocationRule::generate_resource_GET(std::string uri)
 {
@@ -328,11 +325,19 @@ std::string LocationRule::generate_resource_GET(std::string uri)
 	// result = _cwd + "/" + _root_dir + "/" + _handle_route + "/" + path_till_handle_route;
 	result = _cwd + "/" + _root_dir + "/" + path_till_handle_route;
 
-	_add_index_page(result);
+	if (result[result.length() - 1] == '/')
+	{
+		if (_auto_index == "enable" && _is_set_index_page == 0)
+		{
+			result = _auto_index_cgi + " " + result;
+		}
+		else {
+			_add_index_page(result);
+		}
+	}
 	result = resolve_double_slash(result);
 	return (result);
 }
-
 
 std::string LocationRule::generate_resource_POST(std::string uri)
 {
@@ -346,9 +351,8 @@ std::string LocationRule::generate_resource_POST(std::string uri)
 	return (result);
 }
 
-
 /// @brief Check if uri is a directory or a file
-/// @param uri 
+/// @param uri
 void LocationRule::_add_index_page(std::string &uri)
 {
 	if (uri.empty() || uri == "/" || uri.end()[-1] == '/')
@@ -362,12 +366,10 @@ void LocationRule::set_error_page(std::map<int, std::string> error_page)
 	_error_page = error_page;
 }
 
-
 void LocationRule::_set_error_page(std::map<int, std::string> error_page)
 {
 	std::map<int, std::string>::const_iterator it;
 	_error_page = error_page;
-
 
 	if (LOCATION_RULE_DEBUG)
 	{
@@ -377,7 +379,6 @@ void LocationRule::_set_error_page(std::map<int, std::string> error_page)
 		}
 	}
 }
-
 
 void LocationRule::print_error_page(void) const
 {
@@ -395,8 +396,8 @@ void LocationRule::print_error_page(void) const
 }
 
 /// @brief Create error response depending status code
-/// @param status_code 
-/// @return 
+/// @param status_code
+/// @return
 std::string LocationRule::generate_error_response(int status_code)
 {
 	std::string res;
@@ -407,14 +408,14 @@ std::string LocationRule::generate_error_response(int status_code)
 		std::cout << "Status Code : " << status_code << std::endl;
 		path = _error_page.at(status_code);
 	}
-	catch(const std::exception& e)
+	catch (const std::exception &e)
 	{
 		// std::cerr << e.what() << '\n';
 		this->print_error_page();
 		std::cerr << _handle_route << std::endl;
 		std::cerr << "Error Page not set for status code : " << status_code;
 	}
-	
+
 	if (path.empty())
 	{
 		// use default error
@@ -442,30 +443,43 @@ void LocationRule::_set_cwd(void)
 	_cwd = std::string(cwd);
 }
 
-std::string LocationRule::_handle_get(Request& request)
+std::string LocationRule::_handle_get(Request &request)
 {
 	std::string res;
+	std::cout << "request for " << request.get_uri() << std::endl;
 	std::string resource = generate_resource_GET(request.get_uri());
 
+	std::cout << "Resource : " << resource << std::endl;
 	// try to read file
-	std::cout << "LocationRule::_handle_get : " << resource << std::endl;
-	try
+	if (resource[resource.length() - 1] == '/' && _auto_index == "enable")
 	{
-		StaticFileWaiter static_file_waiter(resource);
-		std::string body = static_file_waiter.read_file();
-		Response response(200, body);
-		response.setHeader("Content-Type", static_file_waiter.get_content_type());
-		res = response.getResponse();
+		ExecveAdapter adaptor(resource, std::vector<std::string>());
+		res = execute_cgi(2, adaptor.get_argv(), adaptor.get_envp());
+
+		Response response(200, res);
+		response.setHeader("Content-Type", "text/html");
+		adaptor.destory();
+		return response.getResponse();
 	}
-	catch (FileNotAccessibleException)
-	{
-		res = generate_error_response(404);
+	else {
+		try
+		{
+			StaticFileWaiter static_file_waiter(resource);
+			std::string body = static_file_waiter.read_file();
+			Response response(200, body);
+			response.setHeader("Content-Type", static_file_waiter.get_content_type());
+			res = response.getResponse();
+		}
+		catch (FileNotAccessibleException)
+		{
+			res = generate_error_response(404);
+		}
 	}
-	std::cout << res << std::endl;
+	// std::cout << res << std::endl;
 	return res;
 }
 
-std::string LocationRule::_handle_post(Request& request)
+std::string LocationRule::_handle_post(Request &request)
 {
 	std::string res;
 	std::string resource = generate_resource_POST(request.get_uri());
@@ -479,7 +493,8 @@ std::string LocationRule::_handle_post(Request& request)
 	{
 		file_crator.setContent(request.get_body());
 		file_crator.createFile(CREATE_FILE);
-		try {
+		try
+		{
 			StaticFileWaiter static_file_waiter(resource);
 			std::string body = static_file_waiter.read_file();
 			Response response(201, body);
@@ -495,8 +510,7 @@ std::string LocationRule::_handle_post(Request& request)
 	return res;
 }
 
-
-std::string  LocationRule::execute_request(Request& request)
+std::string LocationRule::execute_request(Request &request)
 {
 	int method = request.get_method();
 
@@ -510,33 +524,36 @@ std::string  LocationRule::execute_request(Request& request)
 		{
 			/// execute cgi
 		}
-		else {
-			if (method & GET)
-			{
-				return _handle_get(request);
-			}
-			else if (method & POST)
-			{
-				return _handle_post(request);
-			}
-			else if (method & PUT)
-			{
-				return generate_error_response(405);
-			}
-			else if (method & DELETE)
-			{
-				return generate_error_response(405);
-			}
-			else
-			{
-				return generate_error_response(405);
-			}
+		else
+		{
+			return _build_in_cgi(request);
 		}
+	}
+	return generate_error_response(405);
+}
+
+std::string LocationRule::_build_in_cgi(Request &request)
+{
+	int method = request.get_method();
+
+	if (method & GET)
+	{
+		return _handle_get(request);
+	}
+	else if (method & POST)
+	{
+		return _handle_post(request);
+	}
+	else if (method & PUT)
+	{
+		return generate_error_response(405);
+	}
+	else if (method & DELETE)
+	{
+		return generate_error_response(405);
 	}
 	else
 	{
 		return generate_error_response(405);
-	} // check if method is allowed
-	return generate_error_response(405);
+	}
 }
-

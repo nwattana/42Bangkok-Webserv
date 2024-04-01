@@ -37,7 +37,6 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 		memset(buffer, 0, sizeof(buffer));
 		read(fd[0], buffer, sizeof(buffer));
 		result = buffer;
-		std::cout << result << std::endl;
 		close(fd[0]);
 	}
 	return result;

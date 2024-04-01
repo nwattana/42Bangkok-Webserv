@@ -26,17 +26,29 @@ RequestHandler::RequestHandler(ServerConfig serverConfig)
 	this->_default_rule->set_error_page(serverConfig.getErrorPage());
 	try
 	{
-		this->_default_rule->setIndexPage(serverConfig.getConfig(S_INDEX)[0]);
+		this->_default_rule->setIndexPage(serverConfig.getConfig(S_INDEX)[0], 1);
 	}
 	catch (ConfigNotFoundException &e)
 	{
 		std::cerr << "RequestHandler::RequestHandler : " << e.what() << std::endl;
-		this->_default_rule->setIndexPage("index.html");
+		this->_default_rule->setIndexPage("index.html", 0);
 	}
 
 	// Other location rules
 	std::vector<LocationBlock>& location_configs = serverConfig.getLocationConfig();
 	create_location_rule(location_configs);
+
+
+	// set auto index for default rule
+	try{
+		std::string auto_index = serverConfig.getConfig(S_AUTO_INDEX)[0];
+		if (auto_index == "enable")
+			_default_rule->set_auto_index("enable");
+	}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cerr << "RequestHandler::RequestHandler : " << e.what() << std::endl;
+	}
 }
 
 RequestHandler::RequestHandler(RequestHandler const &src)
