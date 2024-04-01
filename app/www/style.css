@@ -1,0 +1,19 @@
+.container {
+	max-width: 400px;
+	margin: 0 auto;
+	padding: 20px;
+  }
+  
+  ul {
+	list-style-type: none;
+	padding: 0;
+  }
+  
+  li {
+	margin-bottom: 10px;
+  }
+  
+  button {
+	margin-top: 10px;
+  }
+  

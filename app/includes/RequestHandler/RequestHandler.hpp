@@ -27,15 +27,15 @@ public:
 	int check_allowed_method(int method);
 	std::string read_request(std::string request);
 
-	void create_location_rule(std::vector<LocationBlock> location_config);
+	void create_location_rule(std::vector<LocationBlock>& location_config);
 	void create_defualt_rule(void);
 	void printSetting(void) const;
 
-	void read_requst(std::string request);
 	std::string generate_error_response(std::string route, int error_code);
 
 private:
 	LocationRule *_find_location_rule(std::string uri);
+	int number_called;
 
 	LocationRule *_default_rule;
 	std::string _request_serializer(void);

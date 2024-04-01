@@ -24,7 +24,7 @@ class ServerConfig
 		int closeConfig(void);
 		int endDirective(void);
 		int addLocationBlock(LocationBlock location);
-		std::vector<LocationBlock> getLocationConfig(void);
+		std::vector<LocationBlock>& getLocationConfig(void);
 
 		std::map<int, std::string> getErrorPage(void) const;
 		void setErrorPage(void);

@@ -84,7 +84,7 @@ int FileCreator::createFile(int method)
 	{
 		res = _appendFile(_file_name, _content);
 	}
-	return 0;
+	return res;
 }
 
 void test_file_creator(void)
