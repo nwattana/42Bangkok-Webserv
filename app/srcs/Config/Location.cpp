@@ -16,6 +16,11 @@ LocationBlock::LocationBlock()
 	this->_isEndConfig = NOTSET;
 	this->_isOpenConfig = NOTSET;
 	this->_currentDirective = DEFAULT;
+
+	if (LOCATION_RULE_DEBUG)
+	{
+		std::cout << "create new  location block" << std::endl;
+	}
 }
 
 LocationBlock::~LocationBlock()
@@ -69,7 +74,6 @@ void LocationBlock::printConfig(void) const
 		value = it->second;
 		printStringVector(value, ", ");
 	}
-	print_error_page();
 }
 
 int LocationBlock::setLocationMatch(std::string location_match)
@@ -249,7 +253,7 @@ void LocationBlock::setErrorPage(void)
 void LocationBlock::print_error_page(void) const
 {
 	std::map<int, std::string>::const_iterator it =this->error_page.begin();
-	std::cout << "\t\tError pages : " << std::endl;
+	std::cout << "\t\t FROM Error pages : " << std::endl;
 	for (it ; it != this->error_page.end(); it++)
 	{
 		std::cout << "\t\t\t" << it->first << " : " << it->second << std::endl;

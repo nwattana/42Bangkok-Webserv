@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 import os
 import sys
 
@@ -18,12 +19,12 @@ def generate_html(directory):
 	files, folders = list_files_and_folders(directory)
 	html = "<html>\n<body>\n"
 	html += f"<h1>From: {directory}</h1>\n"  # Add this line
-	for file in files:
-		file_path = os.path.join(directory, file)
-		html += f"\t<a href='{file_path}'>{file}</a><br>\n"
 	for folder in folders:
-		folder_path = os.path.join(directory, folder)
-		html += f"\t<a href='{folder_path}'>{folder}</a><br>\n"
+		folder_path = "./" + folder + "/"
+		html += f"\t<a href='{folder_path}'>{folder} --- Folder </a><br>\n"
+	for file in files:
+		file_path = "./" + file
+		html += f"\t<a href='{file_path}'>{file} --- File </a><br>\n"
 	html += "</body>\n</html>"
 	return html
 

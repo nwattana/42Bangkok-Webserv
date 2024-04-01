@@ -138,5 +138,13 @@ std::string StaticFileWaiter::read_file(void)
 	{
 		throw FileNotAccessibleException("File not found");
 	}
+
 	return res;
+}
+
+short StaticFileWaiter::check_file_exist(std::string file_path)
+{
+	if (access(file_path.c_str(), F_OK) == 0)
+		return 1;
+	return 0;
 }

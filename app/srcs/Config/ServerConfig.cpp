@@ -246,7 +246,7 @@ std::string get_directive_string(int directive)
 	}
 }
 
-std::vector<LocationBlock>  ServerConfig::getLocationConfig(void)
+std::vector<LocationBlock>&  ServerConfig::getLocationConfig(void)
 {
 	for (size_t i = 0; i < location_config.size(); i++)
 	{

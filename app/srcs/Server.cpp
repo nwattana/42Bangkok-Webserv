@@ -68,7 +68,7 @@ int Server::setupServer() {
 		return res;
 	}
 	// print address info
-	this->_printAddressInfo(this->m_serverInfo);
+	// this->_printAddressInfo(this->m_serverInfo);
 	return 0;
 }
 
@@ -185,16 +185,13 @@ int Server::_generateResponse(int sockfd, int statusCode)
 {
 	if (statusCode == 200)
 	{
-		std::cout << "Server::_generateResponse::check request Request: \n" << this->m_readBuffer[sockfd] << std::endl;
+		// std::cout  << "\n==request==\n"<< "Server::_generateResponse::check request Request: \n" << this->m_readBuffer[sockfd] << "\n==request==\n";
 		this->m_writeBuffer[sockfd] = this->m_requestHandler->read_request(this->m_readBuffer[sockfd]);
-		// std::cout << (this->m_requestHandler->read_request(this->m_readBuffer[sockfd]));
 	}
 	else if (statusCode == 413)
 		this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_error_response("/", 413);
 	else
 		this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_error_response("/", 404);
-
-	// this->m_writeBuffer = response.getResponse();
 	return statusCode;
 }
 

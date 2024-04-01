@@ -29,6 +29,7 @@ public:
 	short check_file_extension(std::string file_extension);
 	short check_file_accesible();
 	short check_file(std::string file_path);
+	short check_file_exist(std::string file_path);
 
 	std::string generate_content_type(std::string file_extension);
 	std::string get_content_type(void);
