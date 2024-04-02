@@ -483,16 +483,20 @@ std::string LocationRule::_handle_post(Request &request)
 	std::string res;
 	std::string resource = generate_resource_POST(request.get_uri());
 
-	FileCreator file_crator(resource);
 	try{
-		std::string filename = request.get_header("Content-disposition");
+		std::string filename = request.get_header("Content-Disposition");
 		filename = filename.substr(filename.find("filename=") + 10);
-		filename = filename.substr(1, filename.find("\""));
-		db_green(filename);
-		file_crator.setFileName(filename);
+		filename = filename.substr(0, filename.length() - 1);
+		if (resource[resource.length() - 1] != '/')
+		{
+			return generate_error_response(409);
+		}
+		resource += filename;
 	}
-	catch(const std::exception &e){}
-	if (file_crator.check_file_exist(resource) == 1)
+	catch(const std::exception &e){
+	}
+	FileCreator file_crator(resource);
+	if (file_crator.check_file_exist(file_crator.getFileName()) == 1)
 	{
 		res = generate_error_response(409);
 	}
@@ -513,7 +517,6 @@ std::string LocationRule::_handle_post(Request &request)
 			res = generate_error_response(500);
 		}
 	}
-	std::cout << "\nHandle Post : " << res << std::endl;
 	return res;
 }
 
