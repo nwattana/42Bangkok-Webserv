@@ -18,7 +18,7 @@ int FileCreator::_createFile(const std::string &fileName, const std::string &con
 	try
 	{
 		std::ofstream file(fileName.c_str());
-		file << content;
+		file << content.c_str();
 		file.close();
 	}
 	catch (const std::exception &e)
@@ -47,9 +47,21 @@ int FileCreator::_appendFile(const std::string &fileName, const std::string &con
 	return (1);
 }
 
-void FileCreator::setFileName(const std::string &fileName)
+// if file name is full path, set file name to file name only
+std::string FileCreator::setFileName(const std::string &fileName)
 {
-	_file_name = fileName;
+	// find last '/' in fileName
+	size_t pos = _file_name.find_last_of("/");
+	if (pos != std::string::npos)
+	{
+		_file_name = _file_name.substr(pos + 1);
+		_file_name = _file_name + fileName;
+	}
+	else
+	{
+		_file_name = fileName;
+	}
+	return (_file_name);
 }
 
 void FileCreator::setContent(const std::string &content)
@@ -94,4 +106,9 @@ void test_file_creator(void)
 	file_creator.createFile(CREATE_FILE);
 	file_creator.appendContent("Hello World\n");
 	file_creator.createFile(APPEND_FILE);
+}
+
+std::string FileCreator::getFileName(void) const
+{
+	return _file_name;
 }

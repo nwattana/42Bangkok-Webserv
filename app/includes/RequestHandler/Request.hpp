@@ -54,6 +54,8 @@ public:
 
 	void set_resource(std::string resource);
 	std::string get_resource(void);
+	void set_body(std::string body);
+	void set_header(std::string header);
 
 private:
 	Request();

@@ -24,7 +24,7 @@ def generate_html(directory):
 		html += f"\t<a href='{folder_path}'>{folder} --- Folder </a><br>\n"
 	for file in files:
 		file_path = "./" + file
-		html += f"\t<a href='{file_path}'>{file} --- File </a><br>\n"
+		html += f"\t<a href='{file_path}' download>{file} --- File </a><br>\n"
 	html += "</body>\n</html>"
 	return html
 

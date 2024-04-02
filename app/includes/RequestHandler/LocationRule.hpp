@@ -103,4 +103,6 @@ class LocationRule{
 		ResponseHandler *_m_response_handler;
 		std::map<int, std::string> _error_page;
 		std::string _cwd;
+	
+		std::map<std::string, std::string> _chunk_request;
 };

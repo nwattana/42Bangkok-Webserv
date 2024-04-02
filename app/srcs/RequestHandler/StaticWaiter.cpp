@@ -110,6 +110,7 @@ std::string StaticFileWaiter::get_content_type(void)
 	if (_file_extension == ".svg")
 		return "image/svg+xml";
 	return "text/plain";
+	// return "application/octet-stream";
 }
 
 std::string StaticFileWaiter::read_file(void)

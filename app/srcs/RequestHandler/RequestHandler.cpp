@@ -68,7 +68,7 @@ RequestHandler &RequestHandler::operator=(RequestHandler const &rhs)
 
 RequestHandler::~RequestHandler()
 {
-	std::cout << "RequestHandler::~RequestHandler" << std::endl;
+	db_yellow("Warning!! RequestHandler::~RequestHandler");
 	for (std::vector<LocationRule *>::iterator it = _locations_rules.begin(); it != _locations_rules.end(); it++)
 	{
 		delete *it;
@@ -86,6 +86,7 @@ std::string RequestHandler::read_request(std::string request)
 {
 	std::stringstream ss;
 	std::string methode, uri, version;
+	std::cout << BLUE << "RequestHandler::read_request : " << number_called << RESET << std::endl;
 	number_called++;
 	// seperate header and body
 	int seperator = request.find("\r\n\r\n");
@@ -99,6 +100,40 @@ std::string RequestHandler::read_request(std::string request)
 	body = request.substr(seperator + 4);
 	_current_request = new Request(header, body);
 
+	try
+	{
+		std::string req_content_type = _current_request->get_header("Content-Type");
+		std::cout << RED << "header : " << header << RESET << std::endl;
+		if (req_content_type.find("multipart/form-data") != std::string::npos)
+		{
+			_current_request->print_header();
+			std::string boundary = req_content_type.substr(req_content_type.find("boundary=") + 9);
+			std::cout << boundary << std::endl;
+			std::string chunked_body =  add_or_append_chunked(boundary, _current_request->get_body());
+
+			if (get_chunked_state(boundary) == 2)
+			{
+				std::string chunked_merge = pop_chunked(boundary);
+				seperator = chunked_merge.find("\r\n\r\n");
+				header = chunked_merge.substr(boundary.length(), chunked_merge.find("\r\n\r\n") + 4 - boundary.length());
+				body = chunked_merge.substr(seperator + 4);
+				body = body.substr(0, body.find(boundary) - 4);
+				_current_request->set_body(body);
+				_current_request->set_header(header);
+			}
+			else
+			{
+				return generate_error_response("/", 206);
+			}
+
+		}
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << e.what() << '\n';
+	}
+	
+
 	uri = _current_request->get_uri();
 	LocationRule *rule = _find_location_rule(uri);
 	if (rule == NULL)
@@ -109,7 +144,6 @@ std::string RequestHandler::read_request(std::string request)
 	// Clean up
 	delete _current_request;
 
-	std::cout << "RequestHandler::read_request : " << number_called << std::endl;
 	return response;
 }
 
@@ -178,3 +212,78 @@ std::string RequestHandler::generate_error_response(std::string route, int error
 	}
 	return rule->generate_error_response(error_code);
 }
+
+
+std::string RequestHandler::add_or_append_chunked(std::string _key, std::string _body)
+{
+	std::map<std::string, std::string>::iterator it;
+	std::map<std::string, int>::iterator it_state;
+	it = _chunk_request.find(_key);
+	it_state = _chunked_state.find(_key);
+
+	if (it != _chunk_request.end())
+	{
+		it->second.append(_body);
+	}
+	else
+	{
+		_chunk_request.insert(std::pair<std::string, std::string>(_key, _body));
+	}
+
+	if (it_state == _chunked_state.end())
+	{
+		_chunked_state.insert(std::pair<std::string, int>(_key, 0));
+	}
+
+	it_state = _chunked_state.find(_key);
+	std::string target = _key;
+	size_t pos = 0;
+	while ((pos = _body.find(target, pos)) != std::string::npos)
+	{
+		_chunked_state[_key] += 1;
+		pos += target.length();
+	}
+
+	return _chunk_request[_key];
+}
+
+
+short RequestHandler::get_chunked_state(std::string _key)
+{
+	std::map<std::string, int>::iterator it_state;
+	it_state = _chunked_state.find(_key);
+	if (it_state != _chunked_state.end())
+	{
+		return it_state->second;
+	}
+	return 0;
+}
+
+short RequestHandler::debug_chunked_state(void)
+{
+	std::map<std::string, std::string>::iterator it;
+	std::map<std::string, int>::iterator it_state;
+
+	for (it = _chunk_request.begin(); it != _chunk_request.end(); it++)
+	{
+		std::cout << SEP << "DEBUG CHUNK" <<SEP << "Key : " << it->first << std::endl;
+		std::cout << "Value : " << it->second << std::endl;
+		std::cout << "State : " << _chunked_state[it->first] << SEP << std::endl;
+	}
+	return 0;
+}
+
+std::string RequestHandler::pop_chunked(std::string _key)
+{
+	std::map<std::string, std::string>::iterator it;
+	std::map<std::string, int>::iterator it_state;
+	std::string res;
+	it = _chunk_request.find(_key);
+	it_state = _chunked_state.find(_key);
+
+	res = it->second;
+	_chunk_request.erase(it);
+	_chunked_state.erase(it_state);
+	return res;
+}
+

@@ -9,6 +9,9 @@
 #include "Request.hpp"
 #include "Constant.hpp"
 #include "exception.hpp"
+
+#define SEP "\n=======================================\n"
+
 /*
  * Factory class Crete RequestHandler for Server
  * each Server will have a RequestHandler
@@ -32,7 +35,6 @@ public:
 	void printSetting(void) const;
 
 	std::string generate_error_response(std::string route, int error_code);
-
 private:
 	LocationRule *_find_location_rule(std::string uri);
 	int number_called;
@@ -43,5 +45,13 @@ private:
 	std::vector<LocationRule *> _locations_rules;
 	std::string _root_dir;
 
+	std::map<std::string, std::string> _chunk_request;
+	std::map<std::string, int> _chunked_state;
+
 	Request *_current_request;
+	std::string add_or_append_chunked(std::string _key, std::string _body);
+	short get_chunked_state(std::string _key);
+	std::string pop_chunked(std::string _key);
+	short debug_chunked_state(void);
+
 };

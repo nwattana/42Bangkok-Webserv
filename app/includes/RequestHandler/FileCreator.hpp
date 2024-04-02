@@ -1,6 +1,9 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include "Constant.hpp"
+// RED
+#include <stdlib.h>
 
 #define CREATE_FILE 0
 #define APPEND_FILE 1
@@ -20,10 +23,12 @@ public:
 	// int createFile(void);
 	int createFile(int method);
 
-	void setFileName(const std::string& fileName);
+	std::string setFileName(const std::string& fileName);
 	void setContent(const std::string& content);
 	void appendContent(const std::string& content);
 	int check_file_exist(const std::string& fileName);
+
+	std::string getFileName(void) const;
 };
 
 void test_file_creator(void);

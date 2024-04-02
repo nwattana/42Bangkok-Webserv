@@ -44,6 +44,14 @@ std::string read_file(std::string file_path);
 std::string resolve_double_slash(std::string path);
 char **ft_vector_string_to_char_array(std::vector<std::string> vec);
 void free_char_array(char **arr);
+std::string ft_trimchar_set(std::string str, std::string char_set);
 
 // delete me
 void test_use_execute_cgi();
+
+
+// debug helper
+void db_red(std::string message);
+void db_green(std::string message);
+void db_yellow(std::string message);
+void db_blue(std::string message);
