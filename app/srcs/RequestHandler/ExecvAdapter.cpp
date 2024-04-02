@@ -44,6 +44,7 @@ char **ExecveAdapter::get_argv()
 
 char **ExecveAdapter::get_envp()
 {
+	get_envp_array();
 	return envp;
 }
 

@@ -46,3 +46,38 @@ std::string router_parser(std::string route)
 	}
 	return route;
 }
+
+std::string uri_parser(std::string uri)
+{
+	const char *disallow_char = "?#<>{}|\\^~[]`";
+
+	if (uri.empty())
+	{
+		throw ParseErrorException("URI is empty");
+	}
+	for (size_t i = 0; i < uri.length(); i++)
+	{
+		if (uri[i] < 32 || uri[i] > 126)
+		{
+			throw ParseErrorException("URI contains non-printable characters");
+		}
+		if (strchr(disallow_char, uri[i]) != NULL)
+		{
+			throw ParseErrorException("URI contains disallowed characters");
+		}
+	}
+
+	// don't allow double dots
+	if (uri.find("..") != std::string::npos)
+	{
+		throw ParseErrorException("URI contains double dots");
+	}
+
+	// dont allow double slashes
+	if (uri.find("//") != std::string::npos)
+	{
+		throw ParseErrorException("URI contains double slashes");
+	}
+
+	return uri;
+}
