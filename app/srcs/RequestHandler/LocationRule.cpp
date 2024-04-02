@@ -243,7 +243,7 @@ void LocationRule::_set_cgi(LocationBlock block, std::string server_dir)
 	}
 	try
 	{
-		_cgi_bin = block.getConfig(L_CGI_PATH)[0];
+		_cgi_bin = block.getConfig(L_CGI_SCRIPT)[0];
 	}
 	catch (const std::exception &e)
 	{
@@ -551,9 +551,12 @@ std::string LocationRule::execute_request(Request &request)
 			adaptor.add_env("CGI_ROUTE", _handle_route);
 			adaptor.add_env("SERVER_PORT", _server_port);
 
+			
+
 			std::string body = execute_cgi(2, adaptor.get_argv(), adaptor.get_envp());
 			Response response(200, body);
 			response.setHeader("Content-Type", "text/html");
+			adaptor.destory();
 			return response.getResponse();
 		}
 		else

@@ -42,7 +42,7 @@
 #define L_UPLOAD_PATH 8
 #define L_METHOD_ALLOW 9
 #define L_CGI_HANDLER 2
-#define L_CGI_PATH 11
+#define L_CGI_SCRIPT 11
 #define L_INDEX 12
 
 /*

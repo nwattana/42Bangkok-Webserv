@@ -156,8 +156,8 @@ int LocationBlock::check_directive(std::string directive)
 		return (L_ROOT_DIR);
 	else if (directive == "cgi_handle")
 		return (L_CGI_HANDLER);
-	else if (directive == "cgi_path")
-		return (L_CGI_PATH);
+	else if (directive == "cgi_script")
+		return (L_CGI_SCRIPT);
 	else if (directive == "auto_index")
 		return (L_AUTOINDEX);
 	else if (directive == "index")
@@ -176,8 +176,8 @@ std::string LocationBlock::get_directive_str(int directive) const
 		return ("root_dir");
 	case L_CGI_HANDLER:
 		return ("cgi_handle");
-	case L_CGI_PATH:
-		return ("cgi_path");
+	case L_CGI_SCRIPT:
+		return ("cgi_script");
 	case L_DENY:
 		return ("deny");
 	case L_AUTOINDEX:
