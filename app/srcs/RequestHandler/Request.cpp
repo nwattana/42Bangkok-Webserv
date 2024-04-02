@@ -157,3 +157,13 @@ std::string Request::get_resource(void)
 {
 	return _resource;
 }
+
+void Request::set_body(std::string body)
+{
+	_body = body;
+}
+
+void Request::set_header(std::string header)
+{
+	_parse_header(header);
+}

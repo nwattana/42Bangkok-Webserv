@@ -6,7 +6,10 @@
 	<p>Click on the "Choose File" button to upload a file:</p>
 
 	<!-- Creat upload file with html and pure javascript -->
-
+<form action="http://localhost:8080/upload" method="POST" enctype="multipart/form-data">
+	<input type="file" name="fileToUpload" id="fileToUpload">
+	<input type="submit" value="Upload Image" name="submit">
+</form>
 
 </body>
 

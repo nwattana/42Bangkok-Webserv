@@ -19,7 +19,6 @@ LocationRule::LocationRule(LocationBlock &block, std::string server_dir)
 	_set_cwd();
 	set_auto_index(block);
 	_m_response_handler = new ResponseHandler();
-	
 }
 
 LocationRule::LocationRule(LocationRule const &src)
@@ -287,7 +286,7 @@ std::string LocationRule::set_auto_index(std::string auto_index)
 		_auto_index = auto_index;
 	else if (auto_index == "disable")
 		_auto_index = auto_index;
-	else 
+	else
 		throw ConfigNotFoundException("in valid auto index value");
 	return _auto_index;
 }
@@ -308,7 +307,7 @@ std::string LocationRule::set_auto_index(LocationBlock &block)
 		_auto_index = temp;
 	else if (temp == "disable")
 		_auto_index = temp;
-	else 
+	else
 		throw ConfigNotFoundException("in valid auto index value");
 	return _auto_index;
 }
@@ -331,7 +330,8 @@ std::string LocationRule::generate_resource_GET(std::string uri)
 		{
 			result = _auto_index_cgi + " " + result;
 		}
-		else {
+		else
+		{
 			_add_index_page(result);
 		}
 	}
@@ -413,13 +413,11 @@ std::string LocationRule::generate_error_response(int status_code)
 		// std::cerr << e.what() << '\n';
 		this->print_error_page();
 		std::cerr << _handle_route << std::endl;
-		std::cerr << "Error Page not set for status code : " << status_code;
 	}
 
 	if (path.empty())
 	{
 		// use default error
-		std::cerr << " Use default error " << std::endl;
 		Response response(status_code, "");
 		res = response.getResponse();
 	}
@@ -461,7 +459,8 @@ std::string LocationRule::_handle_get(Request &request)
 		adaptor.destory();
 		return response.getResponse();
 	}
-	else {
+	else
+	{
 		try
 		{
 			StaticFileWaiter static_file_waiter(resource);
@@ -485,6 +484,14 @@ std::string LocationRule::_handle_post(Request &request)
 	std::string resource = generate_resource_POST(request.get_uri());
 
 	FileCreator file_crator(resource);
+	try{
+		std::string filename = request.get_header("Content-disposition");
+		filename = filename.substr(filename.find("filename=") + 10);
+		filename = filename.substr(1, filename.find("\""));
+		db_green(filename);
+		file_crator.setFileName(filename);
+	}
+	catch(const std::exception &e){}
 	if (file_crator.check_file_exist(resource) == 1)
 	{
 		res = generate_error_response(409);
@@ -517,7 +524,12 @@ std::string LocationRule::execute_request(Request &request)
 	// std::cout << "execute_request : \"" + request.get_uri() + "\""<< std::endl;
 	// std::cout << request.raw_request() << std::endl;
 
+	// check for multi_part
+
+
 	// Check Allow Methode return 405 if not allowed
+
+	// TODO uncomment me
 	if (method && _allow_method)
 	{
 		if (this->_cgi_handle)

@@ -47,6 +47,18 @@ std::string ft_strtrim(std::string str)
 	return str.substr(start, end - start + 1);
 }
 
+std::string ft_trimchar_set(std::string str, std::string char_set)
+{
+	size_t start = 0;
+	size_t end = str.length() - 1;
+	while (char_set.find(str[start]) != std::string::npos)
+		start++;
+	while (char_set.find(str[end]) != std::string::npos)
+		end--;
+	return str.substr(start, end - start + 1);
+}
+
+
 void printStringVector(std::vector<std::string> vec, std::string delimiter)
 {
 	if (vec.empty())

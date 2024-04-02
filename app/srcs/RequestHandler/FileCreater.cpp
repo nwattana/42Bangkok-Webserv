@@ -47,9 +47,20 @@ int FileCreator::_appendFile(const std::string &fileName, const std::string &con
 	return (1);
 }
 
+// if file name is full path, set file name to file name only
 void FileCreator::setFileName(const std::string &fileName)
 {
-	_file_name = fileName;
+	// find last '/' in fileName
+	size_t pos = _file_name.find_last_of("/");
+	if (pos != std::string::npos)
+	{
+		_file_name = _file_name.substr(pos + 1);
+		_file_name = "./" + _file_name;
+	}
+	else
+	{
+		_file_name = fileName;
+	}
 }
 
 void FileCreator::setContent(const std::string &content)
