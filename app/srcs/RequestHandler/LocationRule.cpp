@@ -537,7 +537,24 @@ std::string LocationRule::execute_request(Request &request)
 	{
 		if (this->_cgi_handle)
 		{
-			/// execute cgi
+			std::cout << RED << request.get_uri() + RESET << std::endl;
+
+			std::string re = generate_resource_GET(request.get_uri());
+			std::cout << "resource : " << re << std::endl;
+
+			ExecveAdapter adaptor(re, std::vector<std::string>());
+			adaptor.add_env("REQUEST_BODY", request.get_body());
+			adaptor.add_env("REQUEST_METHOD", "GET");
+			adaptor.add_env("SERVER_PROTOCOL", "HTTP/1.1");
+			adaptor.add_env("PATH_TO_FILE", re);
+			adaptor.add_env("HOST_NAME", _host_name);
+			adaptor.add_env("CGI_ROUTE", _handle_route);
+			adaptor.add_env("SERVER_PORT", _server_port);
+
+			std::string body = execute_cgi(2, adaptor.get_argv(), adaptor.get_envp());
+			Response response(200, body);
+			response.setHeader("Content-Type", "text/html");
+			return response.getResponse();
 		}
 		else
 		{

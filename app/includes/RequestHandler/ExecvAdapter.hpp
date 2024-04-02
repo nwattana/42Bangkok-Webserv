@@ -1,4 +1,5 @@
 #pragma once
+#include <map>
 #include "utils.hpp"
 
 class ExecveAdapter
@@ -8,7 +9,9 @@ class ExecveAdapter
 		char **argv;
 		int envp_size;
 		char **envp;
+		std::map<std::string, std::string> _env_map;
 		ExecveAdapter();
+
 	public:
 		ExecveAdapter(std::string path, std::vector<std::string> env_list);
 		~ExecveAdapter();
@@ -21,6 +24,11 @@ class ExecveAdapter
 		void destroy_argv();
 		void destroy_envp();
 		void destory();
+
+		int add_env(std::string key, std::string value);
+		int add_env(std::string env_string);
+
+		char **get_envp_array();
 };
 
 // Test this module

@@ -28,3 +28,15 @@ class FileNotAccessibleException : public CustomExceptionBase
 public:
 	FileNotAccessibleException(std::string msg) : CustomExceptionBase(msg){};
 };
+
+class DelimiterNotFoundException : public CustomExceptionBase
+{
+	public:
+		DelimiterNotFoundException(std::string msg) : CustomExceptionBase(msg){};
+};
+
+class ParseErrorException : public CustomExceptionBase
+{
+public:
+	ParseErrorException(std::string msg) : CustomExceptionBase(msg){};
+};

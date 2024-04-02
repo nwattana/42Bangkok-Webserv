@@ -37,6 +37,9 @@ class ServerConfig
 		std::vector<std::string> getConfig(int directive);
 		// std::string get_directive_string(int directive);
 
+		void _set_host_name(ServerConfig& serverConfig);
+		void _set_port(ServerConfig& serverConfig);
+
 	private:
 		// std::vector<std::string> allow_directive;
 		std::map<int, std::vector<std::string> > configs;
@@ -50,6 +53,9 @@ class ServerConfig
 		short int _isSetLocation;
 		short int _isCloseConfig;
 		short int _isEndDirective;
+
+		std::string _host_name;
+		std::string _port;
 
 		std::map<int, std::string > error_page;
 };

@@ -69,3 +69,12 @@
 #define MAGENTA "\033[1;35m"
 #define CYAN "\033[1;36m"
 #define RESET "\033[0m"
+
+
+/*
+* default thing
+*/
+
+#define DEFAULT_PORT "8080"
+#define DEFAULT_SERVER_NAME "localhost"
+#define DEFAULT_CLIENT_MAX_SIZE 3000000

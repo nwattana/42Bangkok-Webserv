@@ -25,8 +25,6 @@ private:
 	int _isSetLocation;
 	int server_bracket;
 	int location_bracket;
-	// std::map<std::string, std::vector<std::string> > root_config;
-	// std::vector<std::string> allow_directive;
 	std::vector<ServerConfig> server_config;
 	std::string m_fileName;
 	std::string m_raw_config;

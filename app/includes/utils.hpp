@@ -10,6 +10,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include "Constant.hpp"
+#include "exception.hpp"
 
 
 // Convert int to string dec
@@ -17,6 +18,14 @@ inline std::string SSTR(int x) {
 	std::ostringstream oss;
 	oss << std::dec << x;
 	return oss.str();
+}
+
+inline std::string toupper_string(std::string str) {
+	std::string result = "";
+	for (size_t i = 0; i < str.length(); i++) {
+		result += toupper(str[i]);
+	}
+	return result;
 }
 
 #ifndef LOG
@@ -55,3 +64,11 @@ void db_red(std::string message);
 void db_green(std::string message);
 void db_yellow(std::string message);
 void db_blue(std::string message);
+
+std::pair<std::string, std::string> ft_split_pair(std::string str, const std::string delimiter);
+
+
+
+// Parse error
+std::string router_parser(std::string route);
+std::string port_parser(std::string port);

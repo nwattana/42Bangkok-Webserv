@@ -1,4 +1,5 @@
 #include "ExecvAdapter.hpp"
+#include "utils.hpp"
 
 ExecveAdapter::ExecveAdapter()
 {
@@ -18,13 +19,14 @@ ExecveAdapter::ExecveAdapter(std::string path, std::vector<std::string> env_list
 		argv_size++;
 		temp++;
 	}
-	envp = ft_vector_string_to_char_array(env_list);
-	temp = envp;
-
-	while (*temp)
+	envp = NULL;
+	
+	std::vector<std::string>::iterator it = env_list.begin();
+	for (it = env_list.begin(); it != env_list.end(); it++)
 	{
-		envp_size++;
-		temp++;
+		// std::string key = *it;
+		std::pair<std::string, std::string> pair = ft_split_pair(*it, "=");
+		_env_map.insert(pair);
 	}
 }
 
@@ -94,4 +96,32 @@ void test_ExecveAdapter(void)
 	}
 	adapter.destroy_argv();
 	adapter.destroy_envp();
+}
+
+int ExecveAdapter::add_env(std::string key, std::string value)
+{
+	std::pair<std::string, std::string> pair(key, value);
+	_env_map.insert(pair);
+	return 0;
+}
+
+int ExecveAdapter::add_env(std::string env_string)
+{
+	std::pair<std::string, std::string> pair = ft_split_pair(env_string, "=");
+	_env_map.insert(pair);
+	return 0;
+}
+
+char ** ExecveAdapter::get_envp_array(void)
+{
+	std::vector<std::string> env_list;
+	std::map<std::string, std::string>::iterator it;
+
+	for (it = _env_map.begin(); it != _env_map.end(); it++)
+	{
+		std::string env = it->first + "=" + it->second;
+		env_list.push_back(env);
+	}
+	envp = ft_vector_string_to_char_array(env_list);
+	return envp;
 }

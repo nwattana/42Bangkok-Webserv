@@ -22,12 +22,11 @@ class RequestHandler
 {
 public:
 	RequestHandler();
-	RequestHandler(ServerConfig serverConfig);
+	RequestHandler(ServerConfig& serverConfig);
 	RequestHandler(RequestHandler const &src);
 	RequestHandler &operator=(RequestHandler const &rhs);
 	~RequestHandler();
 
-	int check_allowed_method(int method);
 	std::string read_request(std::string request);
 
 	void create_location_rule(std::vector<LocationBlock>& location_config);
@@ -35,6 +34,12 @@ public:
 	void printSetting(void) const;
 
 	std::string generate_error_response(std::string route, int error_code);
+	std::string set_hostname(ServerConfig& serverConfig);
+	std::string set_hostname(std::string hostname);
+	std::string set_port(ServerConfig& serverConfig);
+	std::string set_port(std::string port);
+
+
 private:
 	LocationRule *_find_location_rule(std::string uri);
 	int number_called;
@@ -44,6 +49,8 @@ private:
 	int _allowed_method;
 	std::vector<LocationRule *> _locations_rules;
 	std::string _root_dir;
+	std::string _hostname;
+	std::string _port;
 
 	std::map<std::string, std::string> _chunk_request;
 	std::map<std::string, int> _chunked_state;

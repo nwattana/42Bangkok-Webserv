@@ -19,6 +19,8 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 		close(fd[0]);				
 		dup2(fd[1], STDOUT_FILENO);
 		int res = execve(argv[0], argv, envp);
+		free_char_array(argv);
+		free_char_array((char **)envp);
 		if (res == -1)
 		{
 			perror("execve");

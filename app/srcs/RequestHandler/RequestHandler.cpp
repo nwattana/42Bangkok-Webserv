@@ -6,7 +6,7 @@ RequestHandler::RequestHandler()
 	number_called = 0;
 }
 
-RequestHandler::RequestHandler(ServerConfig serverConfig)
+RequestHandler::RequestHandler(ServerConfig& serverConfig)
 {
 	// set allowed method
 	number_called = 0;
@@ -15,13 +15,12 @@ RequestHandler::RequestHandler(ServerConfig serverConfig)
 		_allowed_method = GET | POST;
 	else
 		_allowed_method = allow_method_parser(config_in);
-
 	// set root dir
 	_root_dir = serverConfig.getConfig(S_ROOT)[0];
 
-	// Location Rule to Match Location when recieved request
 
-	// Default Rule for unmatched location
+
+
 	create_defualt_rule();
 	this->_default_rule->set_error_page(serverConfig.getErrorPage());
 	try
@@ -30,7 +29,7 @@ RequestHandler::RequestHandler(ServerConfig serverConfig)
 	}
 	catch (ConfigNotFoundException &e)
 	{
-		std::cerr << "RequestHandler::RequestHandler : " << e.what() << std::endl;
+		std::cerr << "RequestHandler::RequestHandler : " << e.what() << " set to index.html for route \"/\"" << std::endl;
 		this->_default_rule->setIndexPage("index.html", 0);
 	}
 
@@ -47,8 +46,11 @@ RequestHandler::RequestHandler(ServerConfig serverConfig)
 	}
 	catch (ConfigNotFoundException &e)
 	{
-		std::cerr << "RequestHandler::RequestHandler : " << e.what() << std::endl;
+		std::cout << YELLOW << e.what() << " auto-index/directory-list set to disable" << RESET << std::endl;
 	}
+
+	// get host name and port to rule
+	
 }
 
 RequestHandler::RequestHandler(RequestHandler const &src)
@@ -76,10 +78,6 @@ RequestHandler::~RequestHandler()
 	delete _default_rule;
 }
 
-int RequestHandler::check_allowed_method(int method)
-{
-	return (method & _allowed_method);
-}
 
 // accept request and return response string
 std::string RequestHandler::read_request(std::string request)
@@ -287,3 +285,29 @@ std::string RequestHandler::pop_chunked(std::string _key)
 	return res;
 }
 
+
+std::string RequestHandler::set_hostname(std::string hostname)
+{
+	_hostname = hostname;
+	return _hostname;
+}
+
+std::string RequestHandler::set_port(ServerConfig& serverConfig)
+{
+	try
+	{
+		_port = serverConfig.getConfig(S_LISTEN)[0];
+	}
+	catch(ConfigNotFoundException &e)
+	{
+		std::cerr << YELLOW << e.what() << " set to default port 8080" << RESET << std::endl;
+		_port = DEFAULT_PORT;
+	}
+	return _port;
+}
+
+std::string RequestHandler::set_port(std::string port)
+{
+	_port = port;
+	return _port;
+}

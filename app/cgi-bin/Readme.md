@@ -6,4 +6,5 @@
 - SERVER_PROTOCAL - "HTTP/1.1" only
 - PATH_TO_FILE - file to edit
 - HOST_NAME - HOST name
-- CGI_ROUTE - 
+- CGI_ROUTE -
+- SERVER_PORT -

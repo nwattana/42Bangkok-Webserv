@@ -78,6 +78,8 @@ class LocationRule{
 		std::string _index_page;
 		std::string _auto_index;
 		std::string _auto_index_cgi;
+		std::string _host_name;
+		std::string _server_port;
 
 		void _set_handle_route(LocationBlock block);
 		// void _set_dir_path(LocationBlock block, std::string server_dir);
@@ -92,6 +94,9 @@ class LocationRule{
 		void _set_cwd(void);
 
 		void _add_index_page(std::string &uri);
+
+		void _set_host_name(std::string host_name);
+		void _set_server_port(std::string server_port);
 
 		std::string _handle_get(Request& request);
 		std::string _handle_post(Request& request);

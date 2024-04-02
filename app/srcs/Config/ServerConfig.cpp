@@ -166,7 +166,7 @@ std::vector<std::string> ServerConfig::getConfig(int directive)
 	it = this->configs.find(directive);
 	if (it != this->configs.end())
 		return it->second;
-	throw ConfigNotFoundException("Error: Directive not found \"" + get_directive_string(directive) +"\"" + SSTR(directive));
+	throw ConfigNotFoundException("Error: Directive not found \"" + toupper_string(get_directive_string(directive)) +"\"");
 }
 
 int ServerConfig::check_directive(std::string str)

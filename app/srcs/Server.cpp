@@ -19,15 +19,11 @@ Server &Server::operator=(Server const &rhs) {
 	return *this;
 }
 
-Server::Server(ServerConfig serverConfig) : m_serverConfig(serverConfig) {
-	this->m_port = serverConfig.getConfig(S_LISTEN)[0];
-	printLog("Port: " + this->m_port);
-	this->m_ServerName = serverConfig.getConfig(S_SERVER_NAME)[0];
-	printLog("Server Name: " + this->m_ServerName);
-	this->m_clientMaxSize = atoi(serverConfig.getConfig(S_CLIENT_MAX_SIZE)[0].c_str());
-	printLog("Client Max Size: " + SSTR(this->m_clientMaxSize));
-	this->m_wouldAutoIdx = (serverConfig.getConfig(S_AUTO_INDEX)[0] == "enable");
-	printLog("Auto Index: " + SSTR(this->m_wouldAutoIdx));
+Server::Server(ServerConfig& serverConfig) : m_serverConfig(serverConfig) {
+	_set_port(serverConfig);
+	_set_server_name(serverConfig);
+	_set_client_max_size(serverConfig);
+	_set_auto_index(serverConfig);
 
 	this->m_listener = NULL;
 	this->m_serverInfo = NULL;
@@ -53,6 +49,8 @@ int Server::setupServer() {
 		std::cerr << "Failed to allocate memory for request handler" << std::endl;
 		return -1;
 	}
+	m_requestHandler->set_hostname(this->m_ServerName);
+	m_requestHandler->set_port(this->m_port);
 	// get address info
 	struct addrinfo hints;
 	memset(&hints, 0, sizeof(hints));
@@ -244,4 +242,50 @@ int Server::getClientMaxSize(void) {
 
 bool Server::isListening(void) {
 	return this->m_isListening;
+}
+
+
+//  set  value from config
+void Server::_set_port(ServerConfig& serverConfig)
+{
+	try{
+		this->m_port = serverConfig.getConfig(S_LISTEN)[0];
+	}
+	catch(ConfigNotFoundException)
+	{
+		this->m_port = DEFAULT_PORT;
+	}
+}
+
+void Server::_set_server_name(ServerConfig& serverConfig)
+{
+	try{
+		this->m_ServerName = serverConfig.getConfig(S_SERVER_NAME)[0];
+	}
+	catch(ConfigNotFoundException)
+	{
+		this->m_ServerName = DEFAULT_SERVER_NAME;
+	}
+}
+
+void Server::_set_client_max_size(ServerConfig& serverConfig)
+{
+	try{
+		this->m_clientMaxSize = atoi(serverConfig.getConfig(S_CLIENT_MAX_SIZE)[0].c_str());
+	}
+	catch(ConfigNotFoundException)
+	{
+		this->m_clientMaxSize = DEFAULT_CLIENT_MAX_SIZE;
+	}
+}
+
+void Server::_set_auto_index(ServerConfig& serverConfig)
+{
+	try{
+		this->m_wouldAutoIdx = serverConfig.getConfig(S_AUTO_INDEX)[0] == "on";
+	}
+	catch(ConfigNotFoundException)
+	{
+		this->m_wouldAutoIdx = false;
+	}
 }

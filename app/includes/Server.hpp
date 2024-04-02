@@ -12,14 +12,16 @@
 # include <netdb.h>
 # include <algorithm>
 # include <string>
-
+# include "Constant.hpp"
 #ifndef BUFFER_SIZE
 # define BUFFER_SIZE 30000
 #endif
 
+
+
 class Server {
 	public:
-		Server(ServerConfig serverConfig);
+		Server(ServerConfig& serverConfig);
 		~Server();
 		Server(Server const &src);
 		Server &operator=(Server const &rhs);
@@ -70,6 +72,13 @@ class Server {
 		int _printPeerName(MySocket *sock);
 		int _printHostName(void);
 		int _generateResponse(int sockfd, int statusCode=200);
+
+		// read value from config
+		void _set_port(ServerConfig& serverConfig);
+		void _set_server_name(ServerConfig& serverConfig);
+		void _set_client_max_size(ServerConfig& serverConfig);
+		void _set_auto_index(ServerConfig& serverConfig);
+
 
 		std::map<int, std::string> m_readBuffer;
 		std::map<int, std::string> m_writeBuffer;

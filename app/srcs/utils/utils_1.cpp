@@ -103,3 +103,14 @@ void free_char_array(char **arr)
 	}
 	delete[] arr;
 }
+
+std::pair<std::string, std::string> ft_split_pair(std::string str, const std::string delimiter)
+{
+	std::string key, value;
+	size_t pos = str.find(delimiter);
+	if (pos == std::string::npos)
+		throw DelimiterNotFoundException("Delimiter not found \"" + std::string(delimiter)+ "\"");
+	key = str.substr(0, pos);
+	value = str.substr(pos + delimiter.length());
+	return std::make_pair(key, value);
+}
