@@ -40,3 +40,9 @@ class ParseErrorException : public CustomExceptionBase
 public:
 	ParseErrorException(std::string msg) : CustomExceptionBase(msg){};
 };
+
+class EmptyStringException : public CustomExceptionBase
+{
+public:
+	EmptyStringException(std::string msg) : CustomExceptionBase(msg){};
+};

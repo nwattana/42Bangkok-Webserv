@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+import sys
+import os
 
 def error_info_dict(error_code):
   error_data = {
@@ -120,6 +122,7 @@ def generate_error_html(error_code):
 # Main execution
 if __name__ == "__main__":
   generate_error_html(400)
+  sys.exit(1)
   # generate_error_html(401)
   # generate_error_html(404)
   # generate_error_html(405)

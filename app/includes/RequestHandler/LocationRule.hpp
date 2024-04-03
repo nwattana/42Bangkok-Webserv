@@ -61,6 +61,10 @@ class LocationRule{
 		std::string execute_request(Request& request);
 		std::string set_auto_index(std::string auto_index);
 		std::string set_auto_index(LocationBlock& block);
+
+		std::string cgi_call(Request& request);
+		std::string cgi_parse_url(Request& request);
+
 	
 	private:
 
@@ -71,7 +75,8 @@ class LocationRule{
 		std::string _handle_route;
 		std::string _root_dir;
 		int _cgi_handle;
-		std::string _cgi_bin;
+		std::string _cgi_script;
+		int is_set_cgi_script;
 		int _allow_method;
 		int _allow_upload;
 		std::string _upload_path;

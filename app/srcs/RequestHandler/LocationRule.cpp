@@ -49,7 +49,7 @@ void LocationRule::_set_up_default()
 	_allow_method = 0;
 	_allow_upload = 0;
 	_upload_path = "./";
-	_cgi_bin = "./";
+	_cgi_script = "./";
 	_cgi_handle = 0;
 	_set_cwd();
 	_auto_index_cgi = "./cgi-bin/py/auto_index.py";
@@ -88,7 +88,7 @@ void LocationRule::printSetting(void) const
 	std::cout << "\t\tallow_upload: " << _allow_upload << std::endl;
 	std::cout << "\t\tupload_path: " << _upload_path << std::endl;
 	std::cout << "\t\tcgi_handle: " << _cgi_handle << std::endl;
-	std::cout << "\t\tcgi_bin: " << _cgi_bin << std::endl;
+	std::cout << "\t\tcgi_bin: " << _cgi_script << std::endl;
 }
 
 bool LocationRule::match_uri_path(std::string uri) const
@@ -122,12 +122,12 @@ std::string LocationRule::getRootDir(void) const
 
 void LocationRule::setCGIBin(std::string cgi_bin)
 {
-	_cgi_bin = cgi_bin;
+	_cgi_script = cgi_bin;
 }
 
 std::string LocationRule::getCGIBin(void) const
 {
-	return _cgi_bin;
+	return _cgi_script;
 }
 
 void LocationRule::setUploadPath(std::string upload_path)
@@ -178,9 +178,9 @@ void LocationRule::_set_cgi_bin(LocationBlock block, std::string server_dir)
 
 	temp = block.getConfig(L_CGI_HANDLER)[0];
 	if (temp.empty())
-		_cgi_bin = server_dir;
+		_cgi_script = server_dir;
 	else
-		_cgi_bin = temp;
+		_cgi_script = temp;
 }
 
 void LocationRule::_set_allow_method(LocationBlock block)
@@ -241,13 +241,16 @@ void LocationRule::_set_cgi(LocationBlock block, std::string server_dir)
 		_cgi_handle = 0;
 		return;
 	}
+
 	try
 	{
-		_cgi_bin = block.getConfig(L_CGI_SCRIPT)[0];
+		_cgi_script = _cwd + "/" + block.getConfig(L_CGI_SCRIPT)[0];
+		is_set_cgi_script = 1;
 	}
-	catch (const std::exception &e)
+	catch (ConfigNotFoundException)
 	{
-		_cgi_bin = server_dir;
+		_cgi_script = server_dir;
+		is_set_cgi_script = 0;
 	}
 }
 
@@ -321,7 +324,6 @@ std::string LocationRule::generate_resource_GET(std::string uri)
 
 	path_till_handle_route = uri.substr(_handle_route.length());
 	remaining_path = uri.substr(path_till_handle_route.length(), uri.length());
-	// result = _cwd + "/" + _root_dir + "/" + _handle_route + "/" + path_till_handle_route;
 	result = _cwd + "/" + _root_dir + "/" + path_till_handle_route;
 
 	if (result[result.length() - 1] == '/')
@@ -537,27 +539,9 @@ std::string LocationRule::execute_request(Request &request)
 	{
 		if (this->_cgi_handle)
 		{
-			std::cout << RED << request.get_uri() + RESET << std::endl;
-
-			std::string re = generate_resource_GET(request.get_uri());
-			std::cout << "resource : " << re << std::endl;
-
-			ExecveAdapter adaptor(re, std::vector<std::string>());
-			adaptor.add_env("REQUEST_BODY", request.get_body());
-			adaptor.add_env("REQUEST_METHOD", "GET");
-			adaptor.add_env("SERVER_PROTOCOL", "HTTP/1.1");
-			adaptor.add_env("PATH_TO_FILE", re);
-			adaptor.add_env("HOST_NAME", _host_name);
-			adaptor.add_env("CGI_ROUTE", _handle_route);
-			adaptor.add_env("SERVER_PORT", _server_port);
-
-			
-
-			std::string body = execute_cgi(2, adaptor.get_argv(), adaptor.get_envp());
-			Response response(200, body);
-			response.setHeader("Content-Type", "text/html");
-			adaptor.destory();
-			return response.getResponse();
+			// TODO working on this call cgi function
+			std::cout << RED << "CALL CGI" << std::endl;
+			return cgi_call(request);
 		}
 		else
 		{
@@ -591,4 +575,47 @@ std::string LocationRule::_build_in_cgi(Request &request)
 	{
 		return generate_error_response(405);
 	}
+}
+
+std::string LocationRule::cgi_call(Request &request)
+{
+	// CRUD
+	std::cout << BLUE;
+	std::string requested_file = cgi_parse_url(request);
+	std::string raw_request = request.raw_request();
+	
+	if (_cgi_script.empty())
+	{
+		std::cerr << "CGI Script not set" << std::endl;
+		return generate_error_response(500);
+	}
+	std::cout << "CGI Script : " << _cgi_script << std::endl;
+	ExecveAdapter adaptor(_cgi_script, std::vector<std::string>());
+	adaptor.add_env("REQUEST_BODY", request.get_body());
+	adaptor.add_env("RAW_REQUEST", raw_request);
+	adaptor.add_env("REQUEST_METHOD", "GET");
+	adaptor.add_env("SERVER_PROTOCOL", "HTTP/1.1");
+	adaptor.add_env("HOST_NAME", _host_name);
+	adaptor.add_env("CGI_ROUTE", _handle_route);
+	adaptor.add_env("SERVER_PORT", _server_port);
+	adaptor.add_env("PATH_TO_FILE", requested_file);
+
+	std::string res = execute_cgi(2, adaptor.get_argv(), adaptor.get_envp());
+	std::cout << RED << res<< std::endl;
+	adaptor.destory();
+
+	return (res);
+}
+
+// Path: in webserver machine
+std::string LocationRule::cgi_parse_url(Request& request)
+{
+	std::string uri = request.get_uri();
+	std::string res = "";
+	std::string front_path = uri.substr(0, uri.find(_handle_route));
+	std::string back_path = uri.substr(uri.find(_handle_route) + _handle_route.length());
+
+	res = front_path + _root_dir + back_path;
+	std::cout << "Path resolve " << res << RESET <<std::endl;
+	return (res);
 }

@@ -101,6 +101,8 @@ void test_ExecveAdapter(void)
 
 int ExecveAdapter::add_env(std::string key, std::string value)
 {
+	if (key.empty())
+		throw EmptyStringException("Empty String key = {" + key + "}{" + value + "}");
 	std::pair<std::string, std::string> pair(key, value);
 	_env_map.insert(pair);
 	return 0;
@@ -123,6 +125,8 @@ char ** ExecveAdapter::get_envp_array(void)
 		std::string env = it->first + "=" + it->second;
 		env_list.push_back(env);
 	}
+	std::cout << "Env List" << std::endl;
+	printStringVector(env_list, "\n");
 	envp = ft_vector_string_to_char_array(env_list);
 	return envp;
 }
