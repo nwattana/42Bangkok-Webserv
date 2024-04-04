@@ -65,8 +65,6 @@ int Server::setupServer() {
 		std::cerr << "getaddrinfo() error: " << gai_strerror(res) << std::endl;
 		return res;
 	}
-	// print address info
-	// this->_printAddressInfo(this->m_serverInfo);
 	return 0;
 }
 

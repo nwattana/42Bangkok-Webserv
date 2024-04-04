@@ -6,7 +6,7 @@
 #include "ServerConfig.hpp"
 #include "Constant.hpp"
 #include "utils.hpp"
-#include "exception.hpp"
+#include "Exception.hpp"
 #include "Request.hpp"
 #include "Response.hpp"
 #include "ResponseHandler.hpp"
@@ -17,6 +17,11 @@
 #ifndef LOCATION_RULE_DEBUG
 # define LOCATION_RULE_DEBUG 0
 #endif
+
+
+/*
+ * convert route to full path
+*/
 
 class LocationRule{
 	public:
@@ -64,8 +69,8 @@ class LocationRule{
 
 		std::string cgi_call(Request& request);
 		std::string cgi_parse_url(Request& request);
-
-	
+		void _set_host_name(std::string host_name);
+		void _set_server_port(std::string server_port);
 	private:
 
 		void _set_up_default();
@@ -97,19 +102,14 @@ class LocationRule{
 		void _set_index_page(LocationBlock block);
 		void _set_error_page(std::map<int, std::string> error_page);
 		void _set_cwd(void);
-
 		void _add_index_page(std::string &uri);
 
-		void _set_host_name(std::string host_name);
-		void _set_server_port(std::string server_port);
 
 		std::string _handle_get(Request& request);
 		std::string _handle_post(Request& request);
 		std::string _handle_put(Request& request);
 		std::string _handle_delete(Request& request);
-
 		std::string _build_in_cgi(Request& request);
-
 		ResponseHandler *_m_response_handler;
 		std::map<int, std::string> _error_page;
 		std::string _cwd;

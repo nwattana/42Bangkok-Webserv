@@ -600,7 +600,19 @@ std::string LocationRule::cgi_call(Request &request)
 	adaptor.add_env("SERVER_PORT", _server_port);
 	adaptor.add_env("PATH_TO_FILE", requested_file);
 
-	std::string res = execute_cgi(2, adaptor.get_argv(), adaptor.get_envp());
+	char **envp = adaptor.get_envp();
+	char **temp;
+	temp = envp;
+	std::cout << BLUE;
+	while (*temp)
+	{
+		std::cout << *temp << std::endl;
+		temp++;
+	}
+	std::cout << RESET;
+
+
+	std::string res = execute_cgi(2, adaptor.get_argv(), envp);
 	std::cout << RED << res<< std::endl;
 	adaptor.destory();
 
@@ -618,4 +630,14 @@ std::string LocationRule::cgi_parse_url(Request& request)
 	res = front_path + _root_dir + back_path;
 	std::cout << "Path resolve " << res << RESET <<std::endl;
 	return (res);
+}
+
+void LocationRule::_set_host_name(std::string host_name)
+{
+	_host_name = host_name;
+}
+
+void LocationRule::_set_server_port(std::string server_port)
+{
+	_server_port = server_port;
 }

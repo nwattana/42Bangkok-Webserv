@@ -78,16 +78,3 @@ std::string getReasonPhrase(int statusCode) {
 		reasonPhrase[i] = std::toupper(static_cast<unsigned char>(reasonPhrase[i]));
 	return reasonPhrase;
 }
-
-
-std::string read_htlm_file(std::string file_path)
-{
-	std::ifstream file(file_path.c_str());
-	std::string str;
-	std::string file_content;
-	while (std::getline(file, str))
-	{
-		file_content += str;
-	}
-	return file_content;
-}

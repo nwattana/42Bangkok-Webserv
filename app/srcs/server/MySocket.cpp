@@ -1,4 +1,4 @@
-#include "../../includes/MySocket.hpp"
+#include "MySocket.hpp"
 
 MySocket::MySocket() : m_fd(-1), m_isOpen(false), m_isConnection(false), m_addrSize(sizeof(this->m_theirAddr)) {
 }

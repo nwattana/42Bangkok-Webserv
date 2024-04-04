@@ -8,7 +8,7 @@
 #include "LocationRule.hpp"
 #include "Request.hpp"
 #include "Constant.hpp"
-#include "exception.hpp"
+#include "Exception.hpp"
 
 #define SEP "\n=======================================\n"
 

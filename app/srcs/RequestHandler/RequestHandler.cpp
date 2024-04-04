@@ -32,6 +32,8 @@ RequestHandler::RequestHandler(ServerConfig& serverConfig)
 		std::cerr << "RequestHandler::RequestHandler : " << e.what() << " set to index.html for route \"/\"" << std::endl;
 		this->_default_rule->setIndexPage("index.html", 0);
 	}
+	this->_default_rule->_set_host_name(this->_hostname);
+	this->_default_rule->_set_server_port(this->_port);
 
 	// Other location rules
 	std::vector<LocationBlock>& location_configs = serverConfig.getLocationConfig();

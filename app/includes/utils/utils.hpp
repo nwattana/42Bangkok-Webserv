@@ -10,7 +10,7 @@
 #include <cstdlib>
 #include <stdexcept>
 #include "Constant.hpp"
-#include "exception.hpp"
+#include "Exception.hpp"
 
 
 // Convert int to string dec
@@ -33,7 +33,6 @@ inline std::string toupper_string(std::string str) {
 #endif
 
 std::string getReasonPhrase(int statusCode);
-std::string read_htlm_file(std::string file_path);
 void						exitWithError(std::string errorMessage = "error", int mode = 0, int errnum = errno);
 void 						printStringVector(std::vector<std::string> vec, std::string delimiter);
 int 						findCharInString(std::string str, const char *c);

@@ -1,4 +1,4 @@
-#include "../../includes/MySocketManager.hpp"
+#include "MySocketManager.hpp"
 
 MySocketManager::MySocketManager() {
 }

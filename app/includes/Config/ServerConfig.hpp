@@ -37,8 +37,7 @@ class ServerConfig
 		std::vector<std::string> getConfig(int directive);
 		// std::string get_directive_string(int directive);
 
-		void _set_host_name(ServerConfig& serverConfig);
-		void _set_port(ServerConfig& serverConfig);
+
 
 	private:
 		// std::vector<std::string> allow_directive;

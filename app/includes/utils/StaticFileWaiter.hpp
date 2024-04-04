@@ -5,7 +5,7 @@
 #include <fstream>
 
 #include "utils.hpp"
-#include "exception.hpp"
+#include "Exception.hpp"
 
 
 // check file extension
