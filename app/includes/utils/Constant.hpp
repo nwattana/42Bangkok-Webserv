@@ -4,6 +4,7 @@
 #define NOTSET 0
 
 #define SUCCESS 1
+#define FAILURE 0
 
 #define EXIT_SUCCESS 0
 #define EXIT_FAILURE 1
@@ -15,19 +16,29 @@
 /*
 ** Server Config
 */
+// index
 #define S_INDEX 1
+// lister = port
 #define S_LISTEN 2
+// server_name hostname
 #define S_SERVER_NAME 3
+// root_dir
 #define S_ROOT 4
+
 #define S_LOCATION 5
 #define S_DENY 7
-#define S_AUTOINDEX 8
+// auto_index allowdirectorylisting
+#define S_AUTO_INDEX 14
+// error_page
 #define S_ERROR_PAGE 9
+// client_max_size
 #define S_CLIENT_MAX_SIZE 10
+
+// not used
 #define S_UPLOAD_FILE 11
+// not used
 #define S_UPLOAD_PATH 12
 #define S_METHOD_ALLOW 13
-#define S_AUTO_INDEX 14
 
 
 /*
@@ -78,3 +89,4 @@
 #define DEFAULT_PORT "8080"
 #define DEFAULT_SERVER_NAME "localhost"
 #define DEFAULT_CLIENT_MAX_SIZE 3000000
+#define DEFAULT_ROOT_DIR "./www/"

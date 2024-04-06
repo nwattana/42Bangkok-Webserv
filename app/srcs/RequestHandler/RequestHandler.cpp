@@ -2,7 +2,6 @@
 
 RequestHandler::RequestHandler()
 {
-	_allowed_method = GET | POST;
 	number_called = 0;
 }
 
@@ -10,49 +9,12 @@ RequestHandler::RequestHandler(ServerConfig& serverConfig)
 {
 	// set allowed method
 	number_called = 0;
-	std::string config_in = serverConfig.getConfig(S_METHOD_ALLOW)[0];
-	if (config_in.empty())
-		_allowed_method = GET | POST;
-	else
-		_allowed_method = allow_method_parser(config_in);
-	// set root dir
-	_root_dir = serverConfig.getConfig(S_ROOT)[0];
-
-
-
-
-	create_defualt_rule();
-	this->_default_rule->set_error_page(serverConfig.getErrorPage());
-	try
-	{
-		this->_default_rule->setIndexPage(serverConfig.getConfig(S_INDEX)[0], 1);
-	}
-	catch (ConfigNotFoundException &e)
-	{
-		std::cerr << "RequestHandler::RequestHandler : " << e.what() << " set to index.html for route \"/\"" << std::endl;
-		this->_default_rule->setIndexPage("index.html", 0);
-	}
-	this->_default_rule->_set_host_name(this->_hostname);
-	this->_default_rule->_set_server_port(this->_port);
+	set_root_dir(serverConfig);
 
 	// Other location rules
+	create_defualt_rule(serverConfig);
 	std::vector<LocationBlock>& location_configs = serverConfig.getLocationConfig();
 	create_location_rule(location_configs);
-
-
-	// set auto index for default rule
-	try{
-		std::string auto_index = serverConfig.getConfig(S_AUTO_INDEX)[0];
-		if (auto_index == "enable")
-			_default_rule->set_auto_index("enable");
-	}
-	catch (ConfigNotFoundException &e)
-	{
-		std::cout << YELLOW << e.what() << " auto-index/directory-list set to disable" << RESET << std::endl;
-	}
-
-	// get host name and port to rule
-	
 }
 
 RequestHandler::RequestHandler(RequestHandler const &src)
@@ -77,74 +39,104 @@ RequestHandler::~RequestHandler()
 	{
 		delete *it;
 	}
-	delete _default_rule;
+}
+
+void RequestHandler::set_root_dir(ServerConfig& serverConfig)
+{
+	try {
+		_root_dir = serverConfig.getConfig(S_ROOT)[0];
+	}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cerr << YELLOW << e.what() << " set to default root dir " <<  DEFAULT_ROOT_DIR  << RESET << std::endl;
+		_root_dir = DEFAULT_ROOT_DIR;
+	}
+
+	try {
+		_server_name = serverConfig.getConfig(S_SERVER_NAME)[0];
+	}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cerr << BLUE << e.what() << " Set To default server name " << DEFAULT_SERVER_NAME << RESET << std::endl;
+		_server_name = DEFAULT_SERVER_NAME;
+	}
+
+	try {
+		_server_port = serverConfig.getConfig(S_LISTEN)[0];
+	}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cout << BLUE << e.what() << " Set to default Port " << DEFAULT_PORT << RESET << std::endl;
+	}
 }
 
 
 // accept request and return response string
 std::string RequestHandler::read_request(std::string request)
 {
-	std::stringstream ss;
-	std::string methode, uri, version;
-	std::cout << BLUE << "RequestHandler::read_request : " << number_called << RESET << std::endl;
+	std::string res;
 	number_called++;
-	// seperate header and body
-	int seperator = request.find("\r\n\r\n");
-	if (seperator == -1)
+
+	// std::cout << CYAN << "request "<< request << RESET << std::endl;
+	res = create_request_object(request);
+	if (res != "success")
 	{
-		return _default_rule->generate_error_response(400);
+		return (res);
 	}
-	// Create Request Object
-	std::string header, body;
-	header = request.substr(0, seperator + 2);
-	body = request.substr(seperator + 4);
-	_current_request = new Request(header, body);
 
-	try
-	{
-		std::string req_content_type = _current_request->get_header("Content-Type");
-		std::cout << RED << "header : " << header << RESET << std::endl;
-		if (req_content_type.find("multipart/form-data") != std::string::npos)
-		{
-			_current_request->print_header();
-			std::string boundary = req_content_type.substr(req_content_type.find("boundary=") + 9);
-			std::cout << boundary << std::endl;
-			std::string chunked_body =  add_or_append_chunked(boundary, _current_request->get_body());
-
-			if (get_chunked_state(boundary) == 2)
-			{
-				std::string chunked_merge = pop_chunked(boundary);
-				seperator = chunked_merge.find("\r\n\r\n");
-				header = chunked_merge.substr(boundary.length(), chunked_merge.find("\r\n\r\n") + 4 - boundary.length());
-				body = chunked_merge.substr(seperator + 4);
-				body = body.substr(0, body.find(boundary) - 4);
-				_current_request->set_body(body);
-				_current_request->set_header(header);
-			}
-			else
-			{
-				return generate_error_response("/", 206);
-			}
-
-		}
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << '\n';
-	}
-	
-
-	uri = _current_request->get_uri();
+	// call location rule to handle request
+	std::string uri = _current_request->get_uri();
 	LocationRule *rule = _find_location_rule(uri);
 	if (rule == NULL)
 	{
-		rule = _default_rule;
+		rule = &_default_rule;
 	}
 	std::string response = rule->execute_request(*_current_request);
-	// Clean up
 	delete _current_request;
-
+	_current_request = NULL;
+	std::cout << BLUE << "RequestHandler::read_request : " <<  YELLOW << number_called << RED << " \nread request NOT Finish Yet" << RESET << std::endl;
 	return response;
+}
+
+/// @brief serialize request object from request string
+/// return string "success" "partia"
+std::string RequestHandler::create_request_object(std::string request)
+{
+	std::string header, body;
+	std::string function_res = "test";
+	// check first line 
+
+	std::vector<std::string> vec = http_request_split_line(request);
+	// เชค request line
+	if (parse_request_line(vec[0]) == 1)
+	{
+		// มี request ตัดแบ่ง header กับ body
+		int seperator = request.find("\r\n\r\n");
+		if (seperator == -1)
+		{
+			return _default_rule.location_generate_simple_response(400);
+		}
+		header = request.substr(0, seperator + 2);
+		body = request.substr(seperator + 4);
+		_current_request = new Request(header, body);
+	}
+	else 
+	{
+		if (_current_request == NULL)
+		{
+			std::cout << GREEN << "current request = NULL " << RESET << std::endl;
+			return (generate_simple_response("/", 400));
+		}
+		_current_request->append_body(request);
+	}
+	if (_current_request->check_if_multipart())
+	{
+		if (_current_request->check_chunk_done())
+			return ("success");
+		else
+			return _default_rule.location_generate_simple_response(206);
+	}
+	return "success";
 }
 
 void RequestHandler::create_location_rule(std::vector<LocationBlock>& location_config)
@@ -153,7 +145,7 @@ void RequestHandler::create_location_rule(std::vector<LocationBlock>& location_c
 	// for each location block, create a location rule
 	for (std::vector<LocationBlock>::iterator it = location_config.begin(); it != location_config.end(); it++)
 	{
-		rule = new LocationRule(*it, _root_dir);
+		rule = new LocationRule(*it, _root_dir, _server_name, _server_port);
 		if (rule == NULL)
 		{
 			std::cerr << "RequestHandler::create_location_rule : failed to create location rule" << std::endl;
@@ -163,20 +155,9 @@ void RequestHandler::create_location_rule(std::vector<LocationBlock>& location_c
 	}
 }
 
-void RequestHandler::printSetting(void) const
-{
-	std::cout << "Allowed Method : " << method_allow_to_string(_allowed_method) << std::endl;
-	std::cout << "Root Dir : " << _root_dir << std::endl;
-	for (std::vector<LocationRule *>::const_iterator it = _locations_rules.begin(); it != _locations_rules.end(); it++)
-	{
-		(*it)->printSetting();
-	}
-}
-
 LocationRule *RequestHandler::_find_location_rule(std::string uri)
 {
 	LocationRule *rule, *res;
-	// for each location rule, check if uri match and most depth
 
 	// Search for last '/' in uri check it followed by a file or not
 	uri = uri.find_last_of("/") == uri.size() - 1 ? uri : uri.substr(0, uri.find_last_of("/") + 1);
@@ -193,123 +174,185 @@ LocationRule *RequestHandler::_find_location_rule(std::string uri)
 	return res;
 }
 
-// TODO alot of bug here
-void RequestHandler::create_defualt_rule(void)
+void RequestHandler::create_defualt_rule(ServerConfig& serverConfig)
 {
-	_default_rule = new LocationRule();
-	_default_rule->setRootDir(_root_dir);
-	_default_rule->setAllowMethod(_allowed_method);
+	// Set Root Dir from server config
+	std::string temp;
+	std::vector<std::string> temp_vec;
+
+	// Set Root Directory for this rule
+	try {
+		temp = serverConfig.getConfig(S_ROOT)[0];
+		_default_rule.set_root_dir(temp);
+	}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default root dir " << DEFAULT_ROOT_DIR << std::endl;
+		_default_rule.set_root_dir(DEFAULT_ROOT_DIR);
+	}
+
+	try {
+		temp_vec = serverConfig.getConfig(S_METHOD_ALLOW);
+		_default_rule.set_method_allow(temp_vec);
+	}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default method allow only GET" << std::endl;
+		temp_vec.push_back("GET");
+		_default_rule.set_method_allow(temp_vec);
+	}
+
+	_default_rule.set_error_page(serverConfig.getErrorPage());
+
+	try
+	{
+		_default_rule.setIndexPage(serverConfig.getConfig(S_INDEX)[0], 1);
+	}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cerr << "RequestHandler::RequestHandler : " << e.what() << " set to index.html for route \"/\"" << std::endl;
+		_default_rule.setIndexPage("index.html", 0);
+	}
+
+	try
+	{
+		temp = serverConfig.getConfig(S_SERVER_NAME)[0];
+		_default_rule.set_host_name(temp);
+	}
+	catch(ConfigNotFoundException &e)
+	{
+		std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default server name localhost" << std::endl;
+		_default_rule.set_host_name(DEFAULT_SERVER_NAME);
+	}
+
+	try
+	{
+		temp = serverConfig.getConfig(S_LISTEN)[0];
+		_default_rule.set_server_port(temp);
+	}
+	catch(ConfigNotFoundException &e)
+	{
+		std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default port 8080" << std::endl;
+		_default_rule.set_server_port(DEFAULT_PORT);
+	}
+	
+	try{
+		std::string auto_index = serverConfig.getConfig(S_AUTO_INDEX)[0];
+		if (auto_index == "enable")
+			_default_rule.set_auto_index("enable");
+	}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cout << YELLOW << e.what() << " auto-index/directory-list set to disable" << RESET << std::endl;
+	}
 }
 
 /// @brief Serve a error response asoociated with the error code and route
 /// @return
-std::string RequestHandler::generate_error_response(std::string route, int error_code)
+std::string RequestHandler::generate_simple_response(std::string route, int error_code)
 {
 	LocationRule *rule = _find_location_rule(route);
 	if (rule == NULL)
 	{
-		rule = _default_rule;
+		rule = &_default_rule;
 	}
-	return rule->generate_error_response(error_code);
+	return rule->location_generate_simple_response(error_code);
 }
 
 
-std::string RequestHandler::add_or_append_chunked(std::string _key, std::string _body)
+
+/// @brief  DEBUG
+void print_chunk_request(std::map<std::string, std::vector<ChunkData*> > data)
 {
-	std::map<std::string, std::string>::iterator it;
-	std::map<std::string, int>::iterator it_state;
-	it = _chunk_request.find(_key);
-	it_state = _chunked_state.find(_key);
-
-	if (it != _chunk_request.end())
+	std::map<std::string, std::vector<ChunkData*> >:: iterator it = data.begin();
+	std::cout << (*it).first << std::endl;
+	std::vector<ChunkData *> v=(*it).second;
+	std::vector<ChunkData *>::iterator vit=v.begin();
+	for (vit; vit != v.end(); vit++)
 	{
-		it->second.append(_body);
+		std::cout << (*vit)->get_data() << std::endl;
 	}
-	else
-	{
-		_chunk_request.insert(std::pair<std::string, std::string>(_key, _body));
-	}
-
-	if (it_state == _chunked_state.end())
-	{
-		_chunked_state.insert(std::pair<std::string, int>(_key, 0));
-	}
-
-	it_state = _chunked_state.find(_key);
-	std::string target = _key;
-	size_t pos = 0;
-	while ((pos = _body.find(target, pos)) != std::string::npos)
-	{
-		_chunked_state[_key] += 1;
-		pos += target.length();
-	}
-
-	return _chunk_request[_key];
 }
 
 
-short RequestHandler::get_chunked_state(std::string _key)
-{
-	std::map<std::string, int>::iterator it_state;
-	it_state = _chunked_state.find(_key);
-	if (it_state != _chunked_state.end())
-	{
-		return it_state->second;
-	}
-	return 0;
-}
+// merge and manage chunk request
+// std::string RequestHandler::handle_chunked_request(void)
+// {
+// 	std::string res;
+// 	std::string content_type,header;
+// 	std::string body=_current_request->get_body();
+// 	size_t seperator;
+// 	std::cout << MAGENTA << "INTO handle chunk request " << RESET << std::endl;
+// 	try
+// 	{
+// 		 content_type = _current_request->get_header("Content-Type");
+// 	}
+// 	catch (HeaderNotFound &e)
+// 	{
+// 		return "success";
+// 	}
+// 	int b_pos = content_type.find("boundary=");
+// 	if (b_pos == -1)
+// 	{
+// 		return "not chunk";
+// 	}
+// 	std::cout << MAGENTA << "INTO handle chunk request 2" << RESET << std::endl;
+// 	std::string bound = content_type.substr(b_pos + std::string("boundary=").length());
+// 	std::string b_sep = "--" + bound + "\r\n";
+// 	std::string b_end = "--" + bound + "--\r\n";
 
-short RequestHandler::debug_chunked_state(void)
-{
-	std::map<std::string, std::string>::iterator it;
-	std::map<std::string, int>::iterator it_state;
-
-	for (it = _chunk_request.begin(); it != _chunk_request.end(); it++)
-	{
-		std::cout << SEP << "DEBUG CHUNK" <<SEP << "Key : " << it->first << std::endl;
-		std::cout << "Value : " << it->second << std::endl;
-		std::cout << "State : " << _chunked_state[it->first] << SEP << std::endl;
-	}
-	return 0;
-}
-
-std::string RequestHandler::pop_chunked(std::string _key)
-{
-	std::map<std::string, std::string>::iterator it;
-	std::map<std::string, int>::iterator it_state;
-	std::string res;
-	it = _chunk_request.find(_key);
-	it_state = _chunked_state.find(_key);
-
-	res = it->second;
-	_chunk_request.erase(it);
-	_chunked_state.erase(it_state);
-	return res;
-}
-
-
-std::string RequestHandler::set_hostname(std::string hostname)
-{
-	_hostname = hostname;
-	return _hostname;
-}
-
-std::string RequestHandler::set_port(ServerConfig& serverConfig)
-{
-	try
-	{
-		_port = serverConfig.getConfig(S_LISTEN)[0];
-	}
-	catch(ConfigNotFoundException &e)
-	{
-		std::cerr << YELLOW << e.what() << " set to default port 8080" << RESET << std::endl;
-		_port = DEFAULT_PORT;
-	}
-	return _port;
-}
-
-std::string RequestHandler::set_port(std::string port)
-{
-	_port = port;
-	return _port;
-}
+// 	// TODO collect multipart data if not found the end do not run
+// 	// if (content_type.find("multipart/form-data") != std::string::npos)
+// 	// {
+// 	// 	std::vector<std::string > vec=http_request_split_line(body);
+// 	// 	std::vector<std::string > temp;
+// 	// 	std::vector<std::string >::iterator it = vec.begin();
+// 	// 	ChunkData *new_c= NULL;
+// 	// 	int new_data = 0;
+// 	// 	int is_end = 0;
+// 	// 	for (it; it != vec.end(); it++)
+// 	// 	{
+// 	// 		// found boundary
+// 	// 		if (is_end)
+// 	// 		{
+// 	// 			return "invalid request";
+// 	// 		}
+// 	// 		if ((*it).compare(b_sep) == 0)
+// 	// 		{
+// 	// 			if (new_c != NULL)
+// 	// 				_chunk_request[bound].push_back(new_c);
+// 	// 			new_c = new ChunkData();
+// 	// 			new_data = 1;
+// 	// 		}
+// 	// 		else if ((*it).compare("\r\n") == 0)
+// 	// 		{
+// 	// 			new_data = 0;
+// 	// 		}
+// 	// 		else if ((*it).compare(b_end) == 0)
+// 	// 		{
+// 	// 			_chunk_request[bound].push_back(new_c);
+// 	// 			is_end = 1;
+// 	// 		}
+// 	// 		else if (new_data)
+// 	// 		{
+// 	// 			new_c->add_header(*it);
+// 	// 		}
+// 	// 		else if (new_data == 0)
+// 	// 		{
+// 	// 			new_c->append_data(*it);
+// 	// 		}
+// 	// 		else
+// 	// 		{
+// 	// 			std::cout << RED << "none of above " << YELLOW << *it << RESET << std::endl;
+// 	// 		}
+// 	// 	}
+// 	// 	// print_chunk_request(_chunk_request);
+// 	// 	if (is_end)
+// 	// 	{
+// 	// 		return "success";
+// 	// 	}
+// 	// 	return "partial";
+// 	// }
+// 	std::cout << MAGENTA << "EXIT handle chunk request 2" << RESET << std::endl;
+// 	return "success";
+// }

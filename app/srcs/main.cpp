@@ -15,6 +15,7 @@ int main(int argc, char **argv, char **envp)
 	config.printServerConfig();
 	std::cout << "=============== Connecting to http://localhost:8080/ ===============" << std::endl;
 
+	// test_http_request_split_line();
 	ServerManager serverManager(config.getServerConfig());
 	serverManager.setupServer();
 	serverManager.handleConnection();

@@ -6,7 +6,7 @@
 #include <vector>
 #include <sstream>
 #include "utils.hpp"
-
+#include "Exception.hpp"
 /*
 Request    = Request-Line
 			*(( general-header
@@ -56,6 +56,10 @@ public:
 	std::string get_resource(void);
 	void set_body(std::string body);
 	void set_header(std::string header);
+	void append_body(std::string more);
+	int check_if_multipart(void);
+	int check_chunk_done(void);
+	
 
 private:
 	Request();
@@ -66,11 +70,13 @@ private:
 	std::string _body;
 	int _method;
 	std::string _uri;
+	std::string _boundary;
 
 	std::string _path_to_resource;
 	std::string _resource;
 
 	std::string _version;
+	std::string _content_type;
 
 	void _parse_request_line(std::string line);
 	void _parse_header(std::string header);

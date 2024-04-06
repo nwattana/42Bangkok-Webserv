@@ -9,6 +9,7 @@
 #include "Request.hpp"
 #include "Constant.hpp"
 #include "Exception.hpp"
+#include "ChunkData.hpp"
 
 #define SEP "\n=======================================\n"
 
@@ -18,47 +19,57 @@
  * GET, POST, PUT, DELETE, HEAD, OPTIONS, TRACE, CONNECT,
  */
 
+
+
 class RequestHandler
 {
 public:
 	RequestHandler();
-	RequestHandler(ServerConfig& serverConfig);
+	RequestHandler(ServerConfig &serverConfig);
 	RequestHandler(RequestHandler const &src);
 	RequestHandler &operator=(RequestHandler const &rhs);
 	~RequestHandler();
 
 	std::string read_request(std::string request);
+	// std::string read_request(char *buffer, size_t size);
 
-	void create_location_rule(std::vector<LocationBlock>& location_config);
-	void create_defualt_rule(void);
-	void printSetting(void) const;
+	// Initialize RequestHandler
+	void set_root_dir(ServerConfig &serverConfig);
+	void create_defualt_rule(ServerConfig &serverConfig);
+	void create_location_rule(std::vector<LocationBlock> &location_config);
 
-	std::string generate_error_response(std::string route, int error_code);
-	std::string set_hostname(ServerConfig& serverConfig);
-	std::string set_hostname(std::string hostname);
-	std::string set_port(ServerConfig& serverConfig);
-	std::string set_port(std::string port);
+	// for server call
+	std::string generate_simple_response(std::string route, int error_code);
 
+	// Parsing and Create Request Object
+	// std::string handle_chunked_request(void);
+	std::string create_request_object(std::string request);
+
+	// Search for Location Rule
+
+	// Let Rule Handle Request
+
+	// DEBUG
+	// void printSetting(void) const;
+	// short debug_chunked_state(void);
 
 private:
-	LocationRule *_find_location_rule(std::string uri);
-	int number_called;
-
-	LocationRule *_default_rule;
-	std::string _request_serializer(void);
-	int _allowed_method;
-	std::vector<LocationRule *> _locations_rules;
 	std::string _root_dir;
-	std::string _hostname;
-	std::string _port;
+	std::string _server_name;
+	std::string _server_port;
 
-	std::map<std::string, std::string> _chunk_request;
-	std::map<std::string, int> _chunked_state;
-
+	int number_called;
 	Request *_current_request;
-	std::string add_or_append_chunked(std::string _key, std::string _body);
-	short get_chunked_state(std::string _key);
-	std::string pop_chunked(std::string _key);
-	short debug_chunked_state(void);
 
+	// Search for Location Rule
+	LocationRule _default_rule;
+	std::vector<LocationRule *> _locations_rules;
+	LocationRule *_find_location_rule(std::string uri);
+
+	// std::string _request_serializer(void);
+
+	// Contain pennding chunked request
+	std::map<std::string, std::vector<ChunkData*> > _chunk_request;
+	// check chunk_request state
+	std::map<std::string, int> _chunked_state;
 };

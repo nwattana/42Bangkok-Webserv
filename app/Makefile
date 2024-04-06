@@ -10,7 +10,7 @@
 NAME        := webserv
 CXX         	:= c++
 # SANITIZE	:= -fsanitize=address
-# GDB			:= -g
+GDB			:= -g
 # WARNING		:= -Wall -Wextra -Werror
 CFLAGS    	:= $(WARNING) -std=c++98 $(GDB) $(SANITIZE)
 INC_DIR    	:= $(shell find ./includes -type d)

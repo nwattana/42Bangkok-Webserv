@@ -5,7 +5,7 @@ LocationRule::LocationRule()
 	_set_up_default();
 }
 
-LocationRule::LocationRule(LocationBlock &block, std::string server_dir)
+LocationRule::LocationRule(LocationBlock &block, std::string server_dir, std::string server_name, std::string server_port)
 {
 	_set_up_default();
 	std::string temp;
@@ -16,9 +16,8 @@ LocationRule::LocationRule(LocationBlock &block, std::string server_dir)
 	_set_cgi(block, server_dir);
 	_set_index_page(block);
 	_set_error_page(block.getErrorPage());
-	_set_cwd();
 	set_auto_index(block);
-	_m_response_handler = new ResponseHandler();
+	_set_cwd();
 }
 
 LocationRule::LocationRule(LocationRule const &src)
@@ -37,12 +36,11 @@ LocationRule &LocationRule::operator=(LocationRule const &rhs)
 
 LocationRule::~LocationRule()
 {
-	delete _m_response_handler;
+	// delete _m_response_handler;
 }
 
 void LocationRule::_set_up_default()
 {
-	_full_path = "./";
 	_handle_route = "/";
 	_root_dir = "./";
 	_depth = 0;
@@ -81,7 +79,6 @@ void LocationRule::printSetting(void) const
 	std::cout << "LocationRule::printSetting" << std::endl;
 	std::cout << "\tLocationRule: " << std::endl;
 	std::cout << "\thandle_route: " << _handle_route << std::endl;
-	std::cout << "\t\tfull_path: " << _full_path << std::endl;
 	std::cout << "\t\troot_dir: " << _root_dir << std::endl;
 	std::cout << "\t\tdepth: " << _depth << std::endl;
 	std::cout << "\t\tallow_method: " << method_allow_to_string(_allow_method) << std::endl;
@@ -95,7 +92,6 @@ bool LocationRule::match_uri_path(std::string uri) const
 {
 	if (strncmp(_handle_route.c_str(), uri.c_str(), _handle_route.length()) == 0)
 	{
-		std::cout << "Matched LocationRule : " << _handle_route << " : " << uri << std::endl;
 		return true;
 	}
 	else
@@ -145,10 +141,7 @@ std::string LocationRule::get_handle_route(void) const
 	return _handle_route;
 }
 
-std::string LocationRule::get_full_path(void) const
-{
-	return _full_path;
-}
+
 
 void LocationRule::setAllowMethod(int allow_method)
 {
@@ -382,25 +375,25 @@ void LocationRule::_set_error_page(std::map<int, std::string> error_page)
 	}
 }
 
-void LocationRule::print_error_page(void) const
+void LocationRule::location_print_error_page(void) const
 {
 	std::map<int, std::string>::const_iterator it;
 
 	if (_error_page.empty())
 	{
-		std::cerr << "Error Page not set" << std::endl;
+		std::cerr << "LocationRule::location_print_error_page Error Page not set" << std::endl;
 		return;
 	}
 	for (it = _error_page.begin(); it != _error_page.end(); it++)
 	{
-		std::cout << "Error Page : " << it->first << " : " << it->second << std::endl;
+		std::cout << "LocationRule::location_print_error_page Error Page : " << it->first << " : " << it->second << std::endl;
 	}
 }
 
 /// @brief Create error response depending status code
 /// @param status_code
 /// @return
-std::string LocationRule::generate_error_response(int status_code)
+std::string LocationRule::location_generate_simple_response(int status_code)
 {
 	std::string res;
 	std::string path;
@@ -413,8 +406,8 @@ std::string LocationRule::generate_error_response(int status_code)
 	catch (const std::exception &e)
 	{
 		// std::cerr << e.what() << '\n';
-		this->print_error_page();
-		std::cerr << _handle_route << std::endl;
+		this->location_print_error_page();
+		std::cerr << RED << "LocationRule::generate_error_response::RULE AT route : " <<_handle_route << RESET <<  std::endl;
 	}
 
 	if (path.empty())
@@ -473,7 +466,7 @@ std::string LocationRule::_handle_get(Request &request)
 		}
 		catch (FileNotAccessibleException)
 		{
-			res = generate_error_response(404);
+			res = location_generate_simple_response(404);
 		}
 	}
 	// std::cout << res << std::endl;
@@ -491,7 +484,7 @@ std::string LocationRule::_handle_post(Request &request)
 		filename = filename.substr(0, filename.length() - 1);
 		if (resource[resource.length() - 1] != '/')
 		{
-			return generate_error_response(409);
+			return location_generate_simple_response(409);
 		}
 		resource += filename;
 	}
@@ -500,7 +493,7 @@ std::string LocationRule::_handle_post(Request &request)
 	FileCreator file_crator(resource);
 	if (file_crator.check_file_exist(file_crator.getFileName()) == 1)
 	{
-		res = generate_error_response(409);
+		res = location_generate_simple_response(409);
 	}
 	else
 	{
@@ -516,7 +509,7 @@ std::string LocationRule::_handle_post(Request &request)
 		}
 		catch (FileNotAccessibleException)
 		{
-			res = generate_error_response(500);
+			res = location_generate_simple_response(500);
 		}
 	}
 	return res;
@@ -525,32 +518,28 @@ std::string LocationRule::_handle_post(Request &request)
 std::string LocationRule::execute_request(Request &request)
 {
 	int method = request.get_method();
+	std::cout<< BLUE << "Call Route : " << _handle_route << RESET <<std::endl;
 
-	// std::cout << "execute_request : \"" + request.get_uri() + "\""<< std::endl;
-	// std::cout << request.raw_request() << std::endl;
-
-	// check for multi_part
-
-
-	// Check Allow Methode return 405 if not allowed
-
-	// TODO uncomment me
-	if (method && _allow_method)
+	// Method Not allow
+	if (!(method && _allow_method))
 	{
-		if (this->_cgi_handle)
-		{
-			// TODO working on this call cgi function
-			std::cout << RED << "CALL CGI" << std::endl;
-			return cgi_call(request);
-		}
-		else
-		{
-			return _build_in_cgi(request);
-		}
+		return location_generate_simple_response(405);
 	}
-	return generate_error_response(405);
-}
 
+	if (_cgi_handle)
+	{
+		return cgi_call(request);
+	}
+	else
+	{
+		std::cerr << RED << "LocationRule::execute_request : " <<  YELLOW << "CGI Build in not finish yet ENABLE" << RESET << std::endl;
+	}
+	
+
+
+	return location_generate_simple_response(200);
+}
+ 
 std::string LocationRule::_build_in_cgi(Request &request)
 {
 	int method = request.get_method();
@@ -565,15 +554,15 @@ std::string LocationRule::_build_in_cgi(Request &request)
 	}
 	else if (method & PUT)
 	{
-		return generate_error_response(405);
+		return location_generate_simple_response(405);
 	}
 	else if (method & DELETE)
 	{
-		return generate_error_response(405);
+		return location_generate_simple_response(405);
 	}
 	else
 	{
-		return generate_error_response(405);
+		return location_generate_simple_response(405);
 	}
 }
 
@@ -587,12 +576,12 @@ std::string LocationRule::cgi_call(Request &request)
 	if (_cgi_script.empty())
 	{
 		std::cerr << "CGI Script not set" << std::endl;
-		return generate_error_response(500);
+		return location_generate_simple_response(500);
 	}
 	std::cout << "CGI Script : " << _cgi_script << std::endl;
 	ExecveAdapter adaptor(_cgi_script, std::vector<std::string>());
-	adaptor.add_env("REQUEST_BODY", request.get_body());
 	adaptor.add_env("RAW_REQUEST", raw_request);
+	std::cout << GREEN << raw_request << RESET << std::endl;
 	adaptor.add_env("REQUEST_METHOD", "GET");
 	adaptor.add_env("SERVER_PROTOCOL", "HTTP/1.1");
 	adaptor.add_env("HOST_NAME", _host_name);
@@ -603,6 +592,8 @@ std::string LocationRule::cgi_call(Request &request)
 	char **envp = adaptor.get_envp();
 	char **temp;
 	temp = envp;
+
+	// print 2 d array
 	std::cout << BLUE;
 	while (*temp)
 	{
@@ -613,7 +604,7 @@ std::string LocationRule::cgi_call(Request &request)
 
 
 	std::string res = execute_cgi(2, adaptor.get_argv(), envp);
-	std::cout << RED << res<< std::endl;
+	std::cout << BLUE << res << std::endl;
 	adaptor.destory();
 
 	return (res);
@@ -632,12 +623,34 @@ std::string LocationRule::cgi_parse_url(Request& request)
 	return (res);
 }
 
-void LocationRule::_set_host_name(std::string host_name)
+void LocationRule::set_host_name(std::string host_name)
 {
 	_host_name = host_name;
 }
 
-void LocationRule::_set_server_port(std::string server_port)
+void LocationRule::set_server_port(std::string server_port)
 {
 	_server_port = server_port;
+}
+
+int LocationRule::setAllowMethod(std::vector<std::string> allow_method)
+{
+	for (size_t i = 0; i < allow_method.size(); i++)
+	{
+		_allow_method |= allow_method_parser(allow_method[i]);
+	}
+	return (_allow_method);
+}
+
+void LocationRule::set_root_dir(std::string root_dir)
+{
+	_root_dir = root_dir;
+}
+
+void LocationRule::set_method_allow(std::vector<std::string> allow_method)
+{
+	for (size_t i = 0; i < allow_method.size(); i++)
+	{
+		_allow_method |= allow_method_parser(allow_method[i]);
+	}
 }

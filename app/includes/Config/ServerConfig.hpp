@@ -31,6 +31,7 @@ class ServerConfig
 
 		int check_directive(std::string str);
 
+		///////// Debug
 		void print_error_page(void) const;
 
 		//pls just let me get config info easily TT

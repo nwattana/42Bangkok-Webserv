@@ -11,10 +11,12 @@ Request::Request(std::string header, std::string body)
 
 	// parse request line
 	std::string request_line = _header.substr(0, _header.find("\r\n"));
+
 	_parse_request_line(request_line);
 	// parse header
 	std::string header_str = _header.substr(_header.find("\r\n") + 2);
 	_parse_header(header_str);
+
 }
 
 Request::Request(Request const &src)
@@ -94,7 +96,7 @@ std::string Request::get_header(std::string key)
 	{
 		return it->second[0];
 	}
-	throw std::invalid_argument("Request::get_header : key not found \"" + key + "\"");
+	throw HeaderNotFound("Request::get_header : key not found \"" + key + "\"");
 }
 
 std::string Request::get_body(void)
@@ -166,4 +168,48 @@ void Request::set_body(std::string body)
 void Request::set_header(std::string header)
 {
 	_parse_header(header);
+}
+
+void Request::append_body(std::string more)
+{
+	_body += more;
+}
+
+// return 1 if found multipart/form-data
+int Request::check_if_multipart(void)
+{
+	std::vector<std::string > temp;
+	std::vector<std::string >::iterator it;
+	try
+	{
+		if (_header_map.find("Content-Type") != _header_map.end())
+		{
+			std::vector<std::string> vec = _header_map["Content-Type"];
+			temp = ft_split(vec[0], "; ");
+			if (temp[0] == "multipart/form-data")
+			{
+				_boundary=ft_split(temp[1], "=")[1];
+				return (1);
+			}
+		}
+	}
+	catch(const std::exception& e)
+	{
+		std::cerr << RED << e.what() << '\n';
+	}
+	return (0);
+}
+
+// return 1 if found boundary
+int Request::check_chunk_done(void)
+{
+	int pos = _body.find("--" + _boundary + "--");
+	if (pos == -1)
+	{
+		std::cout << BLUE << "Chunked not done " << RESET << std::endl;
+		return (0);
+	}
+	std::cout << GREEN << "Chunked done " << RESET << std::endl;
+	// TODO chunk corrrect position;
+	return (1);
 }

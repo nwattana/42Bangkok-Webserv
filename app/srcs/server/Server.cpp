@@ -49,22 +49,20 @@ int Server::setupServer() {
 		std::cerr << "Failed to allocate memory for request handler" << std::endl;
 		return -1;
 	}
-	m_requestHandler->set_hostname(this->m_ServerName);
-	m_requestHandler->set_port(this->m_port);
 	// get address info
 	struct addrinfo hints;
 	memset(&hints, 0, sizeof(hints));
 	hints.ai_family = AF_UNSPEC; // use AF_INET6 to force IPv6
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE; // use my IP
-	if (this->m_ServerName == "localhost")
-		res = getaddrinfo(NULL, this->m_port.c_str(), &hints, &this->m_serverInfo);
-	else
-		res = getaddrinfo(this->m_ServerName.c_str(), this->m_port.c_str(), &hints, &this->m_serverInfo);
-	if (res != 0) {
-		std::cerr << "getaddrinfo() error: " << gai_strerror(res) << std::endl;
-		return res;
-	}
+	// if (this->m_ServerName == "localhost")
+	res = getaddrinfo(NULL, this->m_port.c_str(), &hints, &this->m_serverInfo);
+	// else
+	// 	res = getaddrinfo(this->m_ServerName.c_str(), this->m_port.c_str(), &hints, &this->m_serverInfo);
+	// if (res != 0) {
+	// 	std::cerr << "getaddrinfo() error: " << gai_strerror(res) << std::endl;
+	// return res;
+	// }
 	return 0;
 }
 
@@ -187,9 +185,9 @@ int Server::_generateResponse(int sockfd, int statusCode)
 		this->m_writeBuffer[sockfd] = this->m_requestHandler->read_request(this->m_readBuffer[sockfd]);
 	}
 	else if (statusCode == 413)
-		this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_error_response("/", 413);
+		this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_simple_response("/", 413);
 	else
-		this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_error_response("/", 404);
+		this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_simple_response("/", 404);
 	return statusCode;
 }
 

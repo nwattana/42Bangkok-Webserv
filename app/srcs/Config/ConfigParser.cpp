@@ -148,7 +148,7 @@ void ConfigParser::processLocationBlock(std::string token)
 	if (tmp_location.isSetLocationMatch() == NOTSET)
 	{
 		if (tmp_location.isAcceptedPath(token) == 0)
-			throw std::invalid_argument("Invalid location path");
+			throw ParseErrorException(std::string(" Location Path no Acceptable path: ") +  std::string(RED) + std::string(token) + std::string(RESET));
 		tmp_location.setLocationMatch(token);
 	}
 	else if (token == "{")

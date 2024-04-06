@@ -46,3 +46,9 @@ class EmptyStringException : public CustomExceptionBase
 public:
 	EmptyStringException(std::string msg) : CustomExceptionBase(msg){};
 };
+
+class HeaderNotFound : public CustomExceptionBase
+{
+public:
+	HeaderNotFound(std::string msg) : CustomExceptionBase(msg){};
+};

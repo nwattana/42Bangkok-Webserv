@@ -38,7 +38,10 @@ int allow_method_str_to_int(std::string method)
 	else if (method == "CONNECT")
 		return CONNECT;
 	else
+	{
+		// std::cerr << RED << "ALLOW METHOD PARSER : \"" << method << "\" is not a valid method" << RESET << std::endl;
 		return 0;
+	}
 }
 
 std::string method_allow_to_string(int method)

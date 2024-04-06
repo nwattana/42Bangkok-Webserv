@@ -4,6 +4,8 @@
 #include "Webserv.hpp"
 #include "ServerConfig.hpp"
 #include "LocationBlock.hpp"
+#include "Exception.hpp"
+#include "Constant.hpp"
 
 #define OPEN_BRACKET 1
 #define CLOSE_BRACKET 0

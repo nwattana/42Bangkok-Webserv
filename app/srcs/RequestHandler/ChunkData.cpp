@@ -1,0 +1,110 @@
+#include "ChunkData.hpp"
+
+ChunkData::ChunkData()
+{
+	data = "";
+	content_type ="";
+	content_disposition="";
+	is_empty = 1;
+}
+
+ChunkData::ChunkData(std::string header_part)
+{
+	data = "";
+	std::vector<std::string> token;
+	std::string clone_header=header_part;
+	std::vector<std::string>::iterator it;
+	token = ft_split(header_part, "\n");
+	int pos, pos2;
+	std::string h_token;
+
+	pos = clone_header.find("\r\n");
+	while (pos != -1)
+	{
+		h_token = clone_header.substr(0, pos);
+		clone_header = clone_header.substr(pos + 2);
+		pos2 = h_token.find(": ");
+		if (pos2 != -1)
+		{
+			std::string key = h_token.substr(0, pos2);
+			std::string value = h_token.substr(pos2 + 2);
+			h_map[key] = value;
+		}
+		pos = clone_header.find("\r\n");
+	}
+	is_empty = 0;
+}
+
+
+ChunkData::ChunkData(std::string data, std::string content_disposition, std::string content_type, std::string boundary){
+	data=data;
+	content_disposition=content_disposition;
+	content_type=content_type;
+	boundary=boundary;
+	is_empty = 0;
+}
+
+
+ChunkData::ChunkData(ChunkData const &src)
+{
+	if (this != &src)
+	{
+		this->data = src.data;
+		this->content_disposition=src.content_disposition;
+		this->content_type=src.content_type;
+		this->boundary=src.boundary;
+		this->is_empty=src.is_empty;
+	}
+}
+
+
+ChunkData& ChunkData::operator=(ChunkData const &src)
+{
+	*this = src;
+	return *this;
+}
+
+ChunkData::~ChunkData()
+{
+	// nothing
+}
+
+int ChunkData::append_data(std::string data)
+{
+	try
+	{
+		this->data += data;
+		this->is_empty= 0;
+	}
+	catch (std::exception &e)
+	{
+		std::cerr << RED << e.what() << RESET << std::endl;
+		return (FAILURE);
+	}
+	return (SUCCESS);
+}
+
+std::string ChunkData::get_data(void) const
+{
+	return this->data;
+}
+
+std::map<std::string, std::string> ChunkData::get_h_map(void)
+{
+	return this->h_map;
+}
+
+int ChunkData::add_header(std::string h_line)
+{
+	std::string key;
+	std::string value;
+	int pos;
+
+	pos = h_line.find(":");
+	if (pos == -1)
+		return (FAILURE);
+	key = h_line.substr(0, pos);
+	value= h_line.substr(pos+1);
+	h_map[key]=value;
+	return (SUCCESS);
+}

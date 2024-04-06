@@ -39,6 +39,8 @@ public:
 
 	void setErrorPage(void);
 	std::map<int, std::string> getErrorPage(void) const;
+
+	// Debug
 	void print_error_page(void) const;
 
 private:

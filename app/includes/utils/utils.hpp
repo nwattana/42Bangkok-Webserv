@@ -71,3 +71,7 @@ std::pair<std::string, std::string> ft_split_pair(std::string str, const std::st
 // Parse error
 std::string router_parser(std::string route);
 std::string port_parser(std::string port);
+int parse_request_line(std::string request_line);
+
+std::vector<std::string> http_request_split_line(std::string http_request);
+void test_http_request_split_line(void);
