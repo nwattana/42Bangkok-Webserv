@@ -25,9 +25,9 @@ int FileCreator::_createFile(const std::string &fileName, const std::string &con
 	{
 		std::cerr << "FileCreate Error: _createFile\n";
 		std::cerr << e.what() << '\n';
-		return (0);
+		return (500);
 	}
-	return (1);
+	return (201);
 }
 
 int FileCreator::_appendFile(const std::string &fileName, const std::string &content)
@@ -42,9 +42,9 @@ int FileCreator::_appendFile(const std::string &fileName, const std::string &con
 	{
 		std::cerr << "FileCreate Error: _appendFile\n";
 		std::cerr << e.what() << '\n';
-		return (0);
+		return (500);
 	}
-	return (1);
+	return (201);
 }
 
 // if file name is full path, set file name to file name only
@@ -81,11 +81,9 @@ int FileCreator::check_file_exist(const std::string &fileName)
 	std::ifstream file(fileName.c_str());
 	if (file.is_open())
 	{
-		std::cout << BLUE << "FILE EXIST " << RESET << std::endl;
 		file.close();
 		return 1;
 	}
-	std::cout << BLUE << "FILE NOT EXIST " << RESET << std::endl;
 	return 0;
 }
 
@@ -95,6 +93,11 @@ int FileCreator::createFile(int method)
 	std::cout << BLUE << "Create File : " << YELLOW << _file_name << RESET << std::endl;
 	if (method == CREATE_FILE)
 	{
+		// res = allow_type();
+		if (this->check_file_exist(_file_name))
+		{
+			return (409);
+		}
 		res = _createFile(_file_name, _content);
 	}
 	else if (method == APPEND_FILE)
@@ -127,4 +130,13 @@ void FileCreator::clean(void)
 {
 	_file_name = "";
 	_content = "";
+}
+
+int FileCreator::allow_type(std::string type)
+{
+	int res;
+	type = ft_strtrim_char_set(type, "\r\n ");
+	if (type != "text/plain")
+		return 400;
+	return 201;
 }

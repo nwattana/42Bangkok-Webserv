@@ -90,8 +90,8 @@ int findCharInString(std::string str, const char *c)
 
 void printLog(std::string message)
 {
-	if (LOG)
-		std::cout << "========= " << message << " =========\n";
+	if (LOG > 5)
+		std::cout << CYAN << "========= " << message << " =========\n";
 }
 
 

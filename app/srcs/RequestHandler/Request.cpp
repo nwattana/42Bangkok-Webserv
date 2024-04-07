@@ -200,7 +200,6 @@ int Request::check_chunk_done(void)
 	int b_len = end.length();
 	int spos = _body.length() - b_len;
 	int res, i = 0;
-	std::cout << _body << std::endl;
 	while (b_len > i)
 	{
 		if (_body[spos + i] != end[i])
@@ -214,10 +213,8 @@ int Request::check_chunk_done(void)
 	}
 	if (res == 0)
 	{
-		std::cout << BLUE << "Chunked not done " << RESET << std::endl;
 		return (0);
 	}
-	std::cout << GREEN << "Chunked done " << RESET << std::endl;
 	return (1);
 }
 
@@ -238,8 +235,6 @@ int Request::create_chunk_data(void)
 	end = "--" + _boundary + "--\r\n";
 	for (str_it=temp_con.begin(); str_it != temp_con.end(); str_it++)
 	{
-		std::cout << GREEN << (*str_it).length() << RESET << std::endl;
-		std::cout << GREEN << sep << RESET << std::endl;
 		if (is_end == 1)
 		{
 			// clean data
@@ -265,6 +260,8 @@ int Request::create_chunk_data(void)
 			if(new_c != NULL)
 			{
 				_chunk_data.push_back(*new_c);
+				delete new_c;
+				new_c = NULL;
 				is_end = 1;
 			}
 		}
@@ -272,7 +269,6 @@ int Request::create_chunk_data(void)
 		{
 			if (new_c->add_header(*str_it))
 			{
-				std::cout << MAGENTA << "ADD NEW H_MAP " << RESET << std::endl;
 			}
 			// new_c->update_content();
 		}

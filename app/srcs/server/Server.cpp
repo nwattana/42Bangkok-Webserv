@@ -154,7 +154,7 @@ int Server::acceptConnection(void) {
 int Server::_printPeerName(MySocket *sock) {
 	socklen_t addr_size = sizeof(sock->m_theirAddr);
 	getpeername(sock->getFd(), (struct sockaddr *)&sock->m_theirAddr, &addr_size);
-	std::cout << "Connection from: " << inet_ntoa(((struct sockaddr_in *)&sock->m_theirAddr)->sin_addr) << std::endl;
+	db_blue("Connection from: " + std::string(YELLOW) + std::string(inet_ntoa(((struct sockaddr_in *)&sock->m_theirAddr)->sin_addr)));
 	return 0;
 }
 
@@ -162,7 +162,7 @@ int Server::_printHostName(void) {
 	char hostname[1024];
 	memset(hostname, 0, 1024);
 	gethostname(hostname, 1023);
-	std::cout << "Hostname: " << hostname << std::endl;
+	db_blue("HOST NAME : " + std::string(YELLOW) + hostname);
 	return 0;
 }
 
@@ -171,16 +171,20 @@ int Server::handleRequest(int sockfd, std::string request) {
 		return this->_generateResponse(413);;
 	}
 	this->m_readBuffer[sockfd] = request;
-	// m_requestHandler->read_request(this->m_readBuffer[sockfd]);
-	// std::string sep = "\n============================\n";
 	return this->_generateResponse(sockfd);
 }
 
 int Server::_generateResponse(int sockfd, int statusCode)
 {
+	// this->m_readBuffer[sockfd].length() == 0 ได้ ไง นิ
 	if (statusCode == 200)
 	{
 		// std::cout  << "\n==request==\n"<< "Server::_generateResponse::check request Request: \n" << this->m_readBuffer[sockfd] << "\n==request==\n";
+		if (this->m_readBuffer[sockfd].length() > m_clientMaxSize || this->m_readBuffer[sockfd].length() == 0)
+		{
+			this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_simple_response("/", 413);
+			return (413);
+		}
 		this->m_writeBuffer[sockfd] = this->m_requestHandler->read_request(this->m_readBuffer[sockfd]);
 	}
 	else if (statusCode == 413)

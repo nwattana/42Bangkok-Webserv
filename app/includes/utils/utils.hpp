@@ -29,7 +29,7 @@ inline std::string toupper_string(std::string str) {
 }
 
 #ifndef LOG
-# define LOG 0
+# define LOG 2
 #endif
 
 std::string getReasonPhrase(int statusCode);

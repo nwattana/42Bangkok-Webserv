@@ -4,6 +4,7 @@
 #include "Constant.hpp"
 // RED
 #include <stdlib.h>
+#include "utils.hpp"
 
 #define CREATE_FILE 0
 #define APPEND_FILE 1
@@ -28,6 +29,7 @@ public:
 	void appendContent(const std::string& content);
 	int check_file_exist(const std::string& fileName);
 	void append_path(std::string path);
+	int allow_type(std::string);
 
 	std::string getFileName(void) const;
 	void clean(void);

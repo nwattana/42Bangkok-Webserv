@@ -28,7 +28,7 @@ ServerManager::ServerManager(std::vector<ServerConfig> serverConfig) {
 }
 
 int ServerManager::setupServer(void) {
-	std::cout << this->m_servList.size() << std::endl;
+	db_red("SERVER LIST SIZE : " + std::string(YELLOW) + SSTR(this->m_servList.size()));
 	for (std::vector<Server*>::iterator it = this->m_servList.begin(); it != this->m_servList.end(); it++) {
 		int i = it - this->m_servList.begin();
 		printLog("Setting up server " + SSTR(i) + "\n");
@@ -53,7 +53,7 @@ int ServerManager::setupServer(void) {
 }
 
 int ServerManager::handleConnection(void) {
-	std::cout << "Server ready to accept connections" << std::endl;
+	std::cout << CYAN << "Server ready to accept connections" << std::endl;
 	fd_set readfds, writefds;
 
 	this->m_isReadLoop = false;

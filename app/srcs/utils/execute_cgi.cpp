@@ -6,7 +6,7 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 	pipe(fd);
 	std::string result;
 	
-	std::cout <<"Do execut"<< argv[0] << std::endl;
+	db_blue("DO EXECUTE FILE : " + std::string(YELLOW) + argv[0]);
 
 	pid_t c_pid = fork();
 	if (c_pid == -1)
@@ -34,13 +34,13 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 		close(fd[1]);
 		waitpid(c_pid, NULL, 0);
 		// set equal max size 3MB dont let cgi set more than 3MB lol
-		std::cout << "Parent" << std::endl;
 		char buffer[3000000];
 		memset(buffer, 0, sizeof(buffer));
 		read(fd[0], buffer, sizeof(buffer));
 		result = buffer;
 		close(fd[0]);
 	}
+	// std::cout<< MAGENTA << result << std::endl;
 	return result;
 }
 

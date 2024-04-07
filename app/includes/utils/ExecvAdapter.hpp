@@ -2,6 +2,10 @@
 #include <map>
 #include "utils.hpp"
 
+#ifndef EXECV_ADAPTER_LOG
+# define EXECV_ADAPTER_LOG 0
+#endif
+
 class ExecveAdapter
 {
 	private:

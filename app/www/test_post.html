@@ -1,16 +1,52 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>File Upload</title>
+</head>
 <body>
 
-	<p>Click on the "Choose File" button to upload a file:</p>
+<h2>Upload a File</h2>
 
-	<!-- Creat upload file with html and pure javascript -->
-<form action="http://localhost:8080/upload" method="POST" enctype="multipart/form-data">
-	<input type="file" name="fileToUpload" id="fileToUpload">
-	<input type="submit" value="Upload Image" name="submit">
-</form>
+<input type="file" id="fileInput">
+<input type="text" id="filename" value="">
+<button onclick="uploadFile()">Upload</button>
 
+<script>
+function uploadFile() {
+  const input = document.getElementById('fileInput');
+  const fname = document.getElementById('filename');
+  const file = input.files[0];
+
+  if (file) {
+    const formData = new FormData();
+    formData.append(fname.value, file);
+
+    fetch('http://localhost:8089/upload/', {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok error code : ' + response.status);
+      }
+      return response;
+    })
+    .then(data => {
+      console.log('Upload successful:');
+      // Handle success response from the server
+	  alert("Success Upload :" + data.status);
+    })
+    .catch(error => {
+      console.error('Error uploading file:', error);
+	  alert(error);
+      // Handle error
+    });
+  } else {
+    alert('Please select a file to upload.');
+  }
+}
+</script>
 </body>
-
 </html>

@@ -11,9 +11,12 @@ int main(int argc, char **argv, char **envp)
 	std::string filename = (argc == 2) ? argv[1] : "webserv.conf";
 
 	ConfigParser config(filename);
-	std::cout  << "=============== Initializing server from: " << filename << " =============== " << std::endl;
-	config.printServerConfig();
-	std::cout << "=============== Connecting to http://localhost:8080/ ===============" << std::endl;
+	if (SERVERCONFIG_DEBUG)
+	{
+		db_red("=============== Initializing server from: " + filename + " =============== ");
+		config.printServerConfig();
+	}
+	db_red("=============== Initializing server from: " + filename + " =============== ");
 
 	// test_http_request_split_line();
 	ServerManager serverManager(config.getServerConfig());

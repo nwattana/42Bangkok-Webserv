@@ -121,9 +121,8 @@ void ConfigParser::printServerConfig(void) const
 {
 	for (size_t i = 0; i < server_config.size(); i++)
 	{
-		std::cout << "Server " << i << std::endl;
+		db_red("===============Server "+ SSTR(i)+ " ================");
 		server_config[i].printServerConfig();
-		// server_config[i].print_error_page();
 	}
 }
 

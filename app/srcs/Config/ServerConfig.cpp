@@ -48,6 +48,14 @@ ServerConfig &ServerConfig::operator=(ServerConfig const &rhs)
 		this->_isCloseConfig = rhs._isCloseConfig;
 		this->_isEndDirective = rhs._isEndDirective;
 		this->location_config = rhs.location_config;
+		std::map<int, std::string > temp = rhs.getErrorPage();
+		std::map<int, std::string >::const_iterator it = temp.begin();
+		for (it; it != temp.end(); it++)
+		{
+			if ((*it).first < 100)
+				continue;
+			this->error_page[(*it).first] = (*it).second;
+		}
 	}
 	return (*this);
 }
@@ -58,17 +66,19 @@ void ServerConfig::printServerConfig() const
 	std::map<int, std::vector<std::string> >::const_iterator it;
 	std::cout << "Server Configs" << std::endl;
 
-	for (it = this->configs.begin(); it != this->configs.end(); it++)
+	if (SERVERCONFIG_DEBUG)
 	{
-		std::cout << "\t"<<get_directive_string(it->first) << ":\t";
-		printStringVector(it->second, ",");
+		for (it = this->configs.begin(); it != this->configs.end(); it++)
+		{
+			std::cout << "\t"<<get_directive_string(it->first) << ":\t";
+			printStringVector(it->second, ",");
+		}
+		this->print_error_page();
+		for (size_t i = 0; i < location_config.size(); i++)
+		{
+			location_config[i].printConfig();
+		}
 	}
-	this->print_error_page();
-	for (size_t i = 0; i < location_config.size(); i++)
-	{
-		location_config[i].printConfig();
-	}
-
 }
 
 /// @brief  check if current directive is set STATE to recieve new argument
@@ -280,8 +290,11 @@ void ServerConfig::setErrorPage(void)
 		}
 
 	}
-	catch (ConfigNotFoundException)
-	{}
+	catch (ConfigNotFoundException &e)
+	{
+		std::cout << "Error Page not found" << std::endl;
+		db_red(e.what());
+	}
 	std::vector<LocationBlock> location = this->getLocationConfig();
 	for (size_t i = 0; i < location.size(); i++)
 	{
@@ -292,6 +305,20 @@ void ServerConfig::setErrorPage(void)
 
 std::map<int, std::string> ServerConfig::getErrorPage(void) const
 {
+	std::string temp;
+
+	if (SERVERCONFIG_DEBUG)
+	{
+		std::cout << "========================= SERVER CONFIG::get ERROR PAGE " << std::endl;
+		std::map<int, std::string>::const_iterator it =error_page.begin();
+		for (it; it!=error_page.end(); it++)
+		{
+			std::cout << RED << (*it).first << ": " << GREEN << (*it).second << std::endl;
+		}
+		std::cout << "========================= SERVER CONFIG ::ERROR PAGE " << std::endl;
+	}
+
+	
 	return (this->error_page);
 }
 
@@ -301,6 +328,8 @@ void ServerConfig::print_error_page(void) const
 	std::cout << "\tError Page Configs" << std::endl;
 	for (it = this->error_page.begin(); it != this->error_page.end(); it++)
 	{
+		if ((*it).first < 100)
+				continue;
 		std::cout << "\t\t" << it->first << ":\t" << it->second << std::endl;
 	}
 }

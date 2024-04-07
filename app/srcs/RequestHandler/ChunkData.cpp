@@ -47,7 +47,6 @@ ChunkData::ChunkData(std::string data, std::string content_disposition, std::str
 
 ChunkData::ChunkData(ChunkData const &src)
 {
-	std::cout << YELLOW << "CHUNKDATA COPY CONSTRUCTOR CALL " << RESET << std::endl;
 	if (this != &src)
 	{
 		this->data = src.data;
@@ -123,7 +122,6 @@ int ChunkData::update_content(void)
 	std::string temp_s;
 	for (m_it = h_map.begin(); m_it != h_map.end(); m_it++)
 	{
-		std::cout << GREEN << (*m_it).first << BLUE << (*m_it).second << RESET << std::endl;
 		if ((*m_it).first == "Content-Disposition")
 		{
 			temp_s = ft_strtrim_char_set((*m_it).second, "\r\n");

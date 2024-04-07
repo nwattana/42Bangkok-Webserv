@@ -4,6 +4,11 @@
 #include <iostream>
 #include <string>
 
+#ifndef SERVERCONFIG_DEBUG
+# define SERVERCONFIG_DEBUG 0
+#endif
+
+
 class ServerConfig
 {
 	public:

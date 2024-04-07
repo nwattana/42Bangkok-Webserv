@@ -57,7 +57,7 @@ void RequestHandler::set_root_dir(ServerConfig& serverConfig)
 	}
 	catch (ConfigNotFoundException &e)
 	{
-		std::cerr << BLUE << e.what() << " Set To default server name " << DEFAULT_SERVER_NAME << RESET << std::endl;
+		std::cerr << RED << e.what() << " Set To default server name " << DEFAULT_SERVER_NAME << RESET << std::endl;
 		_server_name = DEFAULT_SERVER_NAME;
 	}
 
@@ -66,7 +66,7 @@ void RequestHandler::set_root_dir(ServerConfig& serverConfig)
 	}
 	catch (ConfigNotFoundException &e)
 	{
-		std::cout << BLUE << e.what() << " Set to default Port " << DEFAULT_PORT << RESET << std::endl;
+		std::cout << RED << e.what() << " Set to default Port " << DEFAULT_PORT << RESET << std::endl;
 	}
 }
 
@@ -77,7 +77,8 @@ std::string RequestHandler::read_request(std::string request)
 	std::string res;
 	number_called++;
 
-	std::cout << CYAN << "request "<< request << RESET << std::endl;
+	db_blue("==================================New Request==========================\n");
+	// std::cout << CYAN << "request "<< request << RESET << std::endl;
 	res = create_request_object(request);
 	if (res != "success")
 	{
@@ -94,7 +95,7 @@ std::string RequestHandler::read_request(std::string request)
 	std::string response = rule->execute_request(*_current_request);
 	delete _current_request;
 	_current_request = NULL;
-	std::cout << BLUE << "RequestHandler::read_request : " <<  YELLOW << number_called << RED << " \nread request NOT Finish Yet" << RESET << std::endl;
+	db_blue("==================================/New Request " + std::string(YELLOW) + SSTR(number_called)+ " times ");
 	return response;
 }
 
@@ -114,17 +115,23 @@ std::string RequestHandler::create_request_object(std::string request)
 		int seperator = request.find("\r\n\r\n");
 		if (seperator == -1)
 		{
+			db_red("Invalid Request missing seperator!");
 			return _default_rule.location_generate_simple_response(400);
 		}
 		header = request.substr(0, seperator + 2);
 		body = request.substr(seperator + 4);
+		if (_current_request != NULL)
+		{
+			delete _current_request;
+			_current_request = NULL;
+		}
 		_current_request = new Request(header, body);
 	}
 	else 
 	{
 		if (_current_request == NULL)
 		{
-			std::cout << GREEN << "current request = NULL " << RESET << std::endl;
+			db_red("INVALID REQUEST LINE invalid Request 400");
 			return (generate_simple_response("/", 400));
 		}
 		_current_request->append_body(request);
@@ -187,7 +194,7 @@ void RequestHandler::create_defualt_rule(ServerConfig& serverConfig)
 	}
 	catch (ConfigNotFoundException &e)
 	{
-		std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default root dir " << DEFAULT_ROOT_DIR << std::endl;
+		// std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default root dir " << DEFAULT_ROOT_DIR << std::endl;
 		_default_rule.set_root_dir(DEFAULT_ROOT_DIR);
 	}
 
@@ -197,7 +204,7 @@ void RequestHandler::create_defualt_rule(ServerConfig& serverConfig)
 	}
 	catch (ConfigNotFoundException &e)
 	{
-		std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default method allow only GET" << std::endl;
+		// std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default method allow only GET" << std::endl;
 		temp_vec.push_back("GET");
 		_default_rule.set_method_allow(temp_vec);
 	}
@@ -210,7 +217,7 @@ void RequestHandler::create_defualt_rule(ServerConfig& serverConfig)
 	}
 	catch (ConfigNotFoundException &e)
 	{
-		std::cerr << "RequestHandler::RequestHandler : " << e.what() << " set to index.html for route \"/\"" << std::endl;
+		// std::cerr << "RequestHandler::RequestHandler : " << e.what() << " set to index.html for route \"/\"" << std::endl;
 		_default_rule.setIndexPage("index.html", 0);
 	}
 
@@ -221,7 +228,7 @@ void RequestHandler::create_defualt_rule(ServerConfig& serverConfig)
 	}
 	catch(ConfigNotFoundException &e)
 	{
-		std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default server name localhost" << std::endl;
+		// std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default server name localhost" << std::endl;
 		_default_rule.set_host_name(DEFAULT_SERVER_NAME);
 	}
 
@@ -232,7 +239,7 @@ void RequestHandler::create_defualt_rule(ServerConfig& serverConfig)
 	}
 	catch(ConfigNotFoundException &e)
 	{
-		std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default port 8080" << std::endl;
+		// std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default port 8080" << std::endl;
 		_default_rule.set_server_port(DEFAULT_PORT);
 	}
 	

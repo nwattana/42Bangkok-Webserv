@@ -125,8 +125,16 @@ char ** ExecveAdapter::get_envp_array(void)
 		std::string env = it->first + "=" + it->second;
 		env_list.push_back(env);
 	}
-	std::cout << "Env List" << std::endl;
-	printStringVector(env_list, "\n");
+	if (EXECV_ADAPTER_LOG)
+	{		
+		db_green("ENV_list before EXECUTE CGI");
+		std::cout << YELLOW;
+		std::cout << "============ENV_list===========\n";
+		printStringVector(env_list, "\n");
+		std::cout << "============ENV_list==========\n";
+		std::cout << RESET;
+	}
+
 	envp = ft_vector_string_to_char_array(env_list);
 	return envp;
 }

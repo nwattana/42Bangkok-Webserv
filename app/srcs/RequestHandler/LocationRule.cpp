@@ -51,7 +51,7 @@ void LocationRule::_set_up_default()
 	_cgi_script = "./";
 	_cgi_handle = 0;
 	_set_cwd();
-	_auto_index_cgi = "./cgi-bin/py/auto_index.py";
+	_auto_index_cgi = "./cgi_bin/py/auto_index.py";
 	_is_set_index_page = 0;
 }
 
@@ -296,6 +296,7 @@ std::string LocationRule::set_auto_index(LocationBlock &block)
 	try
 	{
 		temp = block.getConfig(L_AUTOINDEX)[0];
+		temp = ft_strtrim_char_set(temp, ";");
 	}
 	catch (ConfigNotFoundException)
 	{
@@ -307,7 +308,9 @@ std::string LocationRule::set_auto_index(LocationBlock &block)
 	else if (temp == "disable")
 		_auto_index = temp;
 	else
+	{
 		throw ConfigNotFoundException("in valid auto index value");
+	}
 	return _auto_index;
 }
 
@@ -326,6 +329,7 @@ std::string LocationRule::generate_resource_GET(std::string uri)
 	{
 		if (_auto_index == "enable" && _is_set_index_page == 0)
 		{
+			// add space for auto index after this will split later
 			result = _auto_index_cgi + " " + result;
 		}
 		else
@@ -359,11 +363,8 @@ std::string LocationRule::generate_resource_DELETE(std::string uri)
 		return "error:f57e9322ebe34807a0de7cf52dc52288";
 	}
 	path_till_handle_route = uri.substr(_handle_route.length());
-	std::cout << "Path till handle = " << path_till_handle_route << std::endl;
 	result = _cwd + "/" + _root_dir + "/" + path_till_handle_route;
-	std::cout << _cwd << " < cwd  root dir > " << _root_dir << std::endl;
 	result = resolve_double_slash(result);
-
 	std::cout <<RED << "path to delete " << result << RESET << std::endl;
 	return (result);
 }
@@ -401,9 +402,9 @@ void LocationRule::location_print_error_page(void) const
 {
 	std::map<int, std::string>::const_iterator it;
 
+	db_red("NO error page found");
 	if (_error_page.empty())
 	{
-		std::cerr << "LocationRule::location_print_error_page Error Page not set" << std::endl;
 		return;
 	}
 	for (it = _error_page.begin(); it != _error_page.end(); it++)
@@ -422,14 +423,15 @@ std::string LocationRule::location_generate_simple_response(int status_code)
 
 	try
 	{
+
 		std::cout << "Status Code : " << status_code << std::endl;
 		path = _error_page.at(status_code);
+		db_red(path);
 	}
 	catch (const std::exception &e)
 	{
 		// std::cerr << e.what() << '\n';
 		this->location_print_error_page();
-		std::cerr << RED << "LocationRule::generate_error_response::RULE AT route : " <<_handle_route << RESET <<  std::endl;
 	}
 
 	if (path.empty())
@@ -461,16 +463,14 @@ void LocationRule::_set_cwd(void)
 std::string LocationRule::_handle_get(Request &request)
 {
 	std::string res;
-	std::cout << "request for " << request.get_uri() << std::endl;
 	std::string resource = generate_resource_GET(request.get_uri());
 
-	std::cout << "Resource : " << resource << std::endl;
 	// try to read file
 	if (resource[resource.length() - 1] == '/' && _auto_index == "enable")
 	{
+		db_blue("GET Resource [auto index] [path] : " + std::string(YELLOW) + resource);
 		ExecveAdapter adaptor(resource, std::vector<std::string>());
 		res = execute_cgi(2, adaptor.get_argv(), adaptor.get_envp());
-
 		Response response(200, res);
 		response.setHeader("Content-Type", "text/html");
 		adaptor.destory();
@@ -478,6 +478,7 @@ std::string LocationRule::_handle_get(Request &request)
 	}
 	else
 	{
+		db_blue("GET Resource [path] : " + std::string(YELLOW) + resource);
 		try
 		{
 			StaticFileWaiter static_file_waiter(resource);
@@ -540,11 +541,12 @@ std::string LocationRule::_handle_post(Request &request)
 std::string LocationRule::execute_request(Request &request)
 {
 	int method = request.get_method();
-	std::cout<< BLUE << "Call Route : " << _handle_route << RESET <<std::endl;
+	db_blue("call uri " + std::string(YELLOW)  + request.get_uri());
 
 	// Method Not allow
 	if (!(method && _allow_method))
 	{
+		db_blue("not allow" + _handle_route + method_allow_to_string(method));
 		return location_generate_simple_response(405);
 	}
 
@@ -562,9 +564,6 @@ std::string LocationRule::execute_request(Request &request)
 	{
 		return _build_in_cgi(request);
 	}
-	
-
-
 	return location_generate_simple_response(200);
 }
  
@@ -575,14 +574,14 @@ std::string LocationRule::_build_in_cgi(Request &request)
 	int create_chunk_data = request.create_chunk_data(); 
 
 
-	std::cout << RED << "build in cgi " << _allow_upload << RESET << std::endl;
+	db_blue("Build In CGI CALL method : " + std::string(YELLOW) + method_allow_to_string(request.get_method()));
 	if (create_chunk_data && method & POST && _allow_upload)
 	{
 		std::cout << RED << "UPLOAD" << RESET << std::endl;
 		status = _handle_upload(request);
 		return location_generate_simple_response(status);
 	}
-	if (method & DELETE && _allow_upload)
+	if (method & DELETE)
 	{
 		std::cout << "DELETE FILE " << RESET << std::endl;
 		status = _handle_delete_file(request);
@@ -592,18 +591,6 @@ std::string LocationRule::_build_in_cgi(Request &request)
 	if (method & GET)
 	{
 		return _handle_get(request);
-	}
-	else if (method & POST)
-	{
-		return _handle_post(request);
-	}
-	else if (method & PUT)
-	{
-		return location_generate_simple_response(405);
-	}
-	else if (method & DELETE)
-	{
-		return location_generate_simple_response(405);
 	}
 	else
 	{
@@ -626,7 +613,6 @@ std::string LocationRule::cgi_call(Request &request)
 	std::cout << "CGI Script : " << _cgi_script << std::endl;
 	ExecveAdapter adaptor(_cgi_script, std::vector<std::string>());
 	adaptor.add_env("RAW_REQUEST", raw_request);
-	std::cout << GREEN << raw_request << RESET << std::endl;
 	adaptor.add_env("REQUEST_METHOD", "GET");
 	adaptor.add_env("SERVER_PROTOCOL", "HTTP/1.1");
 	adaptor.add_env("HOST_NAME", _host_name);
@@ -705,23 +691,28 @@ int LocationRule::_handle_upload(Request &request)
 	std::vector<ChunkData> temp = request.get_chunk_data();
 	FileCreator f;
 	size_t i = 0, max_size=temp.size();
+	int res;
 
 	while (i < max_size)
 	{
-		std::cout << RED << temp[i].get_data() << RESET << std::endl;
 		temp[i].update_content();
-		f.appendContent(temp[i].content_type);
+		if (f.allow_type(temp[i].content_type) != 201)
+		{
+			db_red("Not allow Content type to upload");
+			return (400);
+		}
+
 		if (temp[i].name == "")
 			f.setFileName(temp[i].file_name);
 		else
 			f.setFileName(temp[i].name);
 		f.setContent(temp[i].data);
 		f.append_path(_upload_path);
-		f.createFile(CREATE_FILE);
+		res = f.createFile(CREATE_FILE);
 		f.clean();
 		i++;
 	}
-	return (201);
+	return (res);
 }
 
 int LocationRule::_handle_delete_file(Request &request)
@@ -732,12 +723,12 @@ int LocationRule::_handle_delete_file(Request &request)
 	std::cout << "Path = " << path << std::endl;
 	if (path == ERROR_RESOURCE)
 	{
-		std::cout << RED << "DELETE FILE ERROR FILE PATH : " << YELLOW << path << RESET << std::endl;
+		db_red("DELETE FILE ERROR FILE PATH : " + path);
 		return (400);
 	}
 	if (f.check_file_exist(path))
 	{
-		std::cout << RED << "DELETE FILE " << YELLOW << path << RESET << std::endl;
+		std::cout << BLUE << "DELETE FILE " << YELLOW << path << RESET << std::endl;
 		if (remove(path.c_str()) == -1)
 		{
 			return (404);
