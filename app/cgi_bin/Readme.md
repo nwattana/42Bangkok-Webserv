@@ -8,3 +8,4 @@
 - HOST_NAME - HOST name
 - CGI_ROUTE -
 - SERVER_PORT -
+- ROOT_DIR - CWD for all cgi operation

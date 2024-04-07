@@ -61,6 +61,7 @@ class ServerConfig
 
 		std::string _host_name;
 		std::string _port;
+		std::vector<std::string > _ports;
 
 		std::map<int, std::string > error_page;
 };

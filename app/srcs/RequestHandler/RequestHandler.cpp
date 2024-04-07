@@ -41,6 +41,9 @@ RequestHandler::~RequestHandler()
 	}
 }
 
+// SET ROOT dir
+// SET SERVER NAME
+// SET SERVER PORT
 void RequestHandler::set_root_dir(ServerConfig& serverConfig)
 {
 	try {
@@ -158,6 +161,8 @@ void RequestHandler::create_location_rule(std::vector<LocationBlock>& location_c
 			std::cerr << "RequestHandler::create_location_rule : failed to create location rule" << std::endl;
 			continue;
 		}
+		rule->set_host_name(_server_name);
+		rule->set_server_port(_server_port);
 		_locations_rules.push_back(rule);
 	}
 }

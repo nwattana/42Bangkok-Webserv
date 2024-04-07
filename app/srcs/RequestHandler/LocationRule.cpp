@@ -409,7 +409,10 @@ void LocationRule::location_print_error_page(void) const
 	}
 	for (it = _error_page.begin(); it != _error_page.end(); it++)
 	{
-		std::cout << "LocationRule::location_print_error_page Error Page : " << it->first << " : " << it->second << std::endl;
+		if (LOCATION_RULE_DEBUG)
+		{
+			std::cout << "LocationRule::location_print_error_page Error Page : " << it->first << " : " << it->second << std::endl;
+		}
 	}
 }
 
@@ -581,10 +584,10 @@ std::string LocationRule::_build_in_cgi(Request &request)
 		status = _handle_upload(request);
 		return location_generate_simple_response(status);
 	}
-	if (method & DELETE)
+	if (method & DELETE && method & _allow_method)
 	{
 		std::cout << "DELETE FILE " << RESET << std::endl;
-		status = _handle_delete_file(request);
+		// status = _handle_delete_file(request);
 		return location_generate_simple_response(status);
 	}
 
@@ -601,7 +604,7 @@ std::string LocationRule::_build_in_cgi(Request &request)
 std::string LocationRule::cgi_call(Request &request)
 {
 	// CRUD
-	std::cout << BLUE;
+	std::cout << GREEN;
 	std::string requested_file = cgi_parse_url(request);
 	std::string raw_request = request.raw_request();
 	
@@ -610,7 +613,9 @@ std::string LocationRule::cgi_call(Request &request)
 		std::cerr << "CGI Script not set" << std::endl;
 		return location_generate_simple_response(500);
 	}
+
 	std::cout << "CGI Script : " << _cgi_script << std::endl;
+	std::cout << "PATH TO FILE  : " << _cwd + "/" + requested_file << std::endl;
 	ExecveAdapter adaptor(_cgi_script, std::vector<std::string>());
 	adaptor.add_env("RAW_REQUEST", raw_request);
 	adaptor.add_env("REQUEST_METHOD", "GET");
@@ -618,24 +623,32 @@ std::string LocationRule::cgi_call(Request &request)
 	adaptor.add_env("HOST_NAME", _host_name);
 	adaptor.add_env("CGI_ROUTE", _handle_route);
 	adaptor.add_env("SERVER_PORT", _server_port);
-	adaptor.add_env("PATH_TO_FILE", requested_file);
+	adaptor.add_env("PATH_TO_FILE", _cwd + "/" + requested_file);
+	adaptor.add_env("ROOT_DIR", _root_dir);
+	adaptor.add_env("AUTO_INDEX", _auto_index);
+	adaptor.add_env("UPLOAD_PATH", _upload_path);
+	adaptor.add_env("INDEX_PAGE", _index_page);
+	adaptor.add_env("ALLOW UPLOAD", SSTR(_allow_upload));
+	adaptor.add_env("ALLOW_METHOD", method_allow_to_string(_allow_method));
 
 	char **envp = adaptor.get_envp();
-	char **temp;
-	temp = envp;
 
+	// DEBUG PURPOSE
+	// char **temp;
+	// temp = envp;
 	// print 2 d array
-	std::cout << BLUE;
-	while (*temp)
-	{
-		std::cout << *temp << std::endl;
-		temp++;
-	}
-	std::cout << RESET;
+	// std::cout << BLUE;
+	// while (*temp)
+	// {
+	// 	std::cout << *temp << std::endl;
+	// 	temp++;
+	// }
+	// std::cout << RESET;
 
 
 	std::string res = execute_cgi(2, adaptor.get_argv(), envp);
-	std::cout << BLUE << res << std::endl;
+
+	std::cout << YELLOW << res << std::endl;
 	adaptor.destory();
 
 	return (res);

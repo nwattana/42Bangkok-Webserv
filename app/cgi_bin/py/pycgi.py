@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 import os, sys
-import mimetypes
 
 SUCCESS = 0
 FAILURE = 1
@@ -52,19 +51,31 @@ file_extension_to_mime = {
 
 def html_page(content):
     strs = ""
-    strs += "<!DOCTYPE html>"
-    strs += "<html>"
-    strs += "<head>"
-    strs += "<style> h1{border-style:solid; background-color: green;} td{border: 5px solid red;} </style>"
-    strs += "<title >Python CGI</title>"
-    strs += "</head>"
+    """
+        <!DOCTYPE html>
+        <html>
+        <head>
+    """
+    strs += "<style>"
+    # insert style
+    strs += generate_style()
+    strs += "</style>"
+    strs += """<title>Python CGI</title></head>"""
     strs += "<body>"
+
     strs += "<h1>Python CGI</h1>"
     strs += content
+
+
     strs += "</body>"
     strs += "</html>"
     return strs
 
+
+def generate_style():
+    return """
+        h1{border-style:solid; background-color: green;} td{border: 5px solid red;} 
+    """
 
 class HttpRespone:
     GENERIC_HEADERS = [
@@ -150,14 +161,11 @@ class HttpRespone:
         self.headers_dict[key] = value
 
 
-
 if __name__ == "__main__":
     method = os.environ.get("REQUEST_METHOD")
     request = os.environ.get("PATH_TO_FILE")
     file_request = os.environ.get("PATH_TO_FILE")
-
     body = html_page(html_table([i for i in os.environ.items()]))
-
     status_line = "HTTP/1.1 200 OK\r\n"
     header = "Content-Type: text/html\r\n"
     header += "Content-Length: {}\r\n".format(len(body))
