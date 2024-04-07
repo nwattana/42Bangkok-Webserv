@@ -18,6 +18,7 @@ LocationRule::LocationRule(LocationBlock &block, std::string server_dir, std::st
 	_set_error_page(block.getErrorPage());
 	set_auto_index(block);
 	_set_cwd();
+	_set_upload(block);
 }
 
 LocationRule::LocationRule(LocationRule const &src)
@@ -192,6 +193,7 @@ void LocationRule::_set_upload(LocationBlock block)
 	try
 	{
 		temp = block.getConfig(L_UPLOAD_PATH)[0];
+		_allow_upload = 1;
 	}
 	catch (ConfigNotFoundException)
 	{
@@ -201,6 +203,7 @@ void LocationRule::_set_upload(LocationBlock block)
 	try
 	{
 		temp = block.getConfig(L_UPLOAD_PATH)[0];
+		_upload_path = temp;
 	}
 	catch (const std::exception &e)
 	{
@@ -343,6 +346,25 @@ std::string LocationRule::generate_resource_POST(std::string uri)
 
 	result = _cwd + "/" + _root_dir + "/" + path_till_handle_route;
 	result = resolve_double_slash(result);
+	return (result);
+}
+
+std::string LocationRule::generate_resource_DELETE(std::string uri)
+{
+	std::string result, path_till_handle_route, remaining_path;
+
+	// check กอน ตัด
+	if (uri[uri.length() - 1] == '/')
+	{
+		return "error:f57e9322ebe34807a0de7cf52dc52288";
+	}
+	path_till_handle_route = uri.substr(_handle_route.length());
+	std::cout << "Path till handle = " << path_till_handle_route << std::endl;
+	result = _cwd + "/" + _root_dir + "/" + path_till_handle_route;
+	std::cout << _cwd << " < cwd  root dir > " << _root_dir << std::endl;
+	result = resolve_double_slash(result);
+
+	std::cout <<RED << "path to delete " << result << RESET << std::endl;
 	return (result);
 }
 
@@ -526,13 +548,19 @@ std::string LocationRule::execute_request(Request &request)
 		return location_generate_simple_response(405);
 	}
 
+	// check route function
+	// directory list
+	// read static file
+	// upload
+	// download
+
 	if (_cgi_handle)
 	{
 		return cgi_call(request);
 	}
 	else
 	{
-		std::cerr << RED << "LocationRule::execute_request : " <<  YELLOW << "CGI Build in not finish yet ENABLE" << RESET << std::endl;
+		return _build_in_cgi(request);
 	}
 	
 
@@ -543,6 +571,23 @@ std::string LocationRule::execute_request(Request &request)
 std::string LocationRule::_build_in_cgi(Request &request)
 {
 	int method = request.get_method();
+	int status = 501;
+	int create_chunk_data = request.create_chunk_data(); 
+
+
+	std::cout << RED << "build in cgi " << _allow_upload << RESET << std::endl;
+	if (create_chunk_data && method & POST && _allow_upload)
+	{
+		std::cout << RED << "UPLOAD" << RESET << std::endl;
+		status = _handle_upload(request);
+		return location_generate_simple_response(status);
+	}
+	if (method & DELETE && _allow_upload)
+	{
+		std::cout << "DELETE FILE " << RESET << std::endl;
+		status = _handle_delete_file(request);
+		return location_generate_simple_response(status);
+	}
 
 	if (method & GET)
 	{
@@ -653,4 +698,51 @@ void LocationRule::set_method_allow(std::vector<std::string> allow_method)
 	{
 		_allow_method |= allow_method_parser(allow_method[i]);
 	}
+}
+
+int LocationRule::_handle_upload(Request &request)
+{
+	std::vector<ChunkData> temp = request.get_chunk_data();
+	FileCreator f;
+	size_t i = 0, max_size=temp.size();
+
+	while (i < max_size)
+	{
+		std::cout << RED << temp[i].get_data() << RESET << std::endl;
+		temp[i].update_content();
+		f.appendContent(temp[i].content_type);
+		if (temp[i].name == "")
+			f.setFileName(temp[i].file_name);
+		else
+			f.setFileName(temp[i].name);
+		f.setContent(temp[i].data);
+		f.append_path(_upload_path);
+		f.createFile(CREATE_FILE);
+		f.clean();
+		i++;
+	}
+	return (201);
+}
+
+int LocationRule::_handle_delete_file(Request &request)
+{
+	std::string path = generate_resource_DELETE(request.get_uri());
+	FileCreator f;
+
+	std::cout << "Path = " << path << std::endl;
+	if (path == ERROR_RESOURCE)
+	{
+		std::cout << RED << "DELETE FILE ERROR FILE PATH : " << YELLOW << path << RESET << std::endl;
+		return (400);
+	}
+	if (f.check_file_exist(path))
+	{
+		std::cout << RED << "DELETE FILE " << YELLOW << path << RESET << std::endl;
+		if (remove(path.c_str()) == -1)
+		{
+			return (404);
+		}
+		return (204);
+	}
+	return (404);
 }

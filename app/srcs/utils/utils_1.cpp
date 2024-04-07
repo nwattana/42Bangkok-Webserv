@@ -47,7 +47,7 @@ std::string ft_strtrim(std::string str)
 	return str.substr(start, end - start + 1);
 }
 
-std::string ft_trimchar_set(std::string str, std::string char_set)
+std::string ft_strtrim_char_set(std::string str, std::string char_set)
 {
 	size_t start = 0;
 	size_t end = str.length() - 1;

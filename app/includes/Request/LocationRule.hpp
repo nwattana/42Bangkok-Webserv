@@ -22,6 +22,7 @@
 /*
  * convert route to full path
 */
+#define ERROR_RESOURCE "error:f57e9322ebe34807a0de7cf52dc52288"
 
 class LocationRule{
 	public:
@@ -85,7 +86,10 @@ class LocationRule{
 		////////////////////////////////////////////// will Move to build in cgi and extenal cpp cgi
 		std::string generate_resource_GET(std::string uri);
 		std::string generate_resource_POST(std::string uri);
-		std::string generate_response(Request * srequest);
+		std::string generate_resource_DELETE(std::string uri);
+		// std::string generate_response(Request * srequest);
+		int _handle_upload(Request &requset);
+		int _handle_delete_file(Request &request);
 
 		//////////////////////////////////////////////  handle error response
 		void set_error_page(std::map<int, std::string> error_page);

@@ -7,6 +7,7 @@
 #include <sstream>
 #include "utils.hpp"
 #include "Exception.hpp"
+#include "ChunkData.hpp"
 /*
 Request    = Request-Line
 			*(( general-header
@@ -29,6 +30,9 @@ Method         = "GET" | "POST" | "PUT" | "DELETE" | "HEAD"
 - `_version`: HTTP-Version
 	
 */
+
+#define DEFAULT_BOUNDARY "2980f025-918e-42dc-a0bc-843452f04847"
+
 class Request
 {
 
@@ -38,7 +42,6 @@ public:
 	Request &operator=(Request const &rhs);	
 	~Request();
 
-	void printSetting(void) const;
 	void print_request_line_info(void) const;
 	void print_header(void) const;
 	void print_body(void) const;
@@ -59,7 +62,9 @@ public:
 	void append_body(std::string more);
 	int check_if_multipart(void);
 	int check_chunk_done(void);
-	
+
+	int create_chunk_data(void);
+	std::vector<ChunkData> get_chunk_data(void);
 
 private:
 	Request();
@@ -74,6 +79,7 @@ private:
 
 	std::string _path_to_resource;
 	std::string _resource;
+	std::vector<ChunkData> _chunk_data;
 
 	std::string _version;
 	std::string _content_type;

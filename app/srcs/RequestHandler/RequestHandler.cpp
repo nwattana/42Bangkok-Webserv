@@ -77,7 +77,7 @@ std::string RequestHandler::read_request(std::string request)
 	std::string res;
 	number_called++;
 
-	// std::cout << CYAN << "request "<< request << RESET << std::endl;
+	std::cout << CYAN << "request "<< request << RESET << std::endl;
 	res = create_request_object(request);
 	if (res != "success")
 	{
@@ -259,8 +259,6 @@ std::string RequestHandler::generate_simple_response(std::string route, int erro
 	return rule->location_generate_simple_response(error_code);
 }
 
-
-
 /// @brief  DEBUG
 void print_chunk_request(std::map<std::string, std::vector<ChunkData*> > data)
 {
@@ -273,86 +271,3 @@ void print_chunk_request(std::map<std::string, std::vector<ChunkData*> > data)
 		std::cout << (*vit)->get_data() << std::endl;
 	}
 }
-
-
-// merge and manage chunk request
-// std::string RequestHandler::handle_chunked_request(void)
-// {
-// 	std::string res;
-// 	std::string content_type,header;
-// 	std::string body=_current_request->get_body();
-// 	size_t seperator;
-// 	std::cout << MAGENTA << "INTO handle chunk request " << RESET << std::endl;
-// 	try
-// 	{
-// 		 content_type = _current_request->get_header("Content-Type");
-// 	}
-// 	catch (HeaderNotFound &e)
-// 	{
-// 		return "success";
-// 	}
-// 	int b_pos = content_type.find("boundary=");
-// 	if (b_pos == -1)
-// 	{
-// 		return "not chunk";
-// 	}
-// 	std::cout << MAGENTA << "INTO handle chunk request 2" << RESET << std::endl;
-// 	std::string bound = content_type.substr(b_pos + std::string("boundary=").length());
-// 	std::string b_sep = "--" + bound + "\r\n";
-// 	std::string b_end = "--" + bound + "--\r\n";
-
-// 	// TODO collect multipart data if not found the end do not run
-// 	// if (content_type.find("multipart/form-data") != std::string::npos)
-// 	// {
-// 	// 	std::vector<std::string > vec=http_request_split_line(body);
-// 	// 	std::vector<std::string > temp;
-// 	// 	std::vector<std::string >::iterator it = vec.begin();
-// 	// 	ChunkData *new_c= NULL;
-// 	// 	int new_data = 0;
-// 	// 	int is_end = 0;
-// 	// 	for (it; it != vec.end(); it++)
-// 	// 	{
-// 	// 		// found boundary
-// 	// 		if (is_end)
-// 	// 		{
-// 	// 			return "invalid request";
-// 	// 		}
-// 	// 		if ((*it).compare(b_sep) == 0)
-// 	// 		{
-// 	// 			if (new_c != NULL)
-// 	// 				_chunk_request[bound].push_back(new_c);
-// 	// 			new_c = new ChunkData();
-// 	// 			new_data = 1;
-// 	// 		}
-// 	// 		else if ((*it).compare("\r\n") == 0)
-// 	// 		{
-// 	// 			new_data = 0;
-// 	// 		}
-// 	// 		else if ((*it).compare(b_end) == 0)
-// 	// 		{
-// 	// 			_chunk_request[bound].push_back(new_c);
-// 	// 			is_end = 1;
-// 	// 		}
-// 	// 		else if (new_data)
-// 	// 		{
-// 	// 			new_c->add_header(*it);
-// 	// 		}
-// 	// 		else if (new_data == 0)
-// 	// 		{
-// 	// 			new_c->append_data(*it);
-// 	// 		}
-// 	// 		else
-// 	// 		{
-// 	// 			std::cout << RED << "none of above " << YELLOW << *it << RESET << std::endl;
-// 	// 		}
-// 	// 	}
-// 	// 	// print_chunk_request(_chunk_request);
-// 	// 	if (is_end)
-// 	// 	{
-// 	// 		return "success";
-// 	// 	}
-// 	// 	return "partial";
-// 	// }
-// 	std::cout << MAGENTA << "EXIT handle chunk request 2" << RESET << std::endl;
-// 	return "success";
-// }

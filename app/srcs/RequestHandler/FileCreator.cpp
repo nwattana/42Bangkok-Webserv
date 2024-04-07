@@ -67,6 +67,8 @@ std::string FileCreator::setFileName(const std::string &fileName)
 void FileCreator::setContent(const std::string &content)
 {
 	_content = content;
+	// clean \r\n from content
+	_content.erase(_content.length() - 2, 2);
 }
 
 void FileCreator::appendContent(const std::string &content)
@@ -79,15 +81,18 @@ int FileCreator::check_file_exist(const std::string &fileName)
 	std::ifstream file(fileName.c_str());
 	if (file.is_open())
 	{
+		std::cout << BLUE << "FILE EXIST " << RESET << std::endl;
 		file.close();
 		return 1;
 	}
+	std::cout << BLUE << "FILE NOT EXIST " << RESET << std::endl;
 	return 0;
 }
 
 int FileCreator::createFile(int method)
 {
 	int res = 0;
+	std::cout << BLUE << "Create File : " << YELLOW << _file_name << RESET << std::endl;
 	if (method == CREATE_FILE)
 	{
 		res = _createFile(_file_name, _content);
@@ -111,4 +116,15 @@ void test_file_creator(void)
 std::string FileCreator::getFileName(void) const
 {
 	return _file_name;
+}
+
+void FileCreator::append_path(std::string path)
+{
+	_file_name = path + _file_name;
+}
+
+void FileCreator::clean(void)
+{
+	_file_name = "";
+	_content = "";
 }

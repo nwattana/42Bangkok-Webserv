@@ -172,8 +172,7 @@ int Server::handleRequest(int sockfd, std::string request) {
 	}
 	this->m_readBuffer[sockfd] = request;
 	// m_requestHandler->read_request(this->m_readBuffer[sockfd]);
-	std::string sep = "\n============================\n";
-	// std::cout << sep << this->m_readBuffer[sockfd] << sep << std::endl;
+	// std::string sep = "\n============================\n";
 	return this->_generateResponse(sockfd);
 }
 

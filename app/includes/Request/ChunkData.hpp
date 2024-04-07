@@ -19,13 +19,17 @@ public:
 	std::string content_disposition;
 	std::string content_type;
 	std::string boundary;
+	std::string file_name;
+	std::string name;
 
 	int append_data(std::string data);
 	std::string get_data(void) const;
-	std::map<std::string, std::string> get_h_map(void);
+	std::map<std::string, std::string> get_h_map(void) const;
 
 	int is_empty;
 	int add_header(std::string h_line);
+	int update_content(void);
+	void set_h_map(std::string key, std::string value);
 
 private:
 	std::map<std::string, std::string> h_map;

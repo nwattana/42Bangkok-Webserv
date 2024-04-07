@@ -2,12 +2,16 @@
 
 Request::Request()
 {
+	_boundary = DEFAULT_BOUNDARY;
+	_header = "";
+	_body = "";
 }
 
 Request::Request(std::string header, std::string body)
 {
 	_header = header;
 	_body = body;
+	_boundary = DEFAULT_BOUNDARY;
 
 	// parse request line
 	std::string request_line = _header.substr(0, _header.find("\r\n"));
@@ -35,17 +39,6 @@ Request &Request::operator=(Request const &rhs)
 
 Request::~Request()
 {
-}
-
-void Request::printSetting(void) const
-{
-	std::cout << "==========REQUEST=============" << std::endl;
-	print_request_line_info();
-	std::cout << "==========HEADER==============" << std::endl;
-	print_header();
-	std::cout << "==========BODY================" << std::endl;
-	print_body();
-	std::cout << "==========/REQUEST============" << std::endl;
 }
 
 void Request::_parse_request_line(std::string line)
@@ -203,13 +196,103 @@ int Request::check_if_multipart(void)
 // return 1 if found boundary
 int Request::check_chunk_done(void)
 {
-	int pos = _body.find("--" + _boundary + "--");
-	if (pos == -1)
+	std::string end=std::string("--" + _boundary + "--" + "\r\n");
+	int b_len = end.length();
+	int spos = _body.length() - b_len;
+	int res, i = 0;
+	std::cout << _body << std::endl;
+	while (b_len > i)
+	{
+		if (_body[spos + i] != end[i])
+		{
+			std::cout << _body[spos + i] << " != " << end[i] << std::endl;
+			res = 0;
+			break;
+		}
+		i++;
+		res = 1;
+	}
+	if (res == 0)
 	{
 		std::cout << BLUE << "Chunked not done " << RESET << std::endl;
 		return (0);
 	}
 	std::cout << GREEN << "Chunked done " << RESET << std::endl;
-	// TODO chunk corrrect position;
 	return (1);
+}
+
+
+// return 1 success 0 not multipart request -1 something error
+int Request::create_chunk_data(void)
+{
+	if (_boundary == DEFAULT_BOUNDARY)
+	{
+		return (0);
+	}
+	std::vector<std::string> temp_con = http_request_split_line(_body), temp_merge;
+	std::vector<std::string>::iterator str_it;
+	std::string sep, end;
+	ChunkData *new_c= NULL;
+	int new_data = 0, is_end = 0;
+	sep = "--" + _boundary + "\r\n";
+	end = "--" + _boundary + "--\r\n";
+	for (str_it=temp_con.begin(); str_it != temp_con.end(); str_it++)
+	{
+		std::cout << GREEN << (*str_it).length() << RESET << std::endl;
+		std::cout << GREEN << sep << RESET << std::endl;
+		if (is_end == 1)
+		{
+			// clean data
+			return (-1);
+		}
+		if ((*str_it).compare(sep) == 0)
+		{
+			if (new_c != NULL)
+			{
+				_chunk_data.push_back(*new_c);
+				delete new_c;
+				new_c = NULL;
+			}
+			new_c = new ChunkData();
+			new_data = 1;
+		}
+		else if ((*str_it).compare("\r\n") == 0)
+		{
+			new_data = 0;
+		}
+		else if ((*str_it).compare(end) == 0)
+		{
+			if(new_c != NULL)
+			{
+				_chunk_data.push_back(*new_c);
+				is_end = 1;
+			}
+		}
+		else if (new_data)
+		{
+			if (new_c->add_header(*str_it))
+			{
+				std::cout << MAGENTA << "ADD NEW H_MAP " << RESET << std::endl;
+			}
+			// new_c->update_content();
+		}
+		else if (new_data == 0)
+		{
+			new_c->append_data(*str_it);
+		}
+		else
+		{
+			std::cerr << RED << "Unexpected token " << *str_it << RESET << std::endl;
+		}
+	}
+	if (is_end)
+	{
+		return (1);
+	}
+	return (0);
+}
+
+std::vector<ChunkData> Request::get_chunk_data(void)
+{
+	return this->_chunk_data;
 }

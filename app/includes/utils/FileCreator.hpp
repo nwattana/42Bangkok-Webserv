@@ -27,8 +27,10 @@ public:
 	void setContent(const std::string& content);
 	void appendContent(const std::string& content);
 	int check_file_exist(const std::string& fileName);
+	void append_path(std::string path);
 
 	std::string getFileName(void) const;
+	void clean(void);
 };
 
 void test_file_creator(void);
