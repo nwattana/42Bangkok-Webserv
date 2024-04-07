@@ -55,6 +55,7 @@ int Server::setupServer() {
 	hints.ai_family = AF_UNSPEC; // use AF_INET6 to force IPv6
 	hints.ai_socktype = SOCK_STREAM;
 	hints.ai_flags = AI_PASSIVE; // use my IP
+
 	// if (this->m_ServerName == "localhost")
 	res = getaddrinfo(NULL, this->m_port.c_str(), &hints, &this->m_serverInfo);
 	// else
@@ -116,7 +117,9 @@ int Server::setupSocket(void) {
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 	printLog("Socket created with fd " + SSTR(sockfd));
-	// bind socket to address
+	
+	// std::vector<std::string > 
+
 	int res = bind(sockfd, this->m_serverInfo->ai_addr, this->m_serverInfo->ai_addrlen);
 	if (res == -1) {
 		std::cerr << "Failed to bind socket" << std::endl;
@@ -258,6 +261,7 @@ void Server::_set_port(ServerConfig& serverConfig)
 
 void Server::_set_server_name(ServerConfig& serverConfig)
 {
+
 	try{
 		this->m_ServerName = serverConfig.getConfig(S_SERVER_NAME)[0];
 	}

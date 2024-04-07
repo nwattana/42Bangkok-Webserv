@@ -106,6 +106,14 @@ int ServerConfig::setDirectiveArgument(std::string str)
 	std::string temp(str);
 
 	this->configs[this->current_set_directive].push_back(str);
+	if (this->current_set_directive == S_LISTEN)
+	{
+		int num = atoi(str.c_str());
+		if (num < 1 || num > 65636)
+			throw PortError("Invalid port :" + str);
+		if (this->configs[this->current_set_directive].size() > 1)
+			throw PortError("Multiple port not allow :" + str);
+	}
 	this->_isSetDirective = SET;
 	return (1);
 }

@@ -110,11 +110,41 @@ void ConfigParser::read_file_config(void)
 		this->m_raw_config += line_trim;
 		this->m_raw_config += '\n';
 	}
+	// check duplicate port set error page
+	std::vector<std::string> _port_list;
 	for (size_t i = 0; i < server_config.size(); i++)
 	{
 		server_config[i].setErrorPage();
+		try
+		{
+			_port_list.push_back(server_config[i].getConfig(S_LISTEN)[0]);
+		}
+		catch (ConfigNotFoundException)
+		{
+			_port_list.push_back(std::string(DEFAULT_PORT));
+		}
 	}
+	std::vector<std::string>::const_iterator it_a, it_b;
+	for (it_a = _port_list.begin();
+		it_a != _port_list.end();
+		it_a++
+	)
+	{
+		for (it_b = it_a + 1;
+			it_b != _port_list.end();
+			it_b++
+		)
+		{
+			if (*it_a == *it_b)
+			{
+				throw PortError("Port Duplicate!!");
+			}
+		}
+	}
+
 	m_file.close();
+
+
 }
 
 void ConfigParser::printServerConfig(void) const
