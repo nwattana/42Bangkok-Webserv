@@ -24,6 +24,8 @@
 #include "RequestHandler.hpp"
 #include "utils.hpp"
 
+#include <signal.h>
+
 #ifndef EXIT_FAILURE
 #define EXIT_FAILURE 1
 #endif

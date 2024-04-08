@@ -17,6 +17,7 @@ MySocket::MySocket(MySocket const &src) {
 }
 
 MySocket &MySocket::operator=(MySocket const &rhs) {
+	std::cout << CYAN << "MY sockket copy constructor call " << RESET << std::endl;
 	if (this != &rhs) {
 		this->m_fd = rhs.m_fd;
 		this->m_isOpen = rhs.m_isOpen;

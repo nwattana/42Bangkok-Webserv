@@ -98,7 +98,7 @@ std::string RequestHandler::read_request(std::string request)
 	std::string response = rule->execute_request(*_current_request);
 	delete _current_request;
 	_current_request = NULL;
-	db_blue("==================================/New Request " + std::string(YELLOW) + SSTR(number_called)+ " times ");
+	db_red("==================================/New Request " + std::string(YELLOW) + SSTR(number_called)+ " times ");
 	return response;
 }
 

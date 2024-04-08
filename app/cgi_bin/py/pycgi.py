@@ -66,7 +66,6 @@ def html_page(content):
     strs += "<h1>Python CGI</h1>"
     strs += content
 
-
     strs += "</body>"
     strs += "</html>"
     return strs

@@ -133,7 +133,9 @@ int Server::startListening(void) {
 	int res = listen(this->m_listener->getFd(), 10);
 	if (res == -1) {
 		std::cerr << "Failed to listen" << std::endl;
-		return -1;
+		// return -1;
+		this->m_isListening = false;
+		return (0);
 	}
 	printLog("Listening on port " + this->m_port);
 	this->m_isListening = true;

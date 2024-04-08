@@ -5,6 +5,9 @@
 # include "ConfigParser.hpp"
 # include <sys/select.h>
 
+# define TO_WRITE 1
+# define TO_READ 0
+
 class ServerManager {
 	public:
 		ServerManager(ServerManager const &src);
@@ -17,13 +20,13 @@ class ServerManager {
 		int setupServer(void);
 		int handleConnection(void);
 		void closeAll(void);
-
+		void recovery_socket_improper_close();
 	private:
 		ServerManager();
 		bool _checkAllConnection(fd_set *readfds, int *loopFd, int *loopServer);
 
 		//utilities bundler
-		void _tooglerw(int sockfd, bool isNowRead);
+		void _toggle_rw(int sockfd, bool isNowRead);
 		int _readBuffer(int sockfd);
 		void _disconnectClient(int sockfd);
 		void _clearBufCache(int fd);

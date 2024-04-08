@@ -31,9 +31,16 @@ void MySocketManager::add(MySocket* socketPtr) {
 }
 
 void MySocketManager::remove(int fd) {
-	this->m_socketList[fd]->closeFd();
-	delete this->m_socketList[fd];
-	this->m_socketList.erase(fd);
+	try{
+
+		this->m_socketList[fd]->closeFd();
+		delete this->m_socketList[fd];
+		this->m_socketList.erase(fd);
+	}
+	catch (std::exception &e)
+	{
+		std::cout << CYAN << e.what() << RESET << std::endl;
+	}
 }
 
 int MySocketManager::closeAll(void) {

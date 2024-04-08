@@ -5,6 +5,8 @@
 #include <vector>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <iostream>
+#include "Constant.hpp"
 
 class MySocket {
 	public:

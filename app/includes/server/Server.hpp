@@ -53,6 +53,10 @@ class Server {
 		bool	isSocketValid(int sockfd);
 		int		getClientMaxSize(void);
 		bool	isListening(void);
+		MySocket *m_listener; // listening socket
+		MySocketManager m_sockMan; //all connection sockets
+
+		std::string getServerName(void) const {return this->m_ServerName + " : " +this->m_port;}
 
 	private:
 		Server();
@@ -63,8 +67,6 @@ class Server {
 		bool m_wouldAutoIdx; //server configurations
 
 		struct addrinfo *m_serverInfo; //address info of server
-		MySocket *m_listener; // listening socket
-		MySocketManager m_sockMan; //all connection sockets
 
 		RequestHandler *m_requestHandler;
 

@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include "utils.hpp"
 
 class MySocketManager{
 	public:
@@ -22,6 +23,7 @@ class MySocketManager{
 		int trySend(int fd, const char *buffer, size_t size, int flags);
 		int getMaxFd(void);
 		bool hasSocket(int fd);
+		std::map<int, MySocket* >* getSocketList(void) { return &this->m_socketList; }
 
 	private:
 		std::map<int, MySocket* > m_socketList;

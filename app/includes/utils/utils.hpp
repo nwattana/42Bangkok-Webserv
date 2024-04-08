@@ -11,7 +11,7 @@
 #include <stdexcept>
 #include "Constant.hpp"
 #include "Exception.hpp"
-
+#include <sys/socket.h>
 
 // Convert int to string dec
 inline std::string SSTR(int x) {
@@ -30,6 +30,7 @@ inline std::string toupper_string(std::string str) {
 
 #ifndef LOG
 # define LOG 2
+# define OHM_LOG 1
 #endif
 
 std::string getReasonPhrase(int statusCode);
@@ -75,3 +76,7 @@ int parse_request_line(std::string request_line);
 
 std::vector<std::string> http_request_split_line(std::string http_request);
 void test_http_request_split_line(void);
+
+
+// socket helper
+int check_sockfd_alive(int sockfd);
