@@ -79,8 +79,8 @@ def html_page(content):
 
     """
     strs += content
-
-
+    strs += generate_calculator()
+    strs += generate_result()
     strs += "</body>"
     strs += "</html>"
     return strs
@@ -104,6 +104,38 @@ def generate_style():
             background-color: rgb(17, 66, 50);
             color:rgb(252, 220, 42)
         }
+    """
+
+def generate_calculator():
+    return """
+        <h1>Calculator</h1>
+        <form action="calculator.cgi" method="post">
+            <label for="num1">Number 1:</label>
+            <input type="number" id="num1" name="num1" required>
+            <br><br>
+            <label for="operator">Operator:</label>
+            <select id="operator" name="operator" required>
+                <option value="add">+</option>
+                <option value="sub">-</option>
+                <option value="mul">*</option>
+                <option value="div">/</option>
+            </select>
+            <br><br>
+            <label for="num2">Number 2:</label>
+            <input type="number" id="num2" name="num2" required>
+            <br>
+            <br>
+            <input type="submit" value="Calculate">
+        </form>
+    """
+
+def generate_result():
+    request = os.environ.get("RAW_REQUEST")
+    result = None
+    result = calculator(request.split("\n")[-1])
+    return f"""
+        <h2>The answer is ...</h2>
+        <h2>{result}</h2>
     """
 
 class HttpRespone:
@@ -500,29 +532,51 @@ def serve_static_file(file_path):
     except Exception as e:
         return HttpRespone.generate_simple_respone(500, str(e))
 
+import urllib.parse
+def calculator(data_str):
+    # Parse the data string using urlparse.parse_qs
+    parsed_data = urllib.parse.parse_qs(data_str)
+
+    num1 = int(parsed_data["num1"][0])
+    num2 = int(parsed_data["num2"][0])
+    operator = parsed_data["operator"][0]
+    result = None
+    if operator == "add":
+        result = num1 + num2
+    elif operator == "sub":
+        result = num1 - num2
+    elif operator == "mul":
+        result = num1 * num2
+    elif operator == "div":
+        if num2 != 0:
+            result = num1 / num2
+        else:
+            result = "Error: Division by zero"
+    return str(result)
+
 import time 
 if __name__ == "__main__":
     try:
 
         request = os.environ.get("RAW_REQUEST")
         a = HttpRequest(request)
-        time.sleep(10)
-        print(serve_env())
+        # time.sleep(10)
+        # print(serve_env())
         # page directory listing
         # page index.html
 
-        # if a.method == "GET":
-        #     if a.path_to_file[-1] == "/" :
-        #         a.path_to_file += "index.html"
-        #     elif a.directory_listing == "enabled":
-        #         directory_listing(a.path_to_file)
-        #         exit(0)
-        #     serve_static_file(a.path_to_file)
-        # else :
-        #     print(HttpRespone.generate_simple_respone(404, a.directory_listing))
-
-        
-        
+        if a.method == "GET":
+            if a.directory_listing == "enabled":
+                directory_listing(a.path_to_file)
+            elif a.path_to_file.split("/")[-1] == "test_post":
+                print(serve_env())
+            elif a.path_to_file[-1] == "/" :
+                print(serve_env())
+            serve_static_file(a.path_to_file)
+        elif a.method == "POST":
+            print(serve_env())
+        else :
+            print(HttpRespone.generate_simple_respone(404, a.directory_listing))
         # directory_listing(os.environ.get("PATH_TO_FILE"))
         exit(0)
     except Exception as e:
