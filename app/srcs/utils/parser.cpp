@@ -86,7 +86,7 @@ std::string uri_parser(std::string uri)
  */
 std::string resolve_double_slash(std::string path)
 {
-	int pos;
+	unsigned long pos;
 
 	pos = path.find("//");
 	while (pos != std::string::npos)
@@ -118,7 +118,7 @@ std::vector<std::string> http_request_split_line(std::string http_request)
 
 void test_http_request_split_line(void)
 {
-	std::string test_str = 
+	std::string test_str =
 	"----------------------------033513928446945409175686\r\nContent-Disposition: form-data; name=\"\"; filename=\"small.txt.txt\"\r\nContent-Type: text/plain\r\n\r\n aaaaaaaaaa\r\n"
 	"----------------------------033513928446945409175686\r\nContent-Disposition:form-data;name =\"\"; filename=\"small.txt.txt\"\r\nContent-Type: text/plain\r\n\r\naaaaaaaaaa\r\n"
 	"----------------------------033513928446945409175686\r\nContent-Disposition: form-data; name=\"\"; filename=\"small.txt.txt\"\r\nContent-Type: text/plain\r\n\r\naaaaaaaaaa\r\n"

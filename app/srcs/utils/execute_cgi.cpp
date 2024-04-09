@@ -5,9 +5,10 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 	int fd[2];
 	pipe(fd);
 	std::string result;
-	struct timeval tv;
+	// struct timeval tv;
+	(void) argc;
 	int status;
-	
+
 	db_blue("DO EXECUTE FILE : " + std::string(YELLOW) + argv[0]);
 
 	pid_t c_pid = fork();
@@ -17,8 +18,8 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 		exit(EXIT_FAILURE);
 	}
 	else if (c_pid == 0)
-	{								
-		close(fd[0]);				
+	{
+		close(fd[0]);
 		dup2(fd[1], STDOUT_FILENO);
 		alarm(1);
 		int res = execve(argv[0], argv, envp);
@@ -33,7 +34,7 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 		exit(1);
 	}
 	else
-	{				
+	{
 		waitpid(c_pid, &status, 0);
 		if (WIFSIGNALED(status))
 		{

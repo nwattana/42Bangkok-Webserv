@@ -50,7 +50,7 @@ ServerConfig &ServerConfig::operator=(ServerConfig const &rhs)
 		this->location_config = rhs.location_config;
 		std::map<int, std::string > temp = rhs.getErrorPage();
 		std::map<int, std::string >::const_iterator it = temp.begin();
-		for (it; it != temp.end(); it++)
+		for (; it != temp.end(); it++)
 		{
 			if ((*it).first < 100)
 				continue;
@@ -169,11 +169,11 @@ int ServerConfig::addLocationBlock(LocationBlock location)
 
 /**
  * @brief Retrieves the configuration for a given directive.
- * 
+ *
  * This function returns the configuration associated with the specified directive.
  * If the directive is found in the map of configurations, the corresponding vector
  * of strings is returned. Otherwise, a ConfigNotFoundException is thrown.
- * 
+ *
  * @param directive The directive to retrieve the configuration for.
  * @return The configuration associated with the directive.
  * @throws ConfigNotFoundException if the directive is not found.
@@ -275,7 +275,7 @@ std::vector<LocationBlock>&  ServerConfig::getLocationConfig(void)
 
 
 /// @brief Be called After done read config file parse error and store in map
-/// @param  
+/// @param
 void ServerConfig::setErrorPage(void)
 {
 
@@ -326,7 +326,7 @@ std::map<int, std::string> ServerConfig::getErrorPage(void) const
 		std::cout << "========================= SERVER CONFIG ::ERROR PAGE " << std::endl;
 	}
 
-	
+
 	return (this->error_page);
 }
 

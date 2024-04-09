@@ -19,6 +19,8 @@ LocationRule::LocationRule(LocationBlock &block, std::string server_dir, std::st
 	set_auto_index(block);
 	_set_cwd();
 	_set_upload(block);
+	this->_host_name = server_name;
+	this->_server_port = server_port;
 }
 
 LocationRule::LocationRule(LocationRule const &src)
@@ -571,12 +573,12 @@ std::string LocationRule::execute_request(Request &request)
 	}
 	return location_generate_simple_response(200);
 }
- 
+
 std::string LocationRule::_build_in_cgi(Request &request)
 {
 	int method = request.get_method();
 	int status = 501;
-	int create_chunk_data = request.create_chunk_data(); 
+	int create_chunk_data = request.create_chunk_data();
 
 
 	db_blue("Build In CGI CALL method : " + std::string(YELLOW) + method_allow_to_string(request.get_method()));
@@ -609,7 +611,7 @@ std::string LocationRule::cgi_call(Request &request)
 	std::cout << GREEN;
 	std::string requested_file = cgi_parse_url(request);
 	std::string raw_request = request.raw_request();
-	
+
 	if (_cgi_script.empty())
 	{
 		std::cerr << "CGI Script not set" << std::endl;

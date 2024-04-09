@@ -201,11 +201,11 @@ std::string LocationBlock::get_directive_str(int directive) const
 
 /**
  * @brief Retrieves the configuration for a given directive.
- * 
+ *
  * This function returns the configuration associated with the specified directive.
  * If the directive is found in the map of configurations, the corresponding vector
  * of strings is returned. Otherwise, a ConfigNotFoundException is thrown.
- * 
+ *
  * @param directive The directive to retrieve the configuration for.
  * @return The configuration associated with the directive.
  * @throws ConfigNotFoundException if the directive is not found.
@@ -254,7 +254,7 @@ void LocationBlock::print_error_page(void) const
 {
 	std::map<int, std::string>::const_iterator it =this->error_page.begin();
 	std::cout << "\t\t FROM Error pages : " << std::endl;
-	for (it ; it != this->error_page.end(); it++)
+	for (; it != this->error_page.end(); it++)
 	{
 		std::cout << "\t\t\t" << it->first << " : " << it->second << std::endl;
 	}

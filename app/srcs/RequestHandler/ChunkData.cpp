@@ -37,10 +37,10 @@ ChunkData::ChunkData(std::string header_part)
 
 
 ChunkData::ChunkData(std::string data, std::string content_disposition, std::string content_type, std::string boundary){
-	data=data;
-	content_disposition=content_disposition;
-	content_type=content_type;
-	boundary=boundary;
+	this->data=data;
+	this->content_disposition=content_disposition;
+	this->content_type=content_type;
+	this->boundary=boundary;
 	is_empty = 0;
 }
 
@@ -66,7 +66,9 @@ ChunkData::ChunkData(ChunkData const &src)
 
 ChunkData& ChunkData::operator=(ChunkData const &src)
 {
-	*this = src;
+	if (this != &src) {
+		// copy
+	}
 	return *this;
 }
 

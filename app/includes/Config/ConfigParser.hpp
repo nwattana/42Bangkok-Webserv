@@ -1,7 +1,26 @@
 #ifndef CONFIGPARSER_HPP
 #define CONFIGPARSER_HPP
 
-#include "Webserv.hpp"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <cstring>
+#include <stdlib.h>
+#include <cctype>
+#include <sstream>
+#include <map>
+#include <vector>
+
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <netdb.h>
+
+#include "utils.hpp"
+
+// #include "Webserv.hpp"
 #include "ServerConfig.hpp"
 #include "LocationBlock.hpp"
 #include "Exception.hpp"

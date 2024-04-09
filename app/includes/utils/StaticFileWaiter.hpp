@@ -18,7 +18,7 @@ private:
 	std::string _path_to_file;
 	std::string _file_extension;
 
-	int extenion_len;
+	unsigned long extenion_len;
 	int is_path_set;
 
 public:

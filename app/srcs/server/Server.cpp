@@ -57,13 +57,13 @@ int Server::setupServer() {
 	hints.ai_flags = AI_PASSIVE; // use my IP
 
 	// if (this->m_ServerName == "localhost")
-	res = getaddrinfo(NULL, this->m_port.c_str(), &hints, &this->m_serverInfo);
+	// res = getaddrinfo(NULL, this->m_port.c_str(), &hints, &this->m_serverInfo);
 	// else
-	// 	res = getaddrinfo(this->m_ServerName.c_str(), this->m_port.c_str(), &hints, &this->m_serverInfo);
-	// if (res != 0) {
-	// 	std::cerr << "getaddrinfo() error: " << gai_strerror(res) << std::endl;
-	// return res;
-	// }
+		res = getaddrinfo(this->m_ServerName.c_str(), this->m_port.c_str(), &hints, &this->m_serverInfo);
+	if (res != 0) {
+		std::cerr << "getaddrinfo() error: " << gai_strerror(res) << std::endl;
+		return res;
+	}
 	return 0;
 }
 
@@ -117,8 +117,8 @@ int Server::setupSocket(void) {
 	fcntl(sockfd, F_SETFL, O_NONBLOCK);
 	setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int));
 	printLog("Socket created with fd " + SSTR(sockfd));
-	
-	// std::vector<std::string > 
+
+	// std::vector<std::string >
 
 	int res = bind(sockfd, this->m_serverInfo->ai_addr, this->m_serverInfo->ai_addrlen);
 	if (res == -1) {
@@ -201,8 +201,8 @@ int Server::_generateResponse(int sockfd, int statusCode)
 }
 
 int Server::sendRespond(int sockfd) {
-	int res = send(sockfd, this->m_writeBuffer[sockfd].c_str(), this->m_writeBuffer[sockfd].length(), 0);
-	if (res != this->m_writeBuffer[sockfd].length()) {
+	ssize_t res = send(sockfd, this->m_writeBuffer[sockfd].c_str(), this->m_writeBuffer[sockfd].length(), 0);
+	if (res != (ssize_t) this->m_writeBuffer[sockfd].length()) {
 		std::cerr << "Failed to send response" << std::endl;
 		return -1;
 	}
@@ -214,11 +214,11 @@ void Server::disconnectClient(int sockfd) {
 }
 
 int Server::closeServer(void) {
-	if (this->m_listener != NULL) {
-		close(this->m_listener->getFd());
-		delete this->m_listener;
-		this->m_listener = NULL;
-	}
+	// if (this->m_listener != NULL) {
+	// 	// close(this->m_listener->getFd());
+	// 	delete this->m_listener;
+	// 	this->m_listener = NULL;
+	// }
 	if (this->m_serverInfo != NULL) {
 		freeaddrinfo(this->m_serverInfo);
 		this->m_serverInfo = NULL;

@@ -1,9 +1,17 @@
 #include "MySocket.hpp"
 
-MySocket::MySocket() : m_fd(-1), m_isOpen(false), m_isConnection(false), m_addrSize(sizeof(this->m_theirAddr)) {
+MySocket::MySocket() {
+	this->m_fd = -1;
+	this->m_isOpen = false;
+	this->m_isConnection = false;
+	this->m_addrSize = sizeof(this->m_theirAddr);
 }
 
-MySocket::MySocket(int fd, bool isConnection, bool isOpen) : m_fd(fd), m_isOpen(isOpen), m_isConnection(isConnection), m_addrSize(sizeof(this->m_theirAddr)) {
+MySocket::MySocket(int fd, bool isConnection, bool isOpen){
+	this->m_fd = fd;
+	this->m_isOpen = isOpen;
+	this->m_isConnection = isConnection;
+	this->m_addrSize = sizeof(this->m_theirAddr);
 }
 
 MySocket::~MySocket() {

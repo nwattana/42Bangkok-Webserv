@@ -4,6 +4,7 @@ ServerManager::ServerManager() {
 }
 
 ServerManager::~ServerManager() {
+	printLog("Closing all servers");
 	this->closeAll();
 }
 
@@ -147,7 +148,7 @@ void ServerManager::recovery_socket_improper_close()
 				db_red("DEBUG: 3");
 				FD_CLR(it2->first, &this->m_readSockSet);
 				db_red("DEBUG: 4");
-				
+
 				// close meth MySocket
 				// it2->second->closeFd();
 
@@ -165,9 +166,15 @@ void ServerManager::recovery_socket_improper_close()
 }
 
 void ServerManager::closeAll(void) {
-	// for (std::vector<Server*>::iterator it = this->m_servList.begin(); it != this->m_servList.end(); it++) {
-	// 	delete *it;
-	// }
+	for (long i = 0; i < (long) this->m_servList.size(); i++) {
+		this->m_servList[i]->closeServer();
+		if (this->m_servList[i] != NULL)
+		{
+			delete this->m_servList[i];
+			this->m_servList[i] = NULL;
+		}
+
+	}
 	this->m_servList.clear();
 	FD_ZERO(&this->m_readSockSet);
 	FD_ZERO(&this->m_writeSockSet);
@@ -235,6 +242,7 @@ int ServerManager::_readBuffer(int sockfd) {
 		this->_toggle_rw(sockfd, TO_WRITE);
 	}
 
+	printLog("Bytes read: " + SSTR(bytesRead));
 	return bytesRead;
 }
 

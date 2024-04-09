@@ -30,6 +30,8 @@
 #define EXIT_FAILURE 1
 #endif
 
+static ConfigParser *g_config;
+static ServerManager *g_serverManager;
 
 
 #endif

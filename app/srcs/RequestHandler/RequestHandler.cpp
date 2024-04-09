@@ -109,7 +109,7 @@ std::string RequestHandler::create_request_object(std::string request)
 {
 	std::string header, body;
 	std::string function_res = "test";
-	// check first line 
+	// check first line
 
 	std::vector<std::string> vec = http_request_split_line(request);
 	// เชค request line
@@ -131,7 +131,7 @@ std::string RequestHandler::create_request_object(std::string request)
 		}
 		_current_request = new Request(header, body);
 	}
-	else 
+	else
 	{
 		if (_current_request == NULL)
 		{
@@ -248,7 +248,7 @@ void RequestHandler::create_defualt_rule(ServerConfig& serverConfig)
 		// std::cerr << "RequestHandler::create_defualt_rule : " << e.what() << " set to default port 8080" << std::endl;
 		_default_rule.set_server_port(DEFAULT_PORT);
 	}
-	
+
 	try{
 		std::string auto_index = serverConfig.getConfig(S_AUTO_INDEX)[0];
 		if (auto_index == "enable")
@@ -279,7 +279,7 @@ void print_chunk_request(std::map<std::string, std::vector<ChunkData*> > data)
 	std::cout << (*it).first << std::endl;
 	std::vector<ChunkData *> v=(*it).second;
 	std::vector<ChunkData *>::iterator vit=v.begin();
-	for (vit; vit != v.end(); vit++)
+	for (; vit != v.end(); vit++)
 	{
 		std::cout << (*vit)->get_data() << std::endl;
 	}

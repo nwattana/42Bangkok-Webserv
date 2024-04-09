@@ -63,7 +63,7 @@ class Server {
 		ServerConfig m_serverConfig; //server configurations
 		std::string m_port; //server configurations
 		std::string m_ServerName; //server configurations
-		int m_clientMaxSize; //server configurations
+		std::string::size_type m_clientMaxSize; //server configurations
 		bool m_wouldAutoIdx; //server configurations
 
 		struct addrinfo *m_serverInfo; //address info of server

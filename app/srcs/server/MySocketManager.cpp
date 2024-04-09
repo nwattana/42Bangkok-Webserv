@@ -47,10 +47,15 @@ int MySocketManager::closeAll(void) {
 	int ret = 0;
 	std::map<int, MySocket* >::iterator it = this->m_socketList.begin();
 	while (it != this->m_socketList.end()) {
+		if (it->second == NULL) {
+			it++;
+			continue;
+		}
 		if (it->second->closeFd() < 0) {
 			ret = -1;
 		}
 		delete it->second;
+		it->second = NULL;
 		it++;
 	}
 	return ret;
