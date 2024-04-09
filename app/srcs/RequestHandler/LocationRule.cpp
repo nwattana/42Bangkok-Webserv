@@ -162,7 +162,7 @@ void LocationRule::_set_root_dir(LocationBlock block, std::string server_dir)
 	{
 		_root_dir = block.getConfig(L_ROOT_DIR)[0];
 	}
-	catch (ConfigNotFoundException)
+	catch (ConfigNotFoundException &e)
 	{
 		_root_dir = server_dir;
 	}
@@ -197,7 +197,7 @@ void LocationRule::_set_upload(LocationBlock block)
 		temp = block.getConfig(L_UPLOAD_PATH)[0];
 		_allow_upload = 1;
 	}
-	catch (ConfigNotFoundException)
+	catch (ConfigNotFoundException &e)
 	{
 		_allow_upload = 0;
 		return;
@@ -234,7 +234,7 @@ void LocationRule::_set_cgi(LocationBlock block, std::string server_dir)
 		}
 		_cgi_handle = 1;
 	}
-	catch (ConfigNotFoundException)
+	catch (ConfigNotFoundException &e)
 	{
 		_cgi_handle = 0;
 		return;
@@ -245,7 +245,7 @@ void LocationRule::_set_cgi(LocationBlock block, std::string server_dir)
 		_cgi_script = _cwd + "/" + block.getConfig(L_CGI_SCRIPT)[0];
 		is_set_cgi_script = 1;
 	}
-	catch (ConfigNotFoundException)
+	catch (ConfigNotFoundException &e)
 	{
 		_cgi_script = server_dir;
 		is_set_cgi_script = 0;
@@ -259,7 +259,7 @@ void LocationRule::_set_index_page(LocationBlock block)
 	{
 		temp = block.getConfig(L_INDEX)[0];
 	}
-	catch (ConfigNotFoundException)
+	catch (ConfigNotFoundException &e)
 	{
 		_index_page = "index.html";
 		_is_set_index_page = 0;
@@ -300,7 +300,7 @@ std::string LocationRule::set_auto_index(LocationBlock &block)
 		temp = block.getConfig(L_AUTOINDEX)[0];
 		temp = ft_strtrim_char_set(temp, ";");
 	}
-	catch (ConfigNotFoundException)
+	catch (ConfigNotFoundException &e)
 	{
 		_auto_index = "disable";
 		return _auto_index;
@@ -494,7 +494,7 @@ std::string LocationRule::_handle_get(Request &request)
 			response.setHeader("Content-Type", static_file_waiter.get_content_type());
 			res = response.getResponse();
 		}
-		catch (FileNotAccessibleException)
+		catch (FileNotAccessibleException &e)
 		{
 			res = location_generate_simple_response(404);
 		}
@@ -537,7 +537,7 @@ std::string LocationRule::_handle_post(Request &request)
 			response.setHeader("Content-Type", static_file_waiter.get_content_type());
 			res = response.getResponse();
 		}
-		catch (FileNotAccessibleException)
+		catch (FileNotAccessibleException &e)
 		{
 			res = location_generate_simple_response(500);
 		}

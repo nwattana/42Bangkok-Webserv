@@ -1,5 +1,10 @@
 #include "Webserv.hpp"
 
+
+static ConfigParser *g_config;
+static ServerManager *g_serverManager;
+
+
 void signalHandler(int signum)
 {
 	std::cout << "Interrupt signal (" << signum << ") received.\n";

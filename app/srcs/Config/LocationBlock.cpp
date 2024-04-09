@@ -245,7 +245,7 @@ void LocationBlock::setErrorPage(void)
 			}
 		}
 	}
-	catch(ConfigNotFoundException)
+	catch(ConfigNotFoundException &e)
 	{}
 	return ;
 }

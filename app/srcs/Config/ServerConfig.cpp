@@ -319,7 +319,7 @@ std::map<int, std::string> ServerConfig::getErrorPage(void) const
 	{
 		std::cout << "========================= SERVER CONFIG::get ERROR PAGE " << std::endl;
 		std::map<int, std::string>::const_iterator it =error_page.begin();
-		for (it; it!=error_page.end(); it++)
+		for (; it!=error_page.end(); it++)
 		{
 			std::cout << RED << (*it).first << ": " << GREEN << (*it).second << std::endl;
 		}

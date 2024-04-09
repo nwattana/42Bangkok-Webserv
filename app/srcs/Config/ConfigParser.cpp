@@ -119,7 +119,7 @@ void ConfigParser::read_file_config(void)
 		{
 			_port_list.push_back(server_config[i].getConfig(S_LISTEN)[0]);
 		}
-		catch (ConfigNotFoundException)
+		catch (ConfigNotFoundException &e)
 		{
 			_port_list.push_back(std::string(DEFAULT_PORT));
 		}

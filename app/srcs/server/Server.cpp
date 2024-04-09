@@ -256,7 +256,7 @@ void Server::_set_port(ServerConfig& serverConfig)
 	try{
 		this->m_port = serverConfig.getConfig(S_LISTEN)[0];
 	}
-	catch(ConfigNotFoundException)
+	catch(ConfigNotFoundException &e)
 	{
 		this->m_port = DEFAULT_PORT;
 	}
@@ -268,7 +268,7 @@ void Server::_set_server_name(ServerConfig& serverConfig)
 	try{
 		this->m_ServerName = serverConfig.getConfig(S_SERVER_NAME)[0];
 	}
-	catch(ConfigNotFoundException)
+	catch(ConfigNotFoundException &e)
 	{
 		this->m_ServerName = DEFAULT_SERVER_NAME;
 	}
@@ -279,7 +279,7 @@ void Server::_set_client_max_size(ServerConfig& serverConfig)
 	try{
 		this->m_clientMaxSize = atoi(serverConfig.getConfig(S_CLIENT_MAX_SIZE)[0].c_str());
 	}
-	catch(ConfigNotFoundException)
+	catch(ConfigNotFoundException &e)
 	{
 		this->m_clientMaxSize = DEFAULT_CLIENT_MAX_SIZE;
 	}
@@ -290,7 +290,7 @@ void Server::_set_auto_index(ServerConfig& serverConfig)
 	try{
 		this->m_wouldAutoIdx = serverConfig.getConfig(S_AUTO_INDEX)[0] == "on";
 	}
-	catch(ConfigNotFoundException)
+	catch(ConfigNotFoundException &e)
 	{
 		this->m_wouldAutoIdx = false;
 	}
