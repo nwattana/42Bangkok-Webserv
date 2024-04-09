@@ -502,23 +502,28 @@ def serve_static_file(file_path):
 
 
 if __name__ == "__main__":
-    request = os.environ.get("RAW_REQUEST")
-    a = HttpRequest(request)
+    try:
 
-    print(serve_env())
-    # page directory listing
-    # page index.html
+        request = os.environ.get("RAW_REQUEST")
+        a = HttpRequest(request)
 
-    # if a.method == "GET":
-    #     if a.path_to_file[-1] == "/" :
-    #         a.path_to_file += "index.html"
-    #     elif a.directory_listing == "enabled":
-    #         directory_listing(a.path_to_file)
-    #         exit(0)
-    #     serve_static_file(a.path_to_file)
-    # else :
-    #     print(HttpRespone.generate_simple_respone(404, a.directory_listing))
+        print(serve_env())
+        # page directory listing
+        # page index.html
 
-    
-    
-    # directory_listing(os.environ.get("PATH_TO_FILE"))
+        # if a.method == "GET":
+        #     if a.path_to_file[-1] == "/" :
+        #         a.path_to_file += "index.html"
+        #     elif a.directory_listing == "enabled":
+        #         directory_listing(a.path_to_file)
+        #         exit(0)
+        #     serve_static_file(a.path_to_file)
+        # else :
+        #     print(HttpRespone.generate_simple_respone(404, a.directory_listing))
+
+        
+        
+        # directory_listing(os.environ.get("PATH_TO_FILE"))
+        exit(0)
+    except Exception as e:
+        exit(1)

@@ -5,6 +5,8 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 	int fd[2];
 	pipe(fd);
 	std::string result;
+	struct timeval tv;
+	int status;
 	
 	db_blue("DO EXECUTE FILE : " + std::string(YELLOW) + argv[0]);
 
@@ -21,6 +23,7 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 		int res = execve(argv[0], argv, envp);
 		free_char_array(argv);
 		free_char_array((char **)envp);
+		alarm(1);
 		if (res == -1)
 		{
 			perror("execve");
@@ -30,9 +33,16 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 		exit(1);
 	}
 	else
-	{				 
+	{				
+		if (WIFSIGNALED(status))
+		{
+			if (WTERMSIG(status) == SIGALRM) {
+				std::cerr << "Timeout reached. The child process took too long to execute." << RESET << std::endl;
+				return "2980f025-918e-42dc-a0bc-843452f04847-timeout"
+			}
+		} 
 		close(fd[1]);
-		waitpid(c_pid, NULL, 0);
+		waitpid(c_pid, &status, 0);
 		// set equal max size 3MB dont let cgi set more than 3MB lol
 		char buffer[3000000];
 		memset(buffer, 0, sizeof(buffer));

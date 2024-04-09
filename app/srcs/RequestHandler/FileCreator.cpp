@@ -136,7 +136,10 @@ int FileCreator::allow_type(std::string type)
 {
 	int res;
 	type = ft_strtrim_char_set(type, "\r\n ");
-	if (type != "text/plain")
-		return 400;
-	return 201;
+	if (type == "text/plain" ||\
+		type == "text/html" || \
+		type == "text/css"
+	)
+		return 201;
+	return 400;
 }

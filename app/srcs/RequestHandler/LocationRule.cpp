@@ -474,6 +474,8 @@ std::string LocationRule::_handle_get(Request &request)
 		db_blue("GET Resource [auto index] [path] : " + std::string(YELLOW) + resource);
 		ExecveAdapter adaptor(resource, std::vector<std::string>());
 		res = execute_cgi(2, adaptor.get_argv(), adaptor.get_envp());
+		if (res == "2980f025-918e-42dc-a0bc-843452f04847-timeout")
+			return location_generate_simple_response(408);
 		Response response(200, res);
 		response.setHeader("Content-Type", "text/html");
 		adaptor.destory();
@@ -587,7 +589,7 @@ std::string LocationRule::_build_in_cgi(Request &request)
 	if (method & DELETE && method & _allow_method)
 	{
 		std::cout << "DELETE FILE " << RESET << std::endl;
-		// status = _handle_delete_file(request);
+		status = _handle_delete_file(request);
 		return location_generate_simple_response(status);
 	}
 
