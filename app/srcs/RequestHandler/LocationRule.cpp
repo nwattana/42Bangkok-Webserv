@@ -649,6 +649,8 @@ std::string LocationRule::cgi_call(Request &request)
 
 
 	std::string res = execute_cgi(2, adaptor.get_argv(), envp);
+	if (res == "2980f025-918e-42dc-a0bc-843452f04847-timeout")
+		return location_generate_simple_response(504);
 
 	std::cout << YELLOW << res << std::endl;
 	adaptor.destory();
@@ -714,7 +716,7 @@ int LocationRule::_handle_upload(Request &request)
 		if (f.allow_type(temp[i].content_type) != 201)
 		{
 			db_red("Not allow Content type to upload");
-			return (400);
+			return (415);
 		}
 
 		if (temp[i].name == "")

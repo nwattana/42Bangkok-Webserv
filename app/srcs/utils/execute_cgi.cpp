@@ -20,10 +20,10 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 	{								
 		close(fd[0]);				
 		dup2(fd[1], STDOUT_FILENO);
+		alarm(1);
 		int res = execve(argv[0], argv, envp);
 		free_char_array(argv);
 		free_char_array((char **)envp);
-		alarm(1);
 		if (res == -1)
 		{
 			perror("execve");
@@ -34,15 +34,18 @@ std::string execute_cgi(int argc, char *argv[], char *const *envp)
 	}
 	else
 	{				
+		waitpid(c_pid, &status, 0);
 		if (WIFSIGNALED(status))
 		{
-			if (WTERMSIG(status) == SIGALRM) {
-				std::cerr << "Timeout reached. The child process took too long to execute." << RESET << std::endl;
-				return "2980f025-918e-42dc-a0bc-843452f04847-timeout"
-			}
-		} 
+			std::cerr << "Timeout reached. The child process took too long to execute." << RESET << std::endl;
+			return "2980f025-918e-42dc-a0bc-843452f04847-timeout";
+		}
+		if (WEXITSTATUS(status) != 0)
+		{
+			std::cout << "exit with code :" << WEXITSTATUS(status) << std::endl;
+			return "2980f025-918e-42dc-a0bc-843452f04847-cgi-error";
+		}
 		close(fd[1]);
-		waitpid(c_pid, &status, 0);
 		// set equal max size 3MB dont let cgi set more than 3MB lol
 		char buffer[3000000];
 		memset(buffer, 0, sizeof(buffer));

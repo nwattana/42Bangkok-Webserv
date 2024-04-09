@@ -141,5 +141,5 @@ int FileCreator::allow_type(std::string type)
 		type == "text/css"
 	)
 		return 201;
-	return 400;
+	return 415;
 }

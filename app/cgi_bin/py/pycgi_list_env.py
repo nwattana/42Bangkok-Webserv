@@ -500,13 +500,13 @@ def serve_static_file(file_path):
     except Exception as e:
         return HttpRespone.generate_simple_respone(500, str(e))
 
-
+import time 
 if __name__ == "__main__":
     try:
 
         request = os.environ.get("RAW_REQUEST")
         a = HttpRequest(request)
-
+        time.sleep(10)
         print(serve_env())
         # page directory listing
         # page index.html
