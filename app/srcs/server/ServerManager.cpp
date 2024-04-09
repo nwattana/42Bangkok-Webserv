@@ -224,10 +224,10 @@ int ServerManager::_readBuffer(int sockfd) {
 	this->m_totalBytesRead[sockfd] += bytesRead;
 
 	// check if the request is too big
-	if (this->m_totalBytesRead[sockfd] > this->m_currServ->getClientMaxSize()) {
-		m_sockStatCode[sockfd] = this->m_currServ->handleRequest(sockfd, this->m_bufCache[sockfd]);
-		this->_toggle_rw(sockfd, true);
-	}
+	// if (this->m_totalBytesRead[sockfd] > this->m_currServ->getClientMaxSize()) {
+	// 	m_sockStatCode[sockfd] = this->m_currServ->handleRequest(sockfd, this->m_bufCache[sockfd]);
+	// 	this->_toggle_rw(sockfd, true);
+	// }
 
 	// check if the request is complete
 	if (this->m_bufCache[sockfd].find("\r\n") != std::string::npos) {

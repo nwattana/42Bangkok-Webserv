@@ -76,7 +76,3 @@ int parse_request_line(std::string request_line);
 
 std::vector<std::string> http_request_split_line(std::string http_request);
 void test_http_request_split_line(void);
-
-
-// socket helper
-int check_sockfd_alive(int sockfd);

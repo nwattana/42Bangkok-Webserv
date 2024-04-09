@@ -174,7 +174,9 @@ int Server::_printHostName(void) {
 
 int Server::handleRequest(int sockfd, std::string request) {
 	if (request.size() > this->m_clientMaxSize) {
-		return this->_generateResponse(413);;
+		this->m_readBuffer[sockfd] = request;
+		printLog("Request size exceeded");
+		return this->_generateResponse(sockfd, 413);
 	}
 	this->m_readBuffer[sockfd] = request;
 	return this->_generateResponse(sockfd);
@@ -197,10 +199,12 @@ int Server::_generateResponse(int sockfd, int statusCode)
 		this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_simple_response("/", 413);
 	else
 		this->m_writeBuffer[sockfd] = this->m_requestHandler->generate_simple_response("/", 404);
+	// printLog("Response:\n" + this->m_writeBuffer[sockfd]);
 	return statusCode;
 }
 
 int Server::sendRespond(int sockfd) {
+	printLog(this->m_writeBuffer[sockfd]);
 	ssize_t res = send(sockfd, this->m_writeBuffer[sockfd].c_str(), this->m_writeBuffer[sockfd].length(), 0);
 	if (res != (ssize_t) this->m_writeBuffer[sockfd].length()) {
 		std::cerr << "Failed to send response" << std::endl;

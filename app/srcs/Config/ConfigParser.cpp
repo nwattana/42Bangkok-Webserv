@@ -145,8 +145,7 @@ void ConfigParser::read_file_config(void)
 	)
 	{
 		for (it_b = it_a + 1;
-			it_
-			b != _port_list.end();
+			it_b != _port_list.end();
 			it_b++
 		)
 		{
