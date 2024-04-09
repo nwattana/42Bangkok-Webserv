@@ -478,6 +478,8 @@ std::string LocationRule::_handle_get(Request &request)
 		res = execute_cgi(2, adaptor.get_argv(), adaptor.get_envp());
 		if (res == "2980f025-918e-42dc-a0bc-843452f04847-timeout")
 			return location_generate_simple_response(408);
+		if (res == "2980f025-918e-42dc-a0bc-843452f04847-cgi-error")
+			return location_generate_simple_response(500);
 		Response response(200, res);
 		response.setHeader("Content-Type", "text/html");
 		adaptor.destory();
@@ -595,7 +597,7 @@ std::string LocationRule::_build_in_cgi(Request &request)
 		return location_generate_simple_response(status);
 	}
 
-	if (method & GET)
+	if (method & GET && method & _allow_method)
 	{
 		return _handle_get(request);
 	}
@@ -653,6 +655,8 @@ std::string LocationRule::cgi_call(Request &request)
 	std::string res = execute_cgi(2, adaptor.get_argv(), envp);
 	if (res == "2980f025-918e-42dc-a0bc-843452f04847-timeout")
 		return location_generate_simple_response(504);
+	if (res == "2980f025-918e-42dc-a0bc-843452f04847-cgi-error")
+		return location_generate_simple_response(500);	
 
 	std::cout << YELLOW << res << std::endl;
 	adaptor.destory();
@@ -710,7 +714,7 @@ int LocationRule::_handle_upload(Request &request)
 	std::vector<ChunkData> temp = request.get_chunk_data();
 	FileCreator f;
 	size_t i = 0, max_size=temp.size();
-	int res;
+	int res = 415;
 
 	while (i < max_size)
 	{
