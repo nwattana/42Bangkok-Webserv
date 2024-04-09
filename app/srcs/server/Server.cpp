@@ -151,6 +151,7 @@ int Server::acceptConnection(void) {
 		return newFd;
 	this->m_sockMan.add(newSocket);
 	printLog("Accepted connection on socket " + SSTR(newFd));
+	fcntl(newFd, F_SETFL, O_NONBLOCK);
 	this->_printPeerName(newSocket);
 	this->_printHostName();
 	return newFd;

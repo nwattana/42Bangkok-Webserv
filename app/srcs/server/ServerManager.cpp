@@ -54,7 +54,7 @@ int ServerManager::setupServer(void) {
 
 int ServerManager::handleConnection(void) {
 	std::cout << CYAN << "Server ready to accept connections" << std::endl;
-	fd_set readfds, writefds, errorfds;
+	fd_set readfds, writefds;
 
 	this->m_isReadLoop = false;
 	int loopFd = 0;
@@ -63,7 +63,6 @@ int ServerManager::handleConnection(void) {
 	for (;;) {
 		FD_ZERO(&readfds);
 		FD_ZERO(&writefds);
-		FD_ZERO(&errorfds);
 
 		if (this->m_isReadLoop) {
 			FD_SET(loopFd, &readfds);
@@ -78,7 +77,7 @@ int ServerManager::handleConnection(void) {
 		}
 
 
-		int res = select(FD_SETSIZE, &readfds, &writefds, &errorfds, &tv);
+		int res = select(FD_SETSIZE, &readfds, &writefds, NULL, &tv);
 		if (res < 0) {
 			db_red("select failed is_read_loop = " + SSTR(this->m_isReadLoop));
 			db_red("Loop fd = " + SSTR(loopFd));
@@ -241,7 +240,10 @@ int ServerManager::_readBuffer(int sockfd) {
 
 void ServerManager::_disconnectClient(int sockfd) {
 	m_currServ->disconnectClient(sockfd);
-	FD_CLR(sockfd, &this->m_readSockSet);
+	if (FD_ISSET(sockfd, &this->m_readSockSet))
+		FD_CLR(sockfd, &this->m_readSockSet);
+	if (FD_ISSET(sockfd, &this->m_writeSockSet))
+		FD_CLR(sockfd, &this->m_writeSockSet);
 	this->m_isReadLoop = false;
 	this->_clearBufCache(sockfd);
 }
