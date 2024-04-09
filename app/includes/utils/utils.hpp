@@ -29,8 +29,8 @@ inline std::string toupper_string(std::string str) {
 }
 
 #ifndef LOG
-# define LOG 5
-# define OHM_LOG 1
+# define LOG 1
+# define OHM_LOG 0
 #endif
 
 std::string getReasonPhrase(int statusCode);

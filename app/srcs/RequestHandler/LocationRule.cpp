@@ -666,7 +666,7 @@ std::string LocationRule::cgi_call(Request &request)
 	std::cout << "PATH TO FILE  : " << _cwd + "/" + requested_file << std::endl;
 	ExecveAdapter adaptor(_cgi_script, std::vector<std::string>());
 	adaptor.add_env("RAW_REQUEST", raw_request);
-	adaptor.add_env("REQUEST_METHOD", "GET");
+	adaptor.add_env("REQUEST_METHOD", method_allow_to_string(request.get_method()));
 	adaptor.add_env("SERVER_PROTOCOL", "HTTP/1.1");
 	adaptor.add_env("HOST_NAME", _host_name);
 	adaptor.add_env("CGI_ROUTE", _handle_route);
@@ -681,17 +681,6 @@ std::string LocationRule::cgi_call(Request &request)
 
 	char **envp = adaptor.get_envp();
 
-	// DEBUG PURPOSE
-	// char **temp;
-	// temp = envp;
-	// print 2 d array
-	// std::cout << BLUE;
-	// while (*temp)
-	// {
-	// 	std::cout << *temp << std::endl;
-	// 	temp++;
-	// }
-	// std::cout << RESET;
 
 
 	std::string res = execute_cgi(2, adaptor.get_argv(), envp);
@@ -700,7 +689,6 @@ std::string LocationRule::cgi_call(Request &request)
 	if (res == "2980f025-918e-42dc-a0bc-843452f04847-cgi-error")
 		return location_generate_simple_response(500);
 
-	std::cout << YELLOW << res << std::endl;
 	adaptor.destory();
 
 	return (res);

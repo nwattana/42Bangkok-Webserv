@@ -5,7 +5,7 @@
 #include <string>
 
 #ifndef SERVERCONFIG_DEBUG
-# define SERVERCONFIG_DEBUG 1
+# define SERVERCONFIG_DEBUG 0
 #endif
 
 

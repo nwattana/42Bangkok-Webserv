@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-import os, sys
+import os
+# import sys
+# import urllib.parse
+# import time 
 
 SUCCESS = 0
 FAILURE = 1
 
+base_url = f"http://{os.environ.get('HOST_NAME')}:{os.environ.get('SERVER_PORT')}{os.environ.get('CGI_ROUTE')}"
 
 def html_list(items):
     strs = ""
@@ -107,9 +111,10 @@ def generate_style():
     """
 
 def generate_calculator():
-    return """
+    host_url  =f"{base_url}test_post/"
+    return f"""
         <h1>Calculator</h1>
-        <form action="calculator.cgi" method="post">
+        <form action="{host_url}" method="POST">
             <label for="num1">Number 1:</label>
             <input type="number" id="num1" name="num1" required>
             <br><br>
@@ -127,10 +132,12 @@ def generate_calculator():
             <br>
             <input type="submit" value="Calculate">
         </form>
-    """
+        """
 
 def generate_result():
-    request = os.environ.get("RAW_REQUEST")
+    request = os.environ.get("RAW_REQUEST", None)
+    if request is None:
+        return ""
     result = None
     result = calculator(request.split("\n")[-1])
     return f"""
@@ -242,7 +249,8 @@ class HttpRespone:
     
     @classmethod
     def generate_simple_respone(cls, code, body=""):
-        return f"""HTTP/1.1 {code} {HttpRespone.HTTP_CODE[code]}\r\nContent-Type: text/html\r\nContent-Length:{len(body)}\r\n\r\n{body}\r\n"""
+        size = len(body)
+        return f"""HTTP/1.1 {code} {HttpRespone.HTTP_CODE[code]}\r\nContent-Type: text/html\r\nContent-Length:{size}\r\n\r\n{body}\r\n"""
 
 
 def serve_env():
@@ -453,26 +461,6 @@ def parse_request():
     return HttpRespone.generate_simple_respone(200, body)
 
 
-def delete_file(file_path):
-	try:
-		os.remove(file_path)
-		response = "<html><body><h1>File '{file_path}' deleted successfully.</h1></body></html>"
-		http_response = HttpRespone.generate_simple_respone(200, response)
-		print(http_response)
-	except FileNotFoundError:
-		response = "<html><body><h1>File '{file_path}' not found.</h1></body></html>"
-		http_response = HttpRespone.generate_simple_respone(404, response)
-		print(http_response)
-	except PermissionError:
-		response = "<html><body><h1>Permission denied to delete file '{file_path}'.</h1></body></html>"
-		http_response = HttpRespone.generate_simple_respone(403, response)
-		print(http_response)
-	except Exception as e:
-		response = f"<html><body><h1>An error occurred while deleting file '{file_path}': {str(e)}</h1></body></html>"
-		http_response = HttpRespone.generate_simple_respone(500, response)
-		print(http_response)
-
-
 class HttpRequest:
     server_protocol = "HTTP/1.1"
     path_to_file = os.environ.get("PATH_TO_FILE")
@@ -532,15 +520,20 @@ def serve_static_file(file_path):
     except Exception as e:
         return HttpRespone.generate_simple_respone(500, str(e))
 
-import urllib.parse
 def calculator(data_str):
-    # Parse the data string using urlparse.parse_qs
-    parsed_data = urllib.parse.parse_qs(data_str)
-
-    num1 = int(parsed_data["num1"][0])
-    num2 = int(parsed_data["num2"][0])
-    operator = parsed_data["operator"][0]
-    result = None
+    data = os.environ.get("RAW_REQUEST", None)
+    if data is None:
+        return "Error: No data received"
+    body = data.split("\r\n\r\n")[-1]
+    arg = body.split("&")
+    m={}
+    for i in arg:
+        v =i.split("=")
+        m[v[0]] = v[1]
+    body += html_table(m.items())
+    num1 = int(m.get("num1", "0"))
+    num2 = int(m.get("num2", "0"))
+    operator = m.get("operator", "add")
     if operator == "add":
         result = num1 + num2
     elif operator == "sub":
@@ -552,32 +545,27 @@ def calculator(data_str):
             result = num1 / num2
         else:
             result = "Error: Division by zero"
-    return str(result)
+    else:
+        result = "Error: Invalid operator :" + operator
+    
+    body += f"<h2>Result: {result}</h2>"
+    return body
 
-import time 
+
 if __name__ == "__main__":
     try:
 
         request = os.environ.get("RAW_REQUEST")
         a = HttpRequest(request)
-        # time.sleep(10)
-        # print(serve_env())
-        # page directory listing
-        # page index.html
+        print(serve_env())
+
 
         if a.method == "GET":
-            if a.directory_listing == "enabled":
-                directory_listing(a.path_to_file)
-            elif a.path_to_file.split("/")[-1] == "test_post":
+            if a.path_to_file.split("/")[-1] == "test_post":
                 print(serve_env())
-            elif a.path_to_file[-1] == "/" :
+        if a.method == "POST":
+            if a.path_to_file.split("/")[-1] == "test_post":
                 print(serve_env())
-            serve_static_file(a.path_to_file)
-        elif a.method == "POST":
-            print(serve_env())
-        else :
-            print(HttpRespone.generate_simple_respone(404, a.directory_listing))
-        # directory_listing(os.environ.get("PATH_TO_FILE"))
         exit(0)
     except Exception as e:
         exit(1)
