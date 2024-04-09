@@ -29,7 +29,7 @@ inline std::string toupper_string(std::string str) {
 }
 
 #ifndef LOG
-# define LOG 2
+# define LOG 5
 # define OHM_LOG 1
 #endif
 

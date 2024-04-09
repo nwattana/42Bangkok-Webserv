@@ -204,7 +204,7 @@ int Server::_generateResponse(int sockfd, int statusCode)
 }
 
 int Server::sendRespond(int sockfd) {
-	printLog(this->m_writeBuffer[sockfd]);
+	// printLog(this->m_writeBuffer[sockfd]);
 	ssize_t res = send(sockfd, this->m_writeBuffer[sockfd].c_str(), this->m_writeBuffer[sockfd].length(), 0);
 	if (res != (ssize_t) this->m_writeBuffer[sockfd].length()) {
 		std::cerr << "Failed to send response" << std::endl;

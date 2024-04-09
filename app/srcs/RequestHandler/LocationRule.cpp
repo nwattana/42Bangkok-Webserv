@@ -329,7 +329,7 @@ std::string LocationRule::generate_resource_GET(std::string uri)
 
 	if (result[result.length() - 1] == '/')
 	{
-		if (_auto_index == "enable" && _is_set_index_page == 0)
+		if (_auto_index == "enable")
 		{
 			// add space for auto index after this will split later
 			result = _auto_index_cgi + " " + result;
@@ -471,6 +471,7 @@ std::string LocationRule::_handle_get(Request &request)
 	std::string resource = generate_resource_GET(request.get_uri());
 
 	// try to read file
+	db_red("GET Resource [path] : " + std::string(YELLOW) + resource);
 	if (resource[resource.length() - 1] == '/' && _auto_index == "enable")
 	{
 		db_blue("GET Resource [auto index] [path] : " + std::string(YELLOW) + resource);
@@ -656,7 +657,7 @@ std::string LocationRule::cgi_call(Request &request)
 	if (res == "2980f025-918e-42dc-a0bc-843452f04847-timeout")
 		return location_generate_simple_response(504);
 	if (res == "2980f025-918e-42dc-a0bc-843452f04847-cgi-error")
-		return location_generate_simple_response(500);	
+		return location_generate_simple_response(500);
 
 	std::cout << YELLOW << res << std::endl;
 	adaptor.destory();
