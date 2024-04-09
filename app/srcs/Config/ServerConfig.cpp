@@ -300,8 +300,7 @@ void ServerConfig::setErrorPage(void)
 	}
 	catch (ConfigNotFoundException &e)
 	{
-		std::cout << "Error Page not found" << std::endl;
-		db_red(e.what());
+		db_blue("Error Page not set");
 	}
 	std::vector<LocationBlock> location = this->getLocationConfig();
 	for (size_t i = 0; i < location.size(); i++)

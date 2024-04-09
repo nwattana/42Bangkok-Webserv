@@ -112,17 +112,31 @@ void ConfigParser::read_file_config(void)
 	}
 	// check duplicate port set error page
 	std::vector<std::string> _port_list;
+	std::string h_and_port;
 	for (size_t i = 0; i < server_config.size(); i++)
 	{
-		server_config[i].setErrorPage();
 		try
 		{
-			_port_list.push_back(server_config[i].getConfig(S_LISTEN)[0]);
+			server_config[i].setErrorPage();
+		}
+		catch (ConfigNotFoundException &e)
+		{		}
+		try{
+			h_and_port = server_config[i].getConfig(S_SERVER_NAME)[0];
 		}
 		catch (ConfigNotFoundException &e)
 		{
-			_port_list.push_back(std::string(DEFAULT_PORT));
+			h_and_port = "localhost";
 		}
+		try
+		{
+			h_and_port += server_config[i].getConfig(S_LISTEN)[0];
+		}
+		catch (ConfigNotFoundException &e)
+		{
+			h_and_port += "80";
+		}
+		_port_list.push_back(h_and_port);
 	}
 	std::vector<std::string>::const_iterator it_a, it_b;
 	for (it_a = _port_list.begin();
@@ -131,7 +145,8 @@ void ConfigParser::read_file_config(void)
 	)
 	{
 		for (it_b = it_a + 1;
-			it_b != _port_list.end();
+			it_
+			b != _port_list.end();
 			it_b++
 		)
 		{
