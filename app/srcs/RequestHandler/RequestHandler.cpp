@@ -15,6 +15,7 @@ RequestHandler::RequestHandler(ServerConfig& serverConfig)
 	create_defualt_rule(serverConfig);
 	std::vector<LocationBlock>& location_configs = serverConfig.getLocationConfig();
 	create_location_rule(location_configs);
+	_current_request= NULL;
 }
 
 RequestHandler::RequestHandler(RequestHandler const &src)
