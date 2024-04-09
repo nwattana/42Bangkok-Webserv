@@ -55,6 +55,8 @@
 #define L_CGI_HANDLER 2
 #define L_CGI_SCRIPT 11
 #define L_INDEX 12
+#define L_REDIRECT 13
+#define L_REDIRECT_URL 14
 
 /*
 * Http Method

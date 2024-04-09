@@ -19,6 +19,7 @@ LocationRule::LocationRule(LocationBlock &block, std::string server_dir, std::st
 	set_auto_index(block);
 	_set_cwd();
 	_set_upload(block);
+	setRedirect(block);
 	this->_host_name = server_name;
 	this->_server_port = server_port;
 }
@@ -60,6 +61,35 @@ void LocationRule::_set_up_default()
 bool LocationRule::operator>(LocationRule const &rhs)
 {
 	return (this->_depth > rhs.get_depth());
+}
+
+
+int LocationRule::setRedirect(LocationBlock &b)
+{
+	try
+	{
+		redirect = b.getConfig(L_REDIRECT)[0];
+	}
+	catch(ConfigNotFoundException &e)
+	{
+		redirect = "disble";
+	}
+	
+	if (redirect != "enable")
+	{
+		return (-1);
+	}
+	try
+	{
+		redirect_url = b.getConfig(L_REDIRECT_URL)[0];
+	}
+	catch(ConfigNotFoundException &e)
+	{
+		redirect_url = "";
+		redirect = "disable";
+		return (-1);
+	}
+	return (1);
 }
 
 bool LocationRule::operator<(LocationRule const &rhs)
@@ -559,6 +589,17 @@ std::string LocationRule::execute_request(Request &request)
 		db_blue("not allow" + _handle_route + method_allow_to_string(method));
 		return location_generate_simple_response(405);
 	}
+
+	if (redirect == "enable")
+	{
+		if (! redirect_url.empty())
+		{
+			Response r(301, redirect_url);
+			r.setHeader("Location", redirect_url);
+			return r.getResponse();
+		}
+	}
+	
 
 	// check route function
 	// directory list

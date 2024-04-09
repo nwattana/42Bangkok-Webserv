@@ -164,7 +164,10 @@ int LocationBlock::check_directive(std::string directive)
 		return (L_INDEX);
 	else if (directive == "error_page")
 		return (L_ERROR_PAGE);
-
+	else if (directive == "redirect")
+		return (L_REDIRECT);
+	else if (directive == "redirect_url")
+		return (L_REDIRECT_URL);
 	return (0);
 }
 
@@ -194,6 +197,10 @@ std::string LocationBlock::get_directive_str(int directive) const
 		return ("method_allow");
 	case L_INDEX:
 		return ("index");
+	case L_REDIRECT:
+		return ("redirect");
+	case L_REDIRECT_URL:
+		return ("redirect_url");
 	default:
 		return ("UNKNOWN");
 	}

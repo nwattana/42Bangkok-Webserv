@@ -52,6 +52,7 @@ class LocationRule{
 		void setUploadPath(std::string upload_path);
 		void setAllowMethod(int allow_method);
 		int setAllowMethod(std::vector<std::string> allow_method);
+		int setRedirect(LocationBlock& block);
 
 		////////////////////////////////////////////// check request object
 		bool match_uri_path(std::string uri) const;
@@ -94,9 +95,14 @@ class LocationRule{
 		//////////////////////////////////////////////  handle error response
 		void set_error_page(std::map<int, std::string> error_page);
 
+
+
 	private:
 		int _is_set_index_page;
 		int is_set_cgi_script;
+
+		std::string redirect;
+		std::string redirect_url;
 		
 		int _depth;
 		std::string _handle_route;
